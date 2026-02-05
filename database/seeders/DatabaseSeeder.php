@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             LeaveTypeSeeder::class,
             ExpenseCategorySeeder::class,
             AccountSeeder::class,
+            SampleDataSeeder::class,
         ]);
     }
 }
