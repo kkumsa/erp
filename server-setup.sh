@@ -20,6 +20,9 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
+
+# server-docker-setup.sh 스크립트 실행하고 와야 함. 그리고 이 스크립트는 끝나야 함.
+
 #===============================================================================
 # 0. Root 권한 확인
 #===============================================================================
@@ -49,7 +52,8 @@ dnf install -y \
     jq \
     policycoreutils-python-utils \
     plocate \
-    setroubleshoot-server
+    setroubleshoot-server \
+    make
 
 log_success "필수 패키지 설치 완료"
 
