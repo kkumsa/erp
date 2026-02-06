@@ -155,6 +155,15 @@ class AdminPanelProvider extends PanelProvider
                             grid-column: 3 !important;
                             grid-row: 1 !important;
                         }
+
+                        /* 사이드바 네비게이션 클릭 잠금 상태 */
+                        .fi-sidebar.is-locked,
+                        .fi-sidebar-nav.is-locked {
+                            pointer-events: none;
+                        }
+                        .fi-sidebar-nav.is-locked a {
+                            cursor: progress !important;
+                        }
                     </style>
                 ')
             )
@@ -262,6 +271,32 @@ class AdminPanelProvider extends PanelProvider
                 fn () => new HtmlString('
                     <script>
                         (function() {
+                            let isNavigating = false;
+                            let pendingUrl = null;
+                            let unlockTimer = null;
+
+                            function getSidebarElements() {
+                                return {
+                                    sidebar: document.querySelector(".fi-sidebar"),
+                                    sidebarNav: document.querySelector(".fi-sidebar-nav"),
+                                };
+                            }
+
+                            function setNavLock(locked) {
+                                const { sidebar, sidebarNav } = getSidebarElements();
+                                if (sidebar) sidebar.classList.toggle("is-locked", locked);
+                                if (sidebarNav) sidebarNav.classList.toggle("is-locked", locked);
+                            }
+
+                            function navigateTo(url) {
+                                if (!url) return;
+                                if (window.Livewire && typeof Livewire.navigate === "function") {
+                                    Livewire.navigate(url);
+                                } else {
+                                    window.location.href = url;
+                                }
+                            }
+
                             function addBackButton() {
                                 // 브레드크럼 찾기 (wrapper 안에 있지 않은 것)
                                 const breadcrumbs = document.querySelector(".fi-breadcrumbs:not(.fi-back-nav-wrapper .fi-breadcrumbs)");
@@ -321,6 +356,47 @@ class AdminPanelProvider extends PanelProvider
                             observer.observe(document.body, {
                                 childList: true,
                                 subtree: true
+                            });
+
+                            document.addEventListener("click", function(e) {
+                                const link = e.target.closest("a");
+                                if (!link) return;
+                                if (!link.href) return;
+                                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                                if (link.target === "_blank") return;
+                                if (!link.closest(".fi-sidebar-nav")) return;
+                                if (!link.href || link.href === window.location.href) return;
+
+                                if (isNavigating) {
+                                    pendingUrl = link.href;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return;
+                                }
+
+                                isNavigating = true;
+                                pendingUrl = null;
+                                setNavLock(true);
+
+                                clearTimeout(unlockTimer);
+                                unlockTimer = setTimeout(function() {
+                                    isNavigating = false;
+                                    setNavLock(false);
+                                }, 8000);
+                            }, true);
+
+                            document.addEventListener("livewire:navigated", function() {
+                                clearTimeout(unlockTimer);
+                                isNavigating = false;
+                                setNavLock(false);
+
+                                if (pendingUrl && pendingUrl !== window.location.href) {
+                                    const nextUrl = pendingUrl;
+                                    pendingUrl = null;
+                                    isNavigating = true;
+                                    setNavLock(true);
+                                    navigateTo(nextUrl);
+                                }
                             });
                         })();
                     </script>

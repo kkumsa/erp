@@ -4,6 +4,7 @@
     'minWidth' => 35,
     'maxWidth' => 75,
     'openEvent' => 'panel-open',
+    'closeEvent' => 'panel-close',
     'show' => false,
     'closeDelayMs' => 300,
 ])
@@ -70,6 +71,7 @@
         }
     }"
     x-on:{{ $openEvent }}.window="pw = parseInt(localStorage.getItem(@js($storageKey))) || @js($defaultWidth); isShown = true; isLoading = true;"
+    x-on:{{ $closeEvent }}.window="if (isShown) { close(); }"
     class="fixed inset-0 z-40 pointer-events-none overflow-hidden"
     x-show="isShown"
     style="display: none;"

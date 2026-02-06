@@ -1,5 +1,18 @@
 <x-filament-panels::page>
-    {{ $this->table }}
+    <div
+        x-data
+        @click="
+            if (!$wire.slideOverMode || !$wire.selectedRecordId) return;
+            const target = $event.target;
+            const tableRoot = target.closest('.fi-ta');
+            if (!tableRoot) return;
+            if (target.closest('tbody tr')) return;
+            if (target.closest('button, a, input, select, textarea, label, [role=button]')) return;
+            window.dispatchEvent(new CustomEvent('panel-close'));
+        "
+    >
+        {{ $this->table }}
+    </div>
 
     <x-slide-over-panel
         storage-key="supplierPanelWidth"
