@@ -305,7 +305,7 @@ class ProjectResource extends Resource
                     ->relationship('manager', 'name'),
             ])
             ->recordUrl(null)
-            ->recordAction('selectProject')
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

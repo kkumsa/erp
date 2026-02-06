@@ -19,25 +19,25 @@ class ListProjects extends ListRecords implements HasInfolists
 
     public bool $slideOverMode = true;
 
-    public ?int $selectedProjectId = null;
+    public ?int $selectedRecordId = null;
 
-    public ?Project $selectedProject = null;
+    public ?Project $selectedRecord = null;
 
-    public function selectProject(int $projectId): void
+    public function selectRecord(int $recordId): void
     {
         if ($this->slideOverMode) {
-            $this->selectedProjectId = $projectId;
-            $this->selectedProject = Project::find($projectId);
-            $this->dispatch('project-selected');
+            $this->selectedRecordId = $recordId;
+            $this->selectedRecord = Project::find($recordId);
+            $this->dispatch('record-selected');
         } else {
-            $this->redirect(ProjectResource::getUrl('view', ['record' => $projectId]));
+            $this->redirect(ProjectResource::getUrl('view', ['record' => $recordId]));
         }
     }
 
     public function closePanel(): void
     {
-        $this->selectedProjectId = null;
-        $this->selectedProject = null;
+        $this->selectedRecordId = null;
+        $this->selectedRecord = null;
     }
 
     public function setSlideOverMode(bool $mode): void
@@ -49,14 +49,14 @@ class ListProjects extends ListRecords implements HasInfolists
         }
     }
 
-    public function projectInfolist(Infolist $infolist): Infolist
+    public function recordInfolist(Infolist $infolist): Infolist
     {
-        if (!$this->selectedProject) {
+        if (!$this->selectedRecord) {
             return $infolist->schema([]);
         }
 
         return ProjectResource::infolist($infolist)
-            ->record($this->selectedProject);
+            ->record($this->selectedRecord);
     }
 
     protected function getHeaderActions(): array

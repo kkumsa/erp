@@ -6,6 +6,8 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -125,6 +127,8 @@ class UserResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('활성화'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -133,6 +137,32 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('사용자 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('name')
+                            ->label('이름'),
+                        Infolists\Components\TextEntry::make('email')
+                            ->label('이메일'),
+                        Infolists\Components\TextEntry::make('roles.name')
+                            ->label('역할')
+                            ->badge()
+                            ->separator(','),
+                        Infolists\Components\TextEntry::make('locale')
+                            ->label('언어'),
+                        Infolists\Components\IconEntry::make('is_active')
+                            ->label('활성화')
+                            ->boolean(),
+                        Infolists\Components\TextEntry::make('created_at')
+                            ->label('가입일')
+                            ->dateTime('Y-m-d'),
+                    ])->columns(2),
             ]);
     }
 

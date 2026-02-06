@@ -3,25 +3,25 @@
     {{ $this->table }}
 
     <x-slide-over-panel
-        storage-key="projectPanelWidth"
+        storage-key="invoicePanelWidth"
         :show="$slideOverMode && $selectedRecordId"
         open-event="record-selected"
     >
         <x-slot name="title">
-            {{ $selectedRecord?->name ?? '프로젝트 상세' }}
+            {{ $selectedRecord?->invoice_number ?? '청구서 상세' }}
         </x-slot>
 
         <x-slot name="headerActions">
             @if($selectedRecordId)
                 <a
-                    href="{{ \App\Filament\Resources\ProjectResource::getUrl('view', ['record' => $selectedRecordId]) }}"
+                    href="{{ \App\Filament\Resources\InvoiceResource::getUrl('view', ['record' => $selectedRecordId]) }}"
                     class="fi-icon-btn relative flex items-center justify-center rounded-lg outline-none transition duration-75 focus-visible:ring-2 h-9 w-9 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
                     title="전체 화면으로 보기"
                 >
                     <x-heroicon-o-arrows-pointing-out class="h-5 w-5" />
                 </a>
                 <a
-                    href="{{ \App\Filament\Resources\ProjectResource::getUrl('edit', ['record' => $selectedRecordId]) }}"
+                    href="{{ \App\Filament\Resources\InvoiceResource::getUrl('edit', ['record' => $selectedRecordId]) }}"
                     class="fi-btn inline-grid grid-flow-col items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold shadow-sm bg-primary-600 text-white hover:bg-primary-500"
                 >
                     <x-heroicon-m-pencil-square class="h-4 w-4" />
@@ -34,17 +34,17 @@
             {{ $this->recordInfolist }}
 
             <div class="mt-6">
-                @livewire(\App\Filament\Resources\ProjectResource\RelationManagers\TasksRelationManager::class, [
+                @livewire(\App\Filament\Resources\InvoiceResource\RelationManagers\ItemsRelationManager::class, [
                     'ownerRecord' => $selectedRecord,
-                    'pageClass' => \App\Filament\Resources\ProjectResource\Pages\ViewProject::class,
-                ], key('tasks-' . $selectedRecordId))
+                    'pageClass' => \App\Filament\Resources\InvoiceResource\Pages\ViewInvoice::class,
+                ], key('items-' . $selectedRecordId))
             </div>
 
             <div class="mt-6">
-                @livewire(\App\Filament\Resources\ProjectResource\RelationManagers\TimesheetsRelationManager::class, [
+                @livewire(\App\Filament\Resources\InvoiceResource\RelationManagers\PaymentsRelationManager::class, [
                     'ownerRecord' => $selectedRecord,
-                    'pageClass' => \App\Filament\Resources\ProjectResource\Pages\ViewProject::class,
-                ], key('timesheets-' . $selectedRecordId))
+                    'pageClass' => \App\Filament\Resources\InvoiceResource\Pages\ViewInvoice::class,
+                ], key('payments-' . $selectedRecordId))
             </div>
         @endif
     </x-slide-over-panel>

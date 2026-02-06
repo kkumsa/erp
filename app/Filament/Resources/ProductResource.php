@@ -6,6 +6,8 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -161,6 +163,8 @@ class ProductResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_stockable')
                     ->label('재고 관리'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -169,6 +173,30 @@ class ProductResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('상품 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('code')->label('코드'),
+                        Infolists\Components\TextEntry::make('name')->label('상품명'),
+                        Infolists\Components\TextEntry::make('category.name')->label('카테고리'),
+                        Infolists\Components\TextEntry::make('unit')->label('단위'),
+                        Infolists\Components\TextEntry::make('barcode')->label('바코드'),
+                        Infolists\Components\TextEntry::make('description')->label('설명')->columnSpanFull(),
+                    ])->columns(2),
+                Infolists\Components\Section::make('가격/재고')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('purchase_price')->label('매입가')->money('KRW'),
+                        Infolists\Components\TextEntry::make('selling_price')->label('판매가')->money('KRW'),
+                        Infolists\Components\TextEntry::make('total_stock')->label('재고'),
+                        Infolists\Components\IconEntry::make('is_stockable')->label('재고 관리')->boolean(),
+                        Infolists\Components\IconEntry::make('is_active')->label('활성화')->boolean(),
+                    ])->columns(3),
             ]);
     }
 

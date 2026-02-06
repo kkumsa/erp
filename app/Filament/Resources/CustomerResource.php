@@ -280,6 +280,8 @@ class CustomerResource extends Resource
                     ->label('담당자')
                     ->relationship('assignedUser', 'name'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

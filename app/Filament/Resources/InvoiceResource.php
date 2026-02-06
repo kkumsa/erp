@@ -269,6 +269,8 @@ class InvoiceResource extends Resource
                     ->label('고객')
                     ->relationship('customer', 'company_name'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

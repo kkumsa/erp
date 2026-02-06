@@ -6,6 +6,8 @@ use App\Filament\Resources\DepartmentResource\Pages;
 use App\Models\Department;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -108,6 +110,8 @@ class DepartmentResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('활성화'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -116,6 +120,23 @@ class DepartmentResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('부서 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('code')->label('코드'),
+                        Infolists\Components\TextEntry::make('name')->label('부서명'),
+                        Infolists\Components\TextEntry::make('parent.name')->label('상위 부서')->placeholder('-'),
+                        Infolists\Components\TextEntry::make('manager.name')->label('부서장')->placeholder('-'),
+                        Infolists\Components\IconEntry::make('is_active')->label('활성화')->boolean(),
+                        Infolists\Components\TextEntry::make('sort_order')->label('정렬 순서'),
+                        Infolists\Components\TextEntry::make('description')->label('설명')->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 

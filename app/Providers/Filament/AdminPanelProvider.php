@@ -168,6 +168,96 @@ class AdminPanelProvider extends PanelProvider
                 scopes: \App\Filament\Resources\ProjectResource\Pages\ListProjects::class,
             )
             ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'customerListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\CustomerResource\Pages\ListCustomers::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'opportunityListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\OpportunityResource\Pages\ListOpportunities::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'contractListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\ContractResource\Pages\ListContracts::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'invoiceListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\InvoiceResource\Pages\ListInvoices::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'userListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\UserResource\Pages\ListUsers::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'supplierListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\SupplierResource\Pages\ListSuppliers::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'productListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\ProductResource\Pages\ListProducts::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'leaveListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\LeaveResource\Pages\ListLeaves::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'employeeListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\EmployeeResource\Pages\ListEmployees::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'departmentListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\DepartmentResource\Pages\ListDepartments::class,
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => new HtmlString('
                     <script>

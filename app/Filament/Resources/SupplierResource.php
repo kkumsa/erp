@@ -6,6 +6,8 @@ use App\Filament\Resources\SupplierResource\Pages;
 use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -171,6 +173,8 @@ class SupplierResource extends Resource
                         '비활성' => '비활성',
                     ]),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -179,6 +183,35 @@ class SupplierResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('공급업체 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('code')->label('코드'),
+                        Infolists\Components\TextEntry::make('company_name')->label('회사명'),
+                        Infolists\Components\TextEntry::make('contact_name')->label('담당자'),
+                        Infolists\Components\TextEntry::make('phone')->label('전화번호'),
+                        Infolists\Components\TextEntry::make('email')->label('이메일'),
+                        Infolists\Components\TextEntry::make('status')->label('상태')->badge(),
+                        Infolists\Components\TextEntry::make('payment_terms')->label('결제 조건')->badge(),
+                        Infolists\Components\TextEntry::make('address')->label('주소')->columnSpanFull(),
+                    ])->columns(2),
+                Infolists\Components\Section::make('결제 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('bank_name')->label('은행명'),
+                        Infolists\Components\TextEntry::make('bank_account')->label('계좌번호'),
+                        Infolists\Components\TextEntry::make('bank_holder')->label('예금주'),
+                        Infolists\Components\TextEntry::make('payment_days')->label('결제 기한')->suffix('일'),
+                    ])->columns(2),
+                Infolists\Components\Section::make('비고')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('note')->label('메모')->columnSpanFull(),
+                    ]),
             ]);
     }
 

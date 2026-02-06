@@ -6,6 +6,8 @@ use App\Filament\Resources\LeaveResource\Pages;
 use App\Models\Leave;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -159,6 +161,8 @@ class LeaveResource extends Resource
                     ->label('휴가 유형')
                     ->relationship('leaveType', 'name'),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\Action::make('approve')
                     ->label('승인')
@@ -198,6 +202,26 @@ class LeaveResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('휴가 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('employee.user.name')->label('직원'),
+                        Infolists\Components\TextEntry::make('leaveType.name')->label('휴가 유형'),
+                        Infolists\Components\TextEntry::make('start_date')->label('시작일')->date('Y-m-d'),
+                        Infolists\Components\TextEntry::make('end_date')->label('종료일')->date('Y-m-d'),
+                        Infolists\Components\TextEntry::make('days')->label('일수')->suffix('일'),
+                        Infolists\Components\TextEntry::make('status')->label('상태')->badge(),
+                        Infolists\Components\TextEntry::make('approver.name')->label('승인자')->placeholder('-'),
+                        Infolists\Components\TextEntry::make('created_at')->label('신청일')->dateTime('Y-m-d H:i'),
+                        Infolists\Components\TextEntry::make('reason')->label('사유')->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('rejection_reason')->label('반려 사유')->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 

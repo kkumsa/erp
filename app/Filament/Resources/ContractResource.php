@@ -323,6 +323,8 @@ class ContractResource extends Resource
                         '마일스톤' => '마일스톤 기반',
                     ]),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

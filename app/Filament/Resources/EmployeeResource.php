@@ -6,6 +6,8 @@ use App\Filament\Resources\EmployeeResource\Pages;
 use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -213,6 +215,8 @@ class EmployeeResource extends Resource
                         '파트타임' => '파트타임',
                     ]),
             ])
+            ->recordUrl(null)
+            ->recordAction('selectRecord')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -221,6 +225,27 @@ class EmployeeResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('직원 정보')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('employee_code')->label('사원번호'),
+                        Infolists\Components\TextEntry::make('user.name')->label('이름'),
+                        Infolists\Components\TextEntry::make('department.name')->label('부서'),
+                        Infolists\Components\TextEntry::make('position')->label('직책'),
+                        Infolists\Components\TextEntry::make('job_title')->label('직급'),
+                        Infolists\Components\TextEntry::make('hire_date')->label('입사일')->date('Y-m-d'),
+                        Infolists\Components\TextEntry::make('employment_type')->label('고용형태')->badge(),
+                        Infolists\Components\TextEntry::make('status')->label('재직상태')->badge(),
+                        Infolists\Components\TextEntry::make('phone')->label('연락처'),
+                        Infolists\Components\TextEntry::make('emergency_contact')->label('비상연락처'),
+                        Infolists\Components\TextEntry::make('address')->label('주소')->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
