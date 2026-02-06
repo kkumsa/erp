@@ -45,12 +45,13 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->navigationGroups([
                 '대시보드',
-                '인사관리',
                 'CRM',
                 '프로젝트',
-                '재무/회계',
+                '인사관리',
                 '구매관리',
+                '재무/회계',
                 '재고관리',
+                '재고/물류',
                 '시스템설정',
             ])
             ->sidebarCollapsibleOnDesktop()
@@ -82,6 +83,23 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn () => new HtmlString('
+                    <script>
+                        /* 네비게이션 그룹 순서 - 렌더 전 CSS order 즉시 적용 (깜빡임 방지) */
+                        (function(){
+                            try {
+                                var order = JSON.parse(localStorage.getItem("erpNavGroupOrder"));
+                                if (!order || !order.length) return;
+                                var css = "";
+                                for (var i = 0; i < order.length; i++) {
+                                    css += ".fi-sidebar-group[data-group-label=" + JSON.stringify(order[i]) + "]{ order:" + i + " !important } ";
+                                }
+                                var s = document.createElement("style");
+                                s.id = "nav-group-order-style";
+                                s.textContent = css;
+                                document.head.appendChild(s);
+                            } catch(e){}
+                        })();
+                    </script>
                     <style>
                         /* 펼친 상태에서 Section description 숨기기 */
                         .fi-section:not(.fi-collapsed) .fi-section-header-description {
@@ -137,12 +155,18 @@ class AdminPanelProvider extends PanelProvider
                             padding-top: 0.5rem;
                             padding-bottom: 0.5rem;
                         }
-                        /* 첫 번째 그룹 외 모든 그룹에 상단 구분선 */
-                        .fi-sidebar-group:not(:first-child) {
+                        /* 모든 그룹에 상단 구분선 (CSS order 사용 시 :first-child가 시각적 순서와 다를 수 있음) */
+                        .fi-sidebar-group {
                             border-top: 1px solid rgb(229 231 235);
                         }
-                        .dark .fi-sidebar-group:not(:first-child) {
+                        .fi-sidebar-group:first-child {
+                            border-top: none;
+                        }
+                        .dark .fi-sidebar-group {
                             border-top-color: rgb(55 65 81);
+                        }
+                        .dark .fi-sidebar-group:first-child {
+                            border-top-color: transparent;
                         }
 
                         /* 테이블을 container query 대상으로 설정 */
@@ -188,6 +212,123 @@ class AdminPanelProvider extends PanelProvider
                             .fi-pagination .fi-pagination-items { display: none !important; }
                             .fi-pagination .fi-pagination-overview { display: none !important; }
                             .fi-pagination > div:has(.fi-pagination-records-per-page-select) { display: none !important; }
+                        }
+
+                        /* ─── 사이드바 그룹 드래그앤드롭 정렬 ─── */
+
+                        /* 드래그 핸들 - 기본 숨김, 편집 모드에서만 표시 */
+                        .fi-sidebar-group .nav-drag-handle {
+                            display: none;
+                            align-items: center;
+                            justify-content: center;
+                            width: 14px;
+                            height: 20px;
+                            flex-shrink: 0;
+                            cursor: grab;
+                            color: rgb(156 163 175);
+                            transition: color 0.15s ease;
+                        }
+                        .fi-sidebar-group .nav-drag-handle:hover {
+                            color: rgb(107 114 128);
+                        }
+                        .fi-sidebar-group .nav-drag-handle:active {
+                            cursor: grabbing;
+                        }
+                        .dark .fi-sidebar-group .nav-drag-handle { color: rgb(107 114 128); }
+                        .dark .fi-sidebar-group .nav-drag-handle:hover { color: rgb(156 163 175); }
+
+                        /* 편집 모드: 핸들 표시 + 그룹 하이라이트 */
+                        .fi-sidebar-nav.nav-reorder-mode .nav-drag-handle {
+                            display: flex;
+                        }
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group {
+                            border-radius: 0.375rem;
+                            transition: background 0.15s ease;
+                        }
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group:hover {
+                            background: rgba(0,0,0,0.03);
+                        }
+                        .dark .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group:hover {
+                            background: rgba(255,255,255,0.03);
+                        }
+                        /* 편집 모드: 그룹 하위 메뉴 접기 */
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group-items {
+                            display: none !important;
+                        }
+                        /* 편집 모드: 그룹 전체 드래그 가능 커서 */
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group {
+                            cursor: grab;
+                        }
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group:active {
+                            cursor: grabbing;
+                        }
+                        /* 편집 모드: 그룹 헤더 클릭(펼침/접힘) 비활성 */
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group-button {
+                            pointer-events: none;
+                        }
+                        /* 편집 모드: 화살표 아이콘 접힌 방향으로 회전 */
+                        .fi-sidebar-nav.nav-reorder-mode .fi-sidebar-group-button svg:last-child {
+                            transform: rotate(0deg) !important;
+                            transition: transform 0.2s ease;
+                        }
+
+                        /* 드래그 중 시각 피드백 */
+                        .fi-sidebar-group.is-dragging { opacity: 0.4; }
+                        .fi-sidebar-group.drag-over-top::before {
+                            content: ""; display: block; height: 2px;
+                            background: rgb(59 130 246); border-radius: 1px; margin-bottom: -2px;
+                        }
+                        .fi-sidebar-group.drag-over-bottom::after {
+                            content: ""; display: block; height: 2px;
+                            background: rgb(59 130 246); border-radius: 1px; margin-top: -2px;
+                        }
+
+                        /* 하단 메뉴 순서 컨트롤 영역 */
+                        .nav-order-controls {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.25rem;
+                            margin-top: 0.75rem;
+                            padding-top: 0.5rem;
+                            border-top: 1px solid rgb(229 231 235);
+                        }
+                        .dark .nav-order-controls { border-top-color: rgb(55 65 81); }
+
+                        .nav-order-btn {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.375rem;
+                            padding: 0.25rem 0.5rem;
+                            font-size: 0.7rem;
+                            color: rgb(156 163 175);
+                            cursor: pointer;
+                            border-radius: 0.375rem;
+                            transition: all 0.15s ease;
+                            user-select: none;
+                        }
+                        .nav-order-btn:hover {
+                            color: rgb(107 114 128);
+                            background: rgba(0,0,0,0.04);
+                        }
+                        .dark .nav-order-btn:hover {
+                            color: rgb(156 163 175);
+                            background: rgba(255,255,255,0.04);
+                        }
+                        /* 순서적용 버튼 (편집 모드 활성) */
+                        .nav-order-btn.is-editing {
+                            color: rgb(59 130 246);
+                            background: rgba(59 130 246, 0.08);
+                        }
+                        .nav-order-btn.is-editing:hover {
+                            background: rgba(59 130 246, 0.15);
+                        }
+                        /* 순서 초기화 버튼 */
+                        .nav-order-reset {
+                            display: none;
+                        }
+                        .nav-order-reset.is-visible {
+                            display: flex;
                         }
 
                         /* 사이드바 네비게이션 클릭 잠금 상태 */
@@ -417,9 +558,335 @@ class AdminPanelProvider extends PanelProvider
                 scopes: \App\Filament\Resources\ProductCategoryResource\Pages\ListProductCategories::class,
             )
             ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn () => new HtmlString('
+                    <div class="nav-order-controls" id="nav-order-controls">
+                        <div class="nav-order-btn nav-order-toggle-btn" id="nav-order-toggle">
+                            <span class="nav-order-toggle-icon" id="nav-order-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                            </span>
+                            <span class="nav-order-toggle-label" id="nav-order-label">순서변경</span>
+                        </div>
+                        <div class="nav-order-btn nav-order-reset" id="nav-order-reset">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            순서 초기화
+                        </div>
+                    </div>
+                ')
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => new HtmlString('
                     <script>
+                        /* ── 네비게이션 그룹 순서 변경 (토글 모드 + 서버 동기화) ── */
+                        (function() {
+                            var STORAGE_KEY = "erpNavGroupOrder";
+                            var API_BASE = "/admin/api/preferences";
+                            var PREF_KEY = "nav_group_order";
+                            var dragState = { group: null, label: "" };
+                            var saveTimer = null;
+                            var serverSynced = false;
+                            var handlesAdded = false;
+                            var editMode = false;
+
+                            /* ─── 유틸 ─── */
+                            function getLocal() {
+                                try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; }
+                                catch(e) { return null; }
+                            }
+                            function setLocal(arr) {
+                                if (arr && arr.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+                                else localStorage.removeItem(STORAGE_KEY);
+                            }
+                            function csrf() {
+                                var m = document.querySelector("meta[name=csrf-token]");
+                                return m ? m.getAttribute("content") : "";
+                            }
+
+                            /* ─── CSS order 적용 ─── */
+                            function applyCss(arr) {
+                                var el = document.getElementById("nav-group-order-style");
+                                if (!arr || !arr.length) {
+                                    if (el) el.remove();
+                                    updateResetBtn(false);
+                                    return;
+                                }
+                                var css = "";
+                                for (var i = 0; i < arr.length; i++) {
+                                    css += ".fi-sidebar-group[data-group-label=" + JSON.stringify(arr[i]) + "]{ order:" + i + " !important } ";
+                                }
+                                if (!el) { el = document.createElement("style"); el.id = "nav-group-order-style"; document.head.appendChild(el); }
+                                el.textContent = css;
+                                updateResetBtn(true);
+                            }
+
+                            /* ─── 서버 저장 (디바운스 500ms) ─── */
+                            function saveServer(arr) {
+                                clearTimeout(saveTimer);
+                                saveTimer = setTimeout(function() {
+                                    fetch(API_BASE, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf(), "Accept": "application/json" },
+                                        body: JSON.stringify({ key: PREF_KEY, value: arr })
+                                    }).catch(function(){});
+                                }, 500);
+                            }
+
+                            /* ─── 저장 + 반영 ─── */
+                            function save(arr) {
+                                setLocal(arr);
+                                applyCss(arr);
+                                saveServer(arr);
+                            }
+
+                            /* ─── 순서 초기화 ─── */
+                            function resetOrder() {
+                                setLocal(null);
+                                applyCss(null);
+                                saveServer(null);
+                                exitEditMode();
+                            }
+
+                            /* ─── 서버 동기화 (최초 1회) ─── */
+                            function syncServer() {
+                                if (serverSynced) return;
+                                serverSynced = true;
+                                fetch(API_BASE + "/" + encodeURIComponent(PREF_KEY), { headers: { "Accept": "application/json" } })
+                                    .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+                                    .then(function(data) {
+                                        var sv = data.value;
+                                        if (sv && Array.isArray(sv) && sv.length) {
+                                            setLocal(sv);
+                                            applyCss(sv);
+                                        } else {
+                                            var lc = getLocal();
+                                            if (lc && lc.length) saveServer(lc);
+                                        }
+                                    })
+                                    .catch(function(){});
+                            }
+
+                            /* ─── 시각적 순서 (CSS order 기준) ─── */
+                            function visualOrder() {
+                                var c = document.querySelector(".fi-sidebar-nav-groups");
+                                if (!c) return [];
+                                var gs = Array.from(c.querySelectorAll(":scope > .fi-sidebar-group"));
+                                gs.sort(function(a, b) { return (parseInt(getComputedStyle(a).order) || 0) - (parseInt(getComputedStyle(b).order) || 0); });
+                                return gs.map(function(g) { return g.dataset.groupLabel || ""; }).filter(Boolean);
+                            }
+
+                            /* ─── 편집 모드 전환 ─── */
+                            function setGroupsDraggable(v) {
+                                var c = document.querySelector(".fi-sidebar-nav-groups");
+                                if (!c) return;
+                                c.querySelectorAll(":scope > .fi-sidebar-group").forEach(function(g) {
+                                    if (v) g.setAttribute("draggable", "true");
+                                    else g.removeAttribute("draggable");
+                                });
+                            }
+
+                            function enterEditMode() {
+                                editMode = true;
+                                var nav = document.querySelector(".fi-sidebar-nav");
+                                if (nav) nav.classList.add("nav-reorder-mode");
+                                setGroupsDraggable(true);
+                                updateToggleBtn();
+                            }
+
+                            function exitEditMode() {
+                                editMode = false;
+                                var nav = document.querySelector(".fi-sidebar-nav");
+                                if (nav) nav.classList.remove("nav-reorder-mode");
+                                setGroupsDraggable(false);
+                                updateToggleBtn();
+                            }
+
+                            function toggleEditMode() {
+                                if (editMode) {
+                                    /* 순서적용: 현재 CSS order 기준 순서를 저장 */
+                                    var order = visualOrder();
+                                    if (order.length) save(order);
+                                    exitEditMode();
+                                } else {
+                                    enterEditMode();
+                                }
+                            }
+
+                            /* ─── 토글 버튼 UI 업데이트 ─── */
+                            function updateToggleBtn() {
+                                var btn = document.getElementById("nav-order-toggle");
+                                var icon = document.getElementById("nav-order-icon");
+                                var label = document.getElementById("nav-order-label");
+                                if (!btn) return;
+                                if (editMode) {
+                                    btn.classList.add("is-editing");
+                                    if (icon) icon.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>";
+                                    if (label) label.textContent = "순서적용";
+                                } else {
+                                    btn.classList.remove("is-editing");
+                                    if (icon) icon.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21 16-4 4-4-4\"/><path d=\"M17 20V4\"/><path d=\"m3 8 4-4 4 4\"/><path d=\"M7 4v16\"/></svg>";
+                                    if (label) label.textContent = "순서변경";
+                                }
+                            }
+
+                            /* ─── 리셋 버튼 표시/숨김 ─── */
+                            function updateResetBtn(hasOrder) {
+                                var b = document.getElementById("nav-order-reset");
+                                if (b) b.classList.toggle("is-visible", hasOrder);
+                            }
+
+                            /* ─── 사이드바 준비 확인 ─── */
+                            function sidebarReady() {
+                                return !!document.querySelector(".fi-sidebar-nav-groups");
+                            }
+
+                            /* ─── 그룹에 핸들 없는지 확인 ─── */
+                            function needsHandles() {
+                                var btns = document.querySelectorAll(".fi-sidebar-group .fi-sidebar-group-button");
+                                if (!btns.length) return false;
+                                for (var i = 0; i < btns.length; i++) {
+                                    if (!btns[i].querySelector(".nav-drag-handle")) return true;
+                                }
+                                return false;
+                            }
+
+                            /* ─── 하단 컨트롤 영역 (렌더 훅으로 이미 HTML 존재, 이벤트만 연결) ─── */
+                            var controlsBound = false;
+                            function bindControls() {
+                                if (controlsBound) return;
+                                var toggleBtn = document.getElementById("nav-order-toggle");
+                                var resetBtn = document.getElementById("nav-order-reset");
+                                if (!toggleBtn) return;
+
+                                toggleBtn.addEventListener("click", toggleEditMode);
+                                if (resetBtn) resetBtn.addEventListener("click", resetOrder);
+                                controlsBound = true;
+                                updateResetBtn(!!getLocal());
+                            }
+
+                            /* ─── 드래그앤드롭 핸들 추가 ─── */
+                            function addHandles() {
+                                var container = document.querySelector(".fi-sidebar-nav-groups");
+                                if (!container) return;
+
+                                var groups = container.querySelectorAll(":scope > .fi-sidebar-group");
+                                groups.forEach(function(group) {
+                                    var hdr = group.querySelector(".fi-sidebar-group-button");
+                                    if (!hdr || hdr.querySelector(".nav-drag-handle")) return;
+
+                                    /* 핸들 생성 (시각적 표시만, 드래그는 그룹 전체에서 가능) */
+                                    var h = document.createElement("div");
+                                    h.className = "nav-drag-handle";
+                                    h.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><circle cx=\"8\" cy=\"4\" r=\"2\"/><circle cx=\"16\" cy=\"4\" r=\"2\"/><circle cx=\"8\" cy=\"12\" r=\"2\"/><circle cx=\"16\" cy=\"12\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/><circle cx=\"16\" cy=\"20\" r=\"2\"/></svg>";
+
+                                    /* dragstart — 편집 모드에서만 허용 */
+                                    group.addEventListener("dragstart", function(e) {
+                                        if (!editMode) { e.preventDefault(); return; }
+                                        dragState.group = group;
+                                        dragState.label = group.dataset.groupLabel || "";
+                                        group.classList.add("is-dragging");
+                                        e.dataTransfer.effectAllowed = "move";
+                                        e.dataTransfer.setData("text/plain", dragState.label);
+                                    });
+
+                                    /* dragend */
+                                    group.addEventListener("dragend", function() {
+                                        group.classList.remove("is-dragging");
+                                        dragState.group = null;
+                                        dragState.label = "";
+                                        container.querySelectorAll(".drag-over-top,.drag-over-bottom").forEach(function(g) {
+                                            g.classList.remove("drag-over-top", "drag-over-bottom");
+                                        });
+                                    });
+
+                                    /* dragover */
+                                    group.addEventListener("dragover", function(e) {
+                                        if (!dragState.group || dragState.group === group) return;
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = "move";
+                                        var mid = group.getBoundingClientRect().top + group.getBoundingClientRect().height / 2;
+                                        group.classList.remove("drag-over-top", "drag-over-bottom");
+                                        group.classList.add(e.clientY < mid ? "drag-over-top" : "drag-over-bottom");
+                                    });
+
+                                    /* dragleave */
+                                    group.addEventListener("dragleave", function(e) {
+                                        if (!group.contains(e.relatedTarget)) {
+                                            group.classList.remove("drag-over-top", "drag-over-bottom");
+                                        }
+                                    });
+
+                                    /* drop — 순서 계산 후 CSS 적용 (아직 서버 저장 안함 — 순서적용 클릭 시 저장) */
+                                    group.addEventListener("drop", function(e) {
+                                        e.preventDefault();
+                                        if (!dragState.group || dragState.group === group) return;
+                                        group.classList.remove("drag-over-top", "drag-over-bottom");
+
+                                        var tgtLabel = group.dataset.groupLabel || "";
+                                        var order = visualOrder();
+                                        var from = order.indexOf(dragState.label);
+                                        if (from === -1) return;
+                                        order.splice(from, 1);
+
+                                        var to = order.indexOf(tgtLabel);
+                                        if (to === -1) return;
+
+                                        var mid = group.getBoundingClientRect().top + group.getBoundingClientRect().height / 2;
+                                        if (e.clientY >= mid) to++;
+                                        order.splice(to, 0, dragState.label);
+
+                                        /* CSS만 즉시 적용 (로컬/서버 저장은 "순서적용" 클릭 시) */
+                                        setLocal(order);
+                                        applyCss(order);
+                                    });
+
+                                    hdr.insertBefore(h, hdr.firstChild);
+                                });
+
+                                bindControls();
+                                handlesAdded = true;
+                            }
+
+                            /* (draggable은 enterEditMode/exitEditMode에서 일괄 관리) */
+
+                            /* ─── 초기화 & 폴링 ─── */
+                            var bootAttempts = 0;
+                            function boot() {
+                                if (!sidebarReady()) {
+                                    if (++bootAttempts < 40) setTimeout(boot, 150);
+                                    return;
+                                }
+                                bindControls();
+                                if (needsHandles()) addHandles();
+                                syncServer();
+                            }
+
+                            /* ─── DOM 변경 감지 ─── */
+                            var obs = new MutationObserver(function() {
+                                if (!controlsBound) bindControls();
+                                if (needsHandles()) addHandles();
+                            });
+
+                            function observe() {
+                                var target = document.querySelector(".fi-sidebar");
+                                if (target) obs.observe(target, { childList: true, subtree: true });
+                            }
+
+                            /* 초기 실행 */
+                            boot();
+                            observe();
+
+                            /* Livewire 네비게이션 후 재실행 */
+                            document.addEventListener("livewire:navigated", function() {
+                                handlesAdded = false;
+                                controlsBound = false;
+                                editMode = false;
+                                bootAttempts = 0;
+                                setTimeout(function() { boot(); observe(); }, 100);
+                            });
+                        })();
+
+                        /* ── 네비게이션 쓰로틀링 & 뒤로가기 버튼 ── */
                         (function() {
                             let isNavigating = false;
                             let navQueue = [];
