@@ -11,9 +11,14 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Traits\HasResourcePermissions;
 
 class ProductResource extends Resource
 {
+    use HasResourcePermissions;
+
+    protected static ?string $permissionPrefix = 'product';
+
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';

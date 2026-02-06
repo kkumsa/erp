@@ -11,9 +11,14 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Traits\HasResourcePermissions;
 
 class OpportunityResource extends Resource
 {
+    use HasResourcePermissions;
+
+    protected static ?string $permissionPrefix = 'opportunity';
+
     protected static ?string $model = Opportunity::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';

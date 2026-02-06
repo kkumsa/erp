@@ -12,9 +12,14 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Traits\HasResourcePermissions;
 
 class InvoiceResource extends Resource
 {
+    use HasResourcePermissions;
+
+    protected static ?string $permissionPrefix = 'invoice';
+
     protected static ?string $model = Invoice::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';

@@ -12,9 +12,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Traits\HasResourcePermissions;
 
 class LeaveResource extends Resource
 {
+    use HasResourcePermissions;
+
+    protected static ?string $permissionPrefix = 'leave';
+
     protected static ?string $model = Leave::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';

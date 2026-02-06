@@ -59,6 +59,13 @@
                     'pageClass' => \App\Filament\Resources\CustomerResource\Pages\ViewCustomer::class,
                 ], key('opportunities-' . $selectedRecordId))
             </div>
+
+            <div class="mt-6">
+                <x-activity-log-panel
+                    :subject-type="get_class($selectedRecord)"
+                    :subject-id="$selectedRecordId"
+                />
+            </div>
         @endif
     </x-slide-over-panel>
 </x-filament-panels::page>

@@ -284,6 +284,105 @@ class AdminPanelProvider extends PanelProvider
                 scopes: \App\Filament\Resources\DepartmentResource\Pages\ListDepartments::class,
             )
             ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'leadListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\LeadResource\Pages\ListLeads::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'expenseListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\ExpenseResource\Pages\ListExpenses::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'paymentListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\PaymentResource\Pages\ListPayments::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'purchaseOrderListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\PurchaseOrderResource\Pages\ListPurchaseOrders::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'warehouseListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\WarehouseResource\Pages\ListWarehouses::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'stockListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\StockResource\Pages\ListStocks::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'attendanceListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\AttendanceResource\Pages\ListAttendances::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'accountListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\AccountResource\Pages\ListAccounts::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'leaveTypeListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\LeaveTypeResource\Pages\ListLeaveTypes::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'expenseCategoryListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\ExpenseCategoryResource\Pages\ListExpenseCategories::class,
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'productCategoryListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
+                scopes: \App\Filament\Resources\ProductCategoryResource\Pages\ListProductCategories::class,
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn () => new HtmlString('
                     <script>

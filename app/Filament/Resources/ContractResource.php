@@ -11,9 +11,14 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Traits\HasResourcePermissions;
 
 class ContractResource extends Resource
 {
+    use HasResourcePermissions;
+
+    protected static ?string $permissionPrefix = 'contract';
+
     protected static ?string $model = Contract::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';

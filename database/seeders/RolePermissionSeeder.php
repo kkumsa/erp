@@ -38,6 +38,8 @@ class RolePermissionSeeder extends Seeder
             'purchase_order' => ['view', 'create', 'update', 'delete', 'approve'],
             'product' => ['view', 'create', 'update', 'delete'],
             'stock' => ['view', 'create', 'update', 'delete', 'adjust'],
+            'warehouse' => ['view', 'create', 'update', 'delete'],
+            'account' => ['view', 'create', 'update', 'delete'],
             'report' => ['view', 'export'],
             'setting' => ['view', 'update'],
         ];
@@ -77,6 +79,10 @@ class RolePermissionSeeder extends Seeder
             'project.view', 'project.create', 'project.update',
             'task.view', 'task.create', 'task.update', 'task.delete',
             'timesheet.view', 'timesheet.create', 'timesheet.update', 'timesheet.approve',
+            'supplier.view',
+            'product.view',
+            'warehouse.view',
+            'stock.view',
             'report.view', 'report.export',
         ])->get();
         $manager->syncPermissions($managerPermissions);
@@ -90,6 +96,9 @@ class RolePermissionSeeder extends Seeder
             'payment.view', 'payment.create', 'payment.update', 'payment.delete',
             'supplier.view', 'supplier.create', 'supplier.update',
             'purchase_order.view', 'purchase_order.create', 'purchase_order.update', 'purchase_order.approve',
+            'account.view', 'account.create', 'account.update', 'account.delete',
+            'warehouse.view',
+            'stock.view',
             'report.view', 'report.export',
         ])->get();
         $accountant->syncPermissions($accountantPermissions);

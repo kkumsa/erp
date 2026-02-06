@@ -45,6 +45,13 @@
 
         @if($selectedRecordId)
             {{ $this->recordInfolist }}
+
+            <div class="mt-6">
+                <x-activity-log-panel
+                    :subject-type="get_class($selectedRecord)"
+                    :subject-id="$selectedRecordId"
+                />
+            </div>
         @endif
     </x-slide-over-panel>
 </x-filament-panels::page>
