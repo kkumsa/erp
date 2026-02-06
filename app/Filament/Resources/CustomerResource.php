@@ -7,6 +7,8 @@ use App\Filament\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -118,6 +120,95 @@ class CustomerResource extends Resource
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('기업 정보')
+                    ->id('customer-info')
+                    ->description(fn ($record) => $record->company_name)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('company_name')
+                            ->label('회사명'),
+
+                        Infolists\Components\TextEntry::make('business_number')
+                            ->label('사업자번호'),
+
+                        Infolists\Components\TextEntry::make('representative')
+                            ->label('대표자'),
+
+                        Infolists\Components\TextEntry::make('industry')
+                            ->label('업종'),
+
+                        Infolists\Components\TextEntry::make('business_type')
+                            ->label('업태'),
+
+                        Infolists\Components\TextEntry::make('assignedUser.name')
+                            ->label('담당자'),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('연락처')
+                    ->id('customer-contact')
+                    ->description(fn ($record) => $record->phone ?? '-')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('phone')
+                            ->label('전화번호'),
+
+                        Infolists\Components\TextEntry::make('fax')
+                            ->label('팩스'),
+
+                        Infolists\Components\TextEntry::make('email')
+                            ->label('이메일'),
+
+                        Infolists\Components\TextEntry::make('website')
+                            ->label('웹사이트')
+                            ->url(fn ($record) => $record->website),
+
+                        Infolists\Components\TextEntry::make('address')
+                            ->label('주소')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('분류')
+                    ->id('customer-category')
+                    ->description(fn ($record) => $record->type)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('type')
+                            ->label('고객 유형')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                '잠재고객' => 'gray',
+                                '고객' => 'success',
+                                'VIP' => 'warning',
+                                '휴면' => 'danger',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('status')
+                            ->label('상태')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                '활성' => 'success',
+                                '비활성' => 'gray',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('note')
+                            ->label('메모')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
             ]);
     }
 

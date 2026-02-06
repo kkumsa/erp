@@ -7,6 +7,8 @@ use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -107,6 +109,99 @@ class InvoiceResource extends Resource
                             ->label('결제 조건')
                             ->rows(2),
                     ])->columns(2),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('청구서 정보')
+                    ->id('invoice-info')
+                    ->description(fn ($record) => $record->invoice_number)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('invoice_number')
+                            ->label('청구서 번호'),
+
+                        Infolists\Components\TextEntry::make('customer.company_name')
+                            ->label('고객'),
+
+                        Infolists\Components\TextEntry::make('contract.title')
+                            ->label('계약'),
+
+                        Infolists\Components\TextEntry::make('project.name')
+                            ->label('프로젝트'),
+
+                        Infolists\Components\TextEntry::make('issue_date')
+                            ->label('발행일')
+                            ->date('Y-m-d'),
+
+                        Infolists\Components\TextEntry::make('due_date')
+                            ->label('납부기한')
+                            ->date('Y-m-d')
+                            ->color(fn ($record) => $record->is_overdue ? 'danger' : null),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('상태')
+                    ->id('invoice-status')
+                    ->description(fn ($record) => $record->status)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('status')
+                            ->label('상태')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                '초안' => 'gray',
+                                '발행' => 'info',
+                                '부분결제' => 'warning',
+                                '결제완료' => 'success',
+                                '연체' => 'danger',
+                                '취소' => 'gray',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('subtotal')
+                            ->label('공급가액')
+                            ->money('KRW'),
+
+                        Infolists\Components\TextEntry::make('tax_amount')
+                            ->label('세액')
+                            ->money('KRW'),
+
+                        Infolists\Components\TextEntry::make('total_amount')
+                            ->label('합계')
+                            ->money('KRW'),
+
+                        Infolists\Components\TextEntry::make('paid_amount')
+                            ->label('결제액')
+                            ->money('KRW'),
+
+                        Infolists\Components\TextEntry::make('balance')
+                            ->label('잔액')
+                            ->money('KRW')
+                            ->state(fn ($record) => $record->total_amount - $record->paid_amount),
+                    ])
+                    ->columns(3)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('비고')
+                    ->id('invoice-note')
+                    ->description(fn ($record) => $record->note ? mb_substr($record->note, 0, 30) . (mb_strlen($record->note) > 30 ? '...' : '') : '-')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('note')
+                            ->label('메모')
+                            ->placeholder('-'),
+
+                        Infolists\Components\TextEntry::make('terms')
+                            ->label('결제 조건')
+                            ->placeholder('-'),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
             ]);
     }
 

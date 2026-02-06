@@ -7,6 +7,8 @@ use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -121,6 +123,99 @@ class ProjectResource extends Resource
                             ->minValue(0)
                             ->maxValue(100),
                     ])->columns(4),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('프로젝트 정보')
+                    ->id('project-info')
+                    ->description(fn ($record) => $record->name)
+                    ->schema([
+                        Infolists\Components\TextEntry::make('code')
+                            ->label('프로젝트 코드'),
+
+                        Infolists\Components\TextEntry::make('name')
+                            ->label('프로젝트명'),
+
+                        Infolists\Components\TextEntry::make('customer.company_name')
+                            ->label('고객'),
+
+                        Infolists\Components\TextEntry::make('contract.title')
+                            ->label('계약'),
+
+                        Infolists\Components\TextEntry::make('manager.name')
+                            ->label('프로젝트 매니저'),
+
+                        Infolists\Components\TextEntry::make('description')
+                            ->label('설명')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('일정')
+                    ->id('project-schedule')
+                    ->description(fn ($record) => $record->start_date?->format('Y-m-d') . ' ~ ' . ($record->actual_end_date?->format('Y-m-d') ?? $record->end_date?->format('Y-m-d') ?? '미정'))
+                    ->schema([
+                        Infolists\Components\TextEntry::make('start_date')
+                            ->label('시작일')
+                            ->date('Y-m-d'),
+
+                        Infolists\Components\TextEntry::make('end_date')
+                            ->label('종료 예정일')
+                            ->date('Y-m-d'),
+
+                        Infolists\Components\TextEntry::make('actual_end_date')
+                            ->label('실제 종료일')
+                            ->date('Y-m-d')
+                            ->placeholder('-'),
+                    ])
+                    ->columns(3)
+                    ->collapsible()
+                    ->persistCollapsed(),
+
+                Infolists\Components\Section::make('예산 및 상태')
+                    ->id('project-budget')
+                    ->description(fn ($record) => $record->budget ? '₩' . number_format($record->budget) : '-')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('budget')
+                            ->label('예산')
+                            ->money('KRW'),
+
+                        Infolists\Components\TextEntry::make('status')
+                            ->label('상태')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                '계획중' => 'gray',
+                                '진행중' => 'info',
+                                '보류' => 'warning',
+                                '완료' => 'success',
+                                '취소' => 'danger',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('priority')
+                            ->label('우선순위')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                '낮음' => 'gray',
+                                '보통' => 'info',
+                                '높음' => 'warning',
+                                '긴급' => 'danger',
+                                default => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('progress')
+                            ->label('진행률')
+                            ->suffix('%'),
+                    ])
+                    ->columns(4)
+                    ->collapsible()
+                    ->persistCollapsed(),
             ]);
     }
 
