@@ -91,7 +91,94 @@ class AdminPanelProvider extends PanelProvider
                         html {
                             scrollbar-gutter: stable;
                         }
+
+                        /* 뒤로가기 버튼 + 브레드크럼 wrapper */
+                        .fi-back-nav-wrapper {
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 0.5rem;
+                        }
+                        .fi-back-button {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 1.75rem;
+                            height: 1.75rem;
+                            border-radius: 50%;
+                            background-color: rgb(243 244 246);
+                            color: rgb(107 114 128);
+                            cursor: pointer;
+                            transition: all 0.15s ease;
+                            margin-right: 0.5rem;
+                            flex-shrink: 0;
+                        }
+                        .fi-back-button:hover {
+                            background-color: rgb(229 231 235);
+                            color: rgb(55 65 81);
+                        }
+                        .dark .fi-back-button {
+                            background-color: rgb(55 65 81);
+                            color: rgb(156 163 175);
+                        }
+                        .dark .fi-back-button:hover {
+                            background-color: rgb(75 85 99);
+                            color: rgb(209 213 219);
+                        }
+                        .fi-back-nav-wrapper .fi-breadcrumbs {
+                            margin-bottom: 0 !important;
+                        }
                     </style>
+                ')
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => new HtmlString('
+                    <script>
+                        (function() {
+                            function addBackButton() {
+                                // 이미 추가되어 있으면 스킵
+                                if (document.querySelector(".fi-back-nav-wrapper")) return;
+
+                                // 브레드크럼 찾기
+                                const breadcrumbs = document.querySelector(".fi-breadcrumbs");
+                                if (!breadcrumbs) return;
+
+                                // wrapper div 생성
+                                const wrapper = document.createElement("div");
+                                wrapper.className = "fi-back-nav-wrapper";
+
+                                // 뒤로가기 버튼 생성
+                                const backButton = document.createElement("button");
+                                backButton.type = "button";
+                                backButton.className = "fi-back-button";
+                                backButton.title = "뒤로가기";
+                                backButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 1rem; height: 1rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>`;
+
+                                backButton.addEventListener("click", function(e) {
+                                    e.preventDefault();
+                                    history.back();
+                                });
+
+                                // 브레드크럼 앞에 wrapper 삽입
+                                breadcrumbs.parentNode.insertBefore(wrapper, breadcrumbs);
+                                // wrapper 안에 버튼과 브레드크럼 넣기
+                                wrapper.appendChild(backButton);
+                                wrapper.appendChild(breadcrumbs);
+                            }
+
+                            // 초기 로드
+                            if (document.readyState === "loading") {
+                                document.addEventListener("DOMContentLoaded", addBackButton);
+                            } else {
+                                addBackButton();
+                            }
+
+                            // Livewire 네비게이션 후에도 추가
+                            document.addEventListener("livewire:navigated", function() {
+                                setTimeout(addBackButton, 50);
+                            });
+                        })();
+                    </script>
                 ')
             );
     }
