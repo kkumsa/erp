@@ -325,7 +325,7 @@ class SampleDataSeeder extends Seeder
             'user_id' => $backendDev1->id,
             'department_id' => $departments['backend']->id,
             'employee_code' => 'TW-006',
-            'position' => '사원',
+            'position' => '사원',3
             'job_title' => '백엔드 개발자',
             'hire_date' => $baseDate->copy()->subMonths(6),
             'birth_date' => '1995-09-23',

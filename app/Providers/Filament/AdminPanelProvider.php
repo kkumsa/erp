@@ -152,12 +152,12 @@ class AdminPanelProvider extends PanelProvider
                     <script>
                         (function() {
                             function addBackButton() {
-                                // 이미 추가되어 있으면 스킵
-                                if (document.querySelector(".fi-back-nav-wrapper")) return;
-
-                                // 브레드크럼 찾기
-                                const breadcrumbs = document.querySelector(".fi-breadcrumbs");
+                                // 브레드크럼 찾기 (wrapper 안에 있지 않은 것)
+                                const breadcrumbs = document.querySelector(".fi-breadcrumbs:not(.fi-back-nav-wrapper .fi-breadcrumbs)");
                                 if (!breadcrumbs) return;
+                                
+                                // 이미 wrapper 안에 있으면 스킵
+                                if (breadcrumbs.closest(".fi-back-nav-wrapper")) return;
 
                                 // wrapper div 생성
                                 const wrapper = document.createElement("div");
@@ -189,9 +189,27 @@ class AdminPanelProvider extends PanelProvider
                                 addBackButton();
                             }
 
-                            // Livewire 네비게이션 후에도 추가
+                            // Livewire 이벤트들 처리
                             document.addEventListener("livewire:navigated", function() {
                                 setTimeout(addBackButton, 50);
+                            });
+                            
+                            document.addEventListener("livewire:init", function() {
+                                setTimeout(addBackButton, 100);
+                            });
+
+                            // MutationObserver로 DOM 변화 감지
+                            const observer = new MutationObserver(function(mutations) {
+                                // 브레드크럼이 wrapper 밖에 있는지 확인
+                                const breadcrumbs = document.querySelector(".fi-breadcrumbs:not(.fi-back-nav-wrapper .fi-breadcrumbs)");
+                                if (breadcrumbs && !breadcrumbs.closest(".fi-back-nav-wrapper")) {
+                                    addBackButton();
+                                }
+                            });
+                            
+                            observer.observe(document.body, {
+                                childList: true,
+                                subtree: true
                             });
                         })();
                     </script>
