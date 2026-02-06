@@ -160,7 +160,11 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 TablesRenderHook::TOOLBAR_SEARCH_AFTER,
-                fn () => view('components.view-mode-toggle'),
+                fn () => view('components.view-mode-toggle', [
+                    'storageKey' => 'projectListViewMode',
+                    'wireMethod' => 'setSlideOverMode',
+                    'defaultMode' => 'slide',
+                ]),
                 scopes: \App\Filament\Resources\ProjectResource\Pages\ListProjects::class,
             )
             ->renderHook(

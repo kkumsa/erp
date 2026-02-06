@@ -1,12 +1,18 @@
+@props([
+    'storageKey' => 'projectListViewMode',
+    'wireMethod' => 'setSlideOverMode',
+    'defaultMode' => 'slide',
+])
+
 <div
     x-data="{
         open: false,
         isMobile: window.innerWidth < 768,
-        slideOverMode: false,
+        slideOverMode: @js($defaultMode === 'slide'),
 
         init() {
             this.isMobile = window.innerWidth < 768;
-            this.slideOverMode = this.isMobile ? false : (localStorage.getItem('projectListViewMode') !== 'page');
+            this.slideOverMode = this.isMobile ? false : (localStorage.getItem(@js($storageKey)) !== 'page');
 
             window.addEventListener('resize', () => {
                 const wasMobile = this.isMobile;
@@ -14,22 +20,22 @@
                 if (this.isMobile && !wasMobile) {
                     this.slideOverMode = false;
                     if (typeof $wire !== 'undefined') {
-                        $wire.setSlideOverMode(false);
+                        $wire[@js($wireMethod)](false);
                     }
                 }
             });
 
             if (typeof $wire !== 'undefined') {
-                $wire.setSlideOverMode(this.slideOverMode);
+                $wire[@js($wireMethod)](this.slideOverMode);
             }
         },
 
         select(mode) {
             this.slideOverMode = (mode === 'slide');
-            localStorage.setItem('projectListViewMode', this.slideOverMode ? 'slideOver' : 'page');
+            localStorage.setItem(@js($storageKey), this.slideOverMode ? 'slideOver' : 'page');
             this.open = false;
             if (typeof $wire !== 'undefined') {
-                $wire.setSlideOverMode(this.slideOverMode);
+                $wire[@js($wireMethod)](this.slideOverMode);
             }
         }
     }"
