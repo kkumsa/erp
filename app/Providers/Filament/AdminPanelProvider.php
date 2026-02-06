@@ -145,15 +145,49 @@ class AdminPanelProvider extends PanelProvider
                             border-top-color: rgb(55 65 81);
                         }
 
-                        /* 페이지네이션: 페이지 번호 중앙, 페이지 사이즈 우측 */
+                        /* 테이블을 container query 대상으로 설정 */
+                        .fi-ta {
+                            container-type: inline-size;
+                        }
+
+                        /*
+                         * 페이지네이션 컨테이너 기반 반응형 (3단계)
+                         *   넓음 (>650px): [요약] [페이지번호(중앙)] [페이지당(우측)]
+                         *   중간 (481~650px): [요약] [페이지번호(중앙)]
+                         *   좁음 (≤480px): [이전] ... [다음]
+                         */
+
+                        /* 페이지 번호 중앙, 페이지당 셀렉터 우측 */
                         .fi-pagination .fi-pagination-items {
-                            justify-self: center !important;
                             grid-column: 2 !important;
+                            grid-row: 1 !important;
+                            justify-self: center !important;
                         }
                         .fi-pagination > div:has(.fi-pagination-records-per-page-select) {
-                            justify-self: end !important;
                             grid-column: 3 !important;
                             grid-row: 1 !important;
+                            justify-self: end !important;
+                        }
+
+                        /* 넓은 컨테이너 (>480px): 페이지번호 모드 - 이전/다음 단순 버튼 숨김 */
+                        @container (min-width: 481px) {
+                            .fi-pagination .fi-pagination-previous-btn { display: none !important; }
+                            .fi-pagination .fi-pagination-next-btn { display: none !important; }
+                            .fi-pagination .fi-pagination-items { display: flex !important; }
+                        }
+
+                        /* 중간 컨테이너 (≤650px): 페이지당 셀렉터 숨김 */
+                        @container (max-width: 650px) {
+                            .fi-pagination > div:has(.fi-pagination-records-per-page-select) {
+                                display: none !important;
+                            }
+                        }
+
+                        /* 좁은 컨테이너 (≤480px): 이전/다음 버튼 모드 - 나머지 전부 숨김 */
+                        @container (max-width: 480px) {
+                            .fi-pagination .fi-pagination-items { display: none !important; }
+                            .fi-pagination .fi-pagination-overview { display: none !important; }
+                            .fi-pagination > div:has(.fi-pagination-records-per-page-select) { display: none !important; }
                         }
 
                         /* 사이드바 네비게이션 클릭 잠금 상태 */

@@ -6,10 +6,12 @@ use App\Scopes\DepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Attendance extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected static function booted(): void
     {
@@ -54,5 +56,12 @@ class Attendance extends Model
         $hours = floor($this->overtime_minutes / 60);
         $minutes = $this->overtime_minutes % 60;
         return sprintf('%d시간 %d분', $hours, $minutes);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'check_in', 'check_out'])
+            ->logOnlyDirty();
     }
 }

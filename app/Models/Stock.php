@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Stock extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'warehouse_id',
@@ -66,5 +68,12 @@ class Stock extends Model
     public function unreserve(float $quantity): void
     {
         $this->decrement('reserved_quantity', min($quantity, $this->reserved_quantity));
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['quantity', 'reserved_quantity'])
+            ->logOnlyDirty();
     }
 }

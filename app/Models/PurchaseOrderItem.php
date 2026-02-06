@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class PurchaseOrderItem extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'purchase_order_id',
@@ -68,5 +70,12 @@ class PurchaseOrderItem extends Model
     public function getIsFullyReceivedAttribute(): bool
     {
         return $this->received_quantity >= $this->quantity;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['quantity', 'unit_price', 'amount', 'received_quantity'])
+            ->logOnlyDirty();
     }
 }

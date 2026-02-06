@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class StockMovement extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'reference_number',
@@ -122,5 +124,12 @@ class StockMovement extends Model
             'reason' => "발주서 #{$item->purchaseOrder->po_number} 입고",
             'created_by' => $userId,
         ]);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['type', 'quantity', 'warehouse_id', 'product_id'])
+            ->logOnlyDirty();
     }
 }
