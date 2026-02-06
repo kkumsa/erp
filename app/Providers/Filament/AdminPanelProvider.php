@@ -382,7 +382,7 @@ class AdminPanelProvider extends PanelProvider
                                 unlockTimer = setTimeout(function() {
                                     isNavigating = false;
                                     setNavLock(false);
-                                }, 8000);
+                                }, 5000);
                             }, true);
 
                             document.addEventListener("livewire:navigated", function() {
