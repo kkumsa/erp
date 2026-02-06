@@ -157,12 +157,29 @@ class AdminPanelProvider extends PanelProvider
                         }
 
                         /* 사이드바 네비게이션 클릭 잠금 상태 */
-                        .fi-sidebar.is-locked,
-                        .fi-sidebar-nav.is-locked {
-                            pointer-events: none;
-                        }
                         .fi-sidebar-nav.is-locked a {
                             cursor: progress !important;
+                        }
+                        .fi-sidebar-nav a.is-pending {
+                            position: relative;
+                            opacity: 0.7;
+                        }
+                        .fi-sidebar-nav a.is-pending::after {
+                            content: "";
+                            position: absolute;
+                            right: 0.75rem;
+                            top: 50%;
+                            width: 0.75rem;
+                            height: 0.75rem;
+                            margin-top: -0.375rem;
+                            border: 2px solid currentColor;
+                            border-top-color: transparent;
+                            border-radius: 9999px;
+                            animation: fi-nav-spin 1s linear infinite;
+                            opacity: 0.8;
+                        }
+                        @keyframes fi-nav-spin {
+                            to { transform: rotate(360deg); }
                         }
                     </style>
                 ')
@@ -272,7 +289,8 @@ class AdminPanelProvider extends PanelProvider
                     <script>
                         (function() {
                             let isNavigating = false;
-                            let pendingUrl = null;
+                            let navQueue = [];
+                            let pendingLink = null;
                             let unlockTimer = null;
 
                             function getSidebarElements() {
@@ -286,6 +304,42 @@ class AdminPanelProvider extends PanelProvider
                                 const { sidebar, sidebarNav } = getSidebarElements();
                                 if (sidebar) sidebar.classList.toggle("is-locked", locked);
                                 if (sidebarNav) sidebarNav.classList.toggle("is-locked", locked);
+                            }
+
+                            function clearPendingLink() {
+                                if (pendingLink) {
+                                    pendingLink.classList.remove("is-pending");
+                                    pendingLink = null;
+                                }
+                            }
+
+                            function markPendingLink(link) {
+                                if (!link) return;
+                                clearPendingLink();
+                                pendingLink = link;
+                                pendingLink.classList.add("is-pending");
+                            }
+
+                            function markPendingLinkByUrl(url) {
+                                if (!url) return;
+                                const nav = document.querySelector(".fi-sidebar-nav");
+                                if (!nav) return;
+                                const link = nav.querySelector(`a[href="${url}"]`);
+                                if (link) {
+                                    markPendingLink(link);
+                                }
+                            }
+
+                            function enqueueNav(url, link) {
+                                if (!url) return;
+                                const last = navQueue[navQueue.length - 1];
+                                if (last === url) return;
+                                navQueue.push(url);
+                                if (link) {
+                                    markPendingLink(link);
+                                } else {
+                                    markPendingLinkByUrl(url);
+                                }
                             }
 
                             function navigateTo(url) {
@@ -368,20 +422,30 @@ class AdminPanelProvider extends PanelProvider
                                 if (!link.href || link.href === window.location.href) return;
 
                                 if (isNavigating) {
-                                    pendingUrl = link.href;
+                                    enqueueNav(link.href, link);
                                     e.preventDefault();
                                     e.stopPropagation();
                                     return;
                                 }
 
                                 isNavigating = true;
-                                pendingUrl = null;
+                                navQueue = [];
+                                clearPendingLink();
                                 setNavLock(true);
 
                                 clearTimeout(unlockTimer);
                                 unlockTimer = setTimeout(function() {
                                     isNavigating = false;
                                     setNavLock(false);
+                                    clearPendingLink();
+
+                                    const nextUrl = navQueue.shift();
+                                    if (nextUrl && nextUrl !== window.location.href) {
+                                        isNavigating = true;
+                                        setNavLock(true);
+                                        markPendingLinkByUrl(nextUrl);
+                                        navigateTo(nextUrl);
+                                    }
                                 }, 5000);
                             }, true);
 
@@ -389,12 +453,13 @@ class AdminPanelProvider extends PanelProvider
                                 clearTimeout(unlockTimer);
                                 isNavigating = false;
                                 setNavLock(false);
+                                clearPendingLink();
 
-                                if (pendingUrl && pendingUrl !== window.location.href) {
-                                    const nextUrl = pendingUrl;
-                                    pendingUrl = null;
+                                const nextUrl = navQueue.shift();
+                                if (nextUrl && nextUrl !== window.location.href) {
                                     isNavigating = true;
                                     setNavLock(true);
+                                    markPendingLinkByUrl(nextUrl);
                                     navigateTo(nextUrl);
                                 }
                             });
