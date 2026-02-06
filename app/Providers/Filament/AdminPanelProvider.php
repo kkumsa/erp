@@ -109,7 +109,7 @@ class AdminPanelProvider extends PanelProvider
                             color: rgb(107 114 128);
                             cursor: pointer;
                             transition: all 0.15s ease;
-                            margin-right: 0.5rem;
+                            margin-right: 1rem;
                             flex-shrink: 0;
                         }
                         .fi-back-button:hover {

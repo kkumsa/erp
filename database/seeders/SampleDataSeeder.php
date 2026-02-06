@@ -12,6 +12,7 @@ use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Milestone;
+use App\Models\Opportunity;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -57,6 +58,10 @@ class SampleDataSeeder extends Seeder
         // 6. 고객사 및 담당자 생성
         $customers = $this->createCustomersAndContacts($users);
         $this->command->info('✓ 고객사 생성 완료');
+
+        // 6-1. 영업 기회 생성
+        $this->createOpportunities($customers, $users);
+        $this->command->info('✓ 영업 기회 생성 완료');
 
         // 7. 계약 생성
         $contracts = $this->createContracts($customers, $users);
@@ -869,6 +874,97 @@ class SampleDataSeeder extends Seeder
         ]);
 
         return $customers;
+    }
+
+    private function createOpportunities(array $customers, array $users): void
+    {
+        $baseDate = now();
+
+        // 영업 기회 1 - 넥스트게임즈 추가 프로젝트 (제안 단계)
+        Opportunity::create([
+            'name' => '게임 백오피스 2차 개발',
+            'customer_id' => $customers['nexon']->id,
+            'contact_id' => Contact::where('customer_id', $customers['nexon']->id)->first()->id,
+            'amount' => 50000000,
+            'stage' => '제안',
+            'probability' => 60,
+            'expected_close_date' => $baseDate->copy()->addDays(30),
+            'description' => '게임 운영 백오피스 2차 기능 추가 개발 제안. 실시간 대시보드, 유저 분석 기능 포함.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => '제안서 발표 일정 조율',
+        ]);
+
+        // 영업 기회 2 - 핀테크솔루션 신규 프로젝트 (협상 단계)
+        Opportunity::create([
+            'name' => '모바일 뱅킹 앱 개발',
+            'customer_id' => $customers['fintech']->id,
+            'contact_id' => Contact::where('customer_id', $customers['fintech']->id)->first()->id,
+            'amount' => 120000000,
+            'stage' => '협상',
+            'probability' => 80,
+            'expected_close_date' => $baseDate->copy()->addDays(14),
+            'description' => '모바일 뱅킹 앱 신규 개발 프로젝트. iOS/Android 네이티브 앱 개발.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => '최종 견적 협의',
+        ]);
+
+        // 영업 기회 3 - 헬스케어랩 확장 (접촉 단계)
+        Opportunity::create([
+            'name' => '헬스케어 플랫폼 고도화',
+            'customer_id' => $customers['startup']->id,
+            'contact_id' => Contact::where('customer_id', $customers['startup']->id)->first()->id,
+            'amount' => 30000000,
+            'stage' => '접촉',
+            'probability' => 30,
+            'expected_close_date' => $baseDate->copy()->addDays(60),
+            'description' => 'MVP 완료 후 플랫폼 고도화 논의. AI 건강 분석 기능 추가 검토 중.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => '미팅 일정 잡기',
+        ]);
+
+        // 영업 기회 4 - 쇼핑몰플러스 시스템 전환 (발굴 단계)
+        Opportunity::create([
+            'name' => '쇼핑몰 리뉴얼 프로젝트',
+            'customer_id' => $customers['ecommerce']->id,
+            'contact_id' => Contact::where('customer_id', $customers['ecommerce']->id)->first()->id,
+            'amount' => 200000000,
+            'stage' => '발굴',
+            'probability' => 10,
+            'expected_close_date' => $baseDate->copy()->addDays(90),
+            'description' => '레거시 쇼핑몰 시스템을 최신 기술 스택으로 전환하는 대형 프로젝트.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => '내부 니즈 파악',
+        ]);
+
+        // 영업 기회 5 - 계약 완료 사례
+        Opportunity::create([
+            'name' => '결제 시스템 API 연동',
+            'customer_id' => $customers['fintech']->id,
+            'contact_id' => Contact::where('customer_id', $customers['fintech']->id)->first()->id,
+            'amount' => 45000000,
+            'stage' => '계약완료',
+            'probability' => 100,
+            'expected_close_date' => $baseDate->copy()->subDays(30),
+            'actual_close_date' => $baseDate->copy()->subDays(25),
+            'description' => '핀테크솔루션 결제 시스템 API 연동 프로젝트. 성공적으로 계약 완료.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => null,
+        ]);
+
+        // 영업 기회 6 - 실패 사례
+        Opportunity::create([
+            'name' => '레거시 시스템 마이그레이션',
+            'customer_id' => $customers['nexon']->id,
+            'contact_id' => Contact::where('customer_id', $customers['nexon']->id)->first()->id,
+            'amount' => 70000000,
+            'stage' => '실패',
+            'probability' => 0,
+            'expected_close_date' => $baseDate->copy()->subDays(15),
+            'actual_close_date' => $baseDate->copy()->subDays(10),
+            'description' => '레거시 시스템 마이그레이션 프로젝트. 내부 사정으로 무기한 보류.',
+            'assigned_to' => $users['sales']->id,
+            'next_step' => null,
+        ]);
     }
 
     private function createContracts(array $customers, array $users): array
