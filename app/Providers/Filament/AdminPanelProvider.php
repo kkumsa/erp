@@ -10,6 +10,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentView;
+use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -156,6 +157,11 @@ class AdminPanelProvider extends PanelProvider
                         }
                     </style>
                 ')
+            )
+            ->renderHook(
+                TablesRenderHook::TOOLBAR_SEARCH_AFTER,
+                fn () => view('components.view-mode-toggle'),
+                scopes: \App\Filament\Resources\ProjectResource\Pages\ListProjects::class,
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,

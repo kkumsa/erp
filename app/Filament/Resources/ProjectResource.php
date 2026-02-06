@@ -307,11 +307,6 @@ class ProjectResource extends Resource
             ->recordUrl(null)
             ->recordAction('selectProject')
             ->actions([
-                Tables\Actions\Action::make('selectProject')
-                    ->label('')
-                    ->icon('heroicon-m-chevron-right')
-                    ->color('gray')
-                    ->action(fn (Project $record, $livewire) => $livewire->selectProject($record->id)),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

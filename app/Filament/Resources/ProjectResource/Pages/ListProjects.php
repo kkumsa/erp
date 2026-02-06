@@ -9,7 +9,6 @@ use Filament\Infolists\Concerns\InteractsWithInfolists;
 use Filament\Infolists\Contracts\HasInfolists;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ListRecords;
-
 class ListProjects extends ListRecords implements HasInfolists
 {
     use InteractsWithInfolists;
@@ -29,6 +28,7 @@ class ListProjects extends ListRecords implements HasInfolists
         if ($this->slideOverMode) {
             $this->selectedProjectId = $projectId;
             $this->selectedProject = Project::find($projectId);
+            $this->dispatch('project-selected');
         } else {
             $this->redirect(ProjectResource::getUrl('view', ['record' => $projectId]));
         }
