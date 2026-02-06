@@ -16,15 +16,32 @@ class ProjectProgress extends BaseWidget
 
     protected int | string | array $columnSpan = 3;
 
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        return $user && $user->can('project.view');
+    }
+
     public function table(Table $table): Table
     {
+        $user = auth()->user();
+
+        // Employee: 본인이 참여한 프로젝트만
+        $query = Project::query()
+            ->where('status', '진행중')
+            ->orderBy('end_date')
+            ->limit(5);
+
+        if ($user && !$user->hasAnyRole(['Super Admin', 'Admin', 'Manager'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('manager_id', $user->id)
+                  ->orWhereHas('members', fn ($mq) => $mq->where('users.id', $user->id));
+            });
+        }
+
         return $table
-            ->query(
-                Project::query()
-                    ->where('status', '진행중')
-                    ->orderBy('end_date')
-                    ->limit(5)
-            )
+            ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('프로젝트')

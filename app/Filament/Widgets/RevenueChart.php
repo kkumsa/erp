@@ -5,7 +5,6 @@ namespace App\Filament\Widgets;
 use App\Models\Expense;
 use App\Models\Invoice;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Carbon;
 
 class RevenueChart extends ChartWidget
 {
@@ -15,13 +14,19 @@ class RevenueChart extends ChartWidget
 
     protected int | string | array $columnSpan = 'full';
 
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        return $user && $user->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Accountant']);
+    }
+
     protected function getData(): array
     {
         $months = collect();
         $revenues = collect();
         $expenses = collect();
 
-        // 최근 6개월 데이터
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $months->push($date->format('Y-m'));
@@ -29,13 +34,11 @@ class RevenueChart extends ChartWidget
             $monthStart = $date->copy()->startOfMonth();
             $monthEnd = $date->copy()->endOfMonth();
 
-            // 매출 (결제 완료된 청구서)
             $revenue = Invoice::where('status', '결제완료')
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->sum('total_amount');
             $revenues->push($revenue);
 
-            // 비용 (승인된 비용)
             $expense = Expense::where('status', '승인')
                 ->whereBetween('expense_date', [$monthStart, $monthEnd])
                 ->sum('total_amount');

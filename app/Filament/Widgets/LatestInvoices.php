@@ -16,6 +16,13 @@ class LatestInvoices extends BaseWidget
 
     protected int | string | array $columnSpan = 'full';
 
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        return $user && $user->hasAnyRole(['Super Admin', 'Admin', 'Manager', 'Accountant']);
+    }
+
     public function table(Table $table): Table
     {
         return $table
