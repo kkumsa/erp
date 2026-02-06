@@ -51,11 +51,10 @@ RUN echo "upload_max_filesize = 100M" >> "$PHP_INI_DIR/conf.d/custom.ini" \
     && echo "max_execution_time = 600" >> "$PHP_INI_DIR/conf.d/custom.ini" \
     && echo "max_input_time = 600" >> "$PHP_INI_DIR/conf.d/custom.ini"
 
-# OPcache 설정
+# OPcache 설정 (validate_timestamps는 local.ini에서 환경별로 설정)
 RUN echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
     && echo "opcache.memory_consumption=256" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.max_accelerated_files=20000" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.validate_timestamps=0" >> "$PHP_INI_DIR/conf.d/opcache.ini"
+    && echo "opcache.max_accelerated_files=20000" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
 # 사용자 생성
 RUN addgroup -g 1000 -S www && adduser -u 1000 -S www -G www
