@@ -143,6 +143,17 @@ class AdminPanelProvider extends PanelProvider
                         .dark .fi-sidebar-group:not(:first-child) {
                             border-top-color: rgb(55 65 81);
                         }
+
+                        /* 페이지네이션: 페이지 번호 중앙, 페이지 사이즈 우측 */
+                        .fi-pagination .fi-pagination-items {
+                            justify-self: center !important;
+                            grid-column: 2 !important;
+                        }
+                        .fi-pagination > div:has(.fi-pagination-records-per-page-select) {
+                            justify-self: end !important;
+                            grid-column: 3 !important;
+                            grid-row: 1 !important;
+                        }
                     </style>
                 ')
             )
