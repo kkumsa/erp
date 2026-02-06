@@ -127,6 +127,22 @@ class AdminPanelProvider extends PanelProvider
                         .fi-back-nav-wrapper .fi-breadcrumbs {
                             margin-bottom: 0 !important;
                         }
+
+                        /* 사이드바 네비게이션 그룹 간격 통일 */
+                        .fi-sidebar-nav-groups {
+                            gap: 0 !important;
+                        }
+                        .fi-sidebar-group {
+                            padding-top: 0.5rem;
+                            padding-bottom: 0.5rem;
+                        }
+                        /* 첫 번째 그룹 외 모든 그룹에 상단 구분선 */
+                        .fi-sidebar-group:not(:first-child) {
+                            border-top: 1px solid rgb(229 231 235);
+                        }
+                        .dark .fi-sidebar-group:not(:first-child) {
+                            border-top-color: rgb(55 65 81);
+                        }
                     </style>
                 ')
             )
