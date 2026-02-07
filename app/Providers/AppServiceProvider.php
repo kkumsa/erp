@@ -3,8 +3,13 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\Failed;
+use App\Listeners\RecordLoginHistory;
 use App\Models\Task;
 use App\Models\Milestone;
 use App\Models\Leave;
@@ -53,6 +58,12 @@ class AppServiceProvider extends ServiceProvider
         Lead::observe(LeadObserver::class);
         Opportunity::observe(OpportunityObserver::class);
         Payment::observe(PaymentObserver::class);
+
+        // 로그인/로그아웃 이벤트 리스너
+        $loginListener = new RecordLoginHistory();
+        Event::listen(Login::class, [$loginListener, 'handleLogin']);
+        Event::listen(Logout::class, [$loginListener, 'handleLogout']);
+        Event::listen(Failed::class, [$loginListener, 'handleFailed']);
 
         // Super Admin은 모든 권한을 가짐
         Gate::before(function ($user, $ability) {

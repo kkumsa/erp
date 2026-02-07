@@ -38,7 +38,7 @@ class NewLeadAssignedNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('보기')
-                    ->url(LeadResource::getUrl('edit', ['record' => $this->lead])),
+                    ->url(LeadResource::getUrl('view', ['record' => $this->lead])),
             ])
             ->getDatabaseMessage();
     }

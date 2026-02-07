@@ -36,7 +36,7 @@ class InvoiceOverdueNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('확인')
-                    ->url(InvoiceResource::getUrl('edit', ['record' => $this->invoice])),
+                    ->url(InvoiceResource::getUrl('view', ['record' => $this->invoice])),
             ])
             ->getDatabaseMessage();
     }

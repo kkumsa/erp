@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\ApprovalFlow;
 use App\Models\Leave;
 use App\Models\User;
 use App\Notifications\LeaveRequestedNotification;
@@ -11,7 +12,13 @@ class LeaveObserver
 {
     public function created(Leave $leave): void
     {
-        // 휴가 신청 시 HR Manager 역할 사용자들에게 알림
+        // 결재라인이 설정되어 있으면 결재라인 시스템으로 대체 (수동 승인요청 대기)
+        $flow = ApprovalFlow::findForTarget($leave);
+        if ($flow) {
+            return;
+        }
+
+        // 결재라인이 없는 경우 기존 로직: HR Manager에게 알림
         $hrManagers = User::role('HR Manager')->get();
         foreach ($hrManagers as $manager) {
             if ($manager->wantsNotification('leave_requested')) {
@@ -22,8 +29,8 @@ class LeaveObserver
 
     public function updated(Leave $leave): void
     {
-        // 휴가 상태 변경(승인/반려) 시 신청자에게 알림
-        if ($leave->isDirty('status')) {
+        // 상태 변경 시 신청자에게 알림 (결재라인 통한 변경은 ApprovalRequest에서 처리)
+        if ($leave->isDirty('status') && !$leave->hasPendingApproval()) {
             $newStatus = $leave->status;
             if (in_array($newStatus, ['승인', '반려'])) {
                 $leave->loadMissing('employee.user');

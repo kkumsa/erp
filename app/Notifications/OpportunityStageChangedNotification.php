@@ -36,7 +36,7 @@ class OpportunityStageChangedNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('보기')
-                    ->url(OpportunityResource::getUrl('edit', ['record' => $this->opportunity])),
+                    ->url(OpportunityResource::getUrl('view', ['record' => $this->opportunity])),
             ])
             ->getDatabaseMessage();
     }

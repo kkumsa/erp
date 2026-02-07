@@ -35,7 +35,7 @@ class ExpenseSubmittedNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('확인')
-                    ->url(ExpenseResource::getUrl('edit', ['record' => $this->expense])),
+                    ->url(ExpenseResource::getUrl('view', ['record' => $this->expense])),
             ])
             ->getDatabaseMessage();
     }

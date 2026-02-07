@@ -35,7 +35,7 @@ class ContractExpiringNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('확인')
-                    ->url(ContractResource::getUrl('edit', ['record' => $this->contract])),
+                    ->url(ContractResource::getUrl('view', ['record' => $this->contract])),
             ])
             ->getDatabaseMessage();
     }

@@ -52,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 '재무/회계',
                 '재고관리',
                 '재고/물류',
+                '내 설정',
                 '시스템설정',
             ])
             ->sidebarCollapsibleOnDesktop()
@@ -80,6 +81,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->databaseNotifications()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn () => new HtmlString(
+                    '<div style="text-align:center; margin-top:1rem; font-size:0.75rem; color:rgb(156 163 175);">'
+                    . '접속 IP: ' . request()->ip()
+                    . '</div>'
+                ),
+            )
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn () => new HtmlString('

@@ -43,6 +43,7 @@ class RolePermissionSeeder extends Seeder
             'report' => ['view', 'export'],
             'setting' => ['view', 'update'],
             'notification_settings' => ['view', 'update'],
+            'approval_flow' => ['view', 'create', 'update', 'delete'],
         ];
 
         foreach ($modules as $module => $actions) {
@@ -68,6 +69,7 @@ class RolePermissionSeeder extends Seeder
         // Manager - 승인 권한 포함한 일반 관리
         $managerPermissions = Permission::whereIn('name', [
             'notification_settings.view', 'notification_settings.update',
+            'approval_flow.view',
             'employee.view', 'employee.update',
             'attendance.view', 'attendance.create', 'attendance.update',
             'leave.view', 'leave.create', 'leave.update', 'leave.approve',

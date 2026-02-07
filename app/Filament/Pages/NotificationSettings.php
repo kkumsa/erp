@@ -14,10 +14,10 @@ class NotificationSettings extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-bell';
-    protected static ?string $navigationGroup = '시스템설정';
+    protected static ?string $navigationGroup = '내 설정';
     protected static ?string $navigationLabel = '알림 설정';
     protected static ?string $title = '알림 설정';
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 1;
     protected static string $view = 'filament.pages.notification-settings';
 
     /**
@@ -111,8 +111,6 @@ class NotificationSettings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
-
-        return $user && $user->can('notification_settings.view');
+        return (bool) auth()->user();
     }
 }

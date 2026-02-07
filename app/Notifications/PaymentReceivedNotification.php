@@ -34,7 +34,7 @@ class PaymentReceivedNotification extends Notification
             if ($payable instanceof \App\Models\Invoice) {
                 $customerName = $payable->customer?->company_name ?? '';
                 $reference = "{$reference} ({$customerName})";
-                $url = InvoiceResource::getUrl('edit', ['record' => $payable]);
+                $url = InvoiceResource::getUrl('view', ['record' => $payable]);
             }
         }
 

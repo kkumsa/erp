@@ -36,7 +36,7 @@ class PurchaseOrderApprovalNotification extends Notification
             ->actions([
                 Action::make('view')
                     ->label('확인')
-                    ->url(PurchaseOrderResource::getUrl('edit', ['record' => $this->purchaseOrder])),
+                    ->url(PurchaseOrderResource::getUrl('view', ['record' => $this->purchaseOrder])),
             ])
             ->getDatabaseMessage();
     }

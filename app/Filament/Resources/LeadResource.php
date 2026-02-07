@@ -25,11 +25,11 @@ class LeadResource extends Resource
 
     protected static ?string $navigationGroup = 'CRM';
 
-    protected static ?string $navigationLabel = '리드 관리';
+    protected static ?string $navigationLabel = '잠재 고객 발굴';
 
-    protected static ?string $modelLabel = '리드';
+    protected static ?string $modelLabel = '잠재 고객';
 
-    protected static ?string $pluralModelLabel = '리드';
+    protected static ?string $pluralModelLabel = '잠재 고객';
 
     protected static ?int $navigationSort = 1;
 

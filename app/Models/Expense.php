@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Approvable;
 use App\Scopes\DepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Expense extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, Approvable;
 
     protected static function booted(): void
     {

@@ -85,6 +85,7 @@ class UserResource extends Resource
                         Forms\Components\FileUpload::make('avatar_url')
                             ->label('프로필 이미지')
                             ->image()
+                            ->disk('public')
                             ->directory('avatars')
                             ->visibility('public'),
                     ])->columns(3),
@@ -98,7 +99,8 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('avatar_url')
                     ->label('')
                     ->circular()
-                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name)),
+                    ->disk('public')
+                    ->defaultImageUrl(fn ($record) => $record->getInitialsAvatarUrl()),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('이름')
