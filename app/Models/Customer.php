@@ -40,7 +40,6 @@ class Customer extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['company_name', 'type', 'status', 'assigned_to'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

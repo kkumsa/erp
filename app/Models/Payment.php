@@ -35,7 +35,6 @@ class Payment extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['amount', 'method', 'payment_date'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

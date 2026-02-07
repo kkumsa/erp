@@ -42,6 +42,7 @@ class RolePermissionSeeder extends Seeder
             'account' => ['view', 'create', 'update', 'delete'],
             'report' => ['view', 'export'],
             'setting' => ['view', 'update'],
+            'notification_settings' => ['view', 'update'],
         ];
 
         foreach ($modules as $module => $actions) {
@@ -66,6 +67,7 @@ class RolePermissionSeeder extends Seeder
 
         // Manager - 승인 권한 포함한 일반 관리
         $managerPermissions = Permission::whereIn('name', [
+            'notification_settings.view', 'notification_settings.update',
             'employee.view', 'employee.update',
             'attendance.view', 'attendance.create', 'attendance.update',
             'leave.view', 'leave.create', 'leave.update', 'leave.approve',
@@ -89,6 +91,7 @@ class RolePermissionSeeder extends Seeder
 
         // Accountant - 재무/회계 관련 권한
         $accountantPermissions = Permission::whereIn('name', [
+            'notification_settings.view', 'notification_settings.update',
             'customer.view',
             'contract.view',
             'invoice.view', 'invoice.create', 'invoice.update', 'invoice.delete', 'invoice.approve',
@@ -105,6 +108,7 @@ class RolePermissionSeeder extends Seeder
 
         // HR Manager - 인사 관련 권한
         $hrPermissions = Permission::whereIn('name', [
+            'notification_settings.view', 'notification_settings.update',
             'user.view', 'user.create', 'user.update',
             'department.view', 'department.create', 'department.update',
             'employee.view', 'employee.create', 'employee.update', 'employee.delete',
@@ -116,6 +120,7 @@ class RolePermissionSeeder extends Seeder
 
         // Employee - 기본 조회 및 본인 관련 권한
         $employeePermissions = Permission::whereIn('name', [
+            'notification_settings.view', 'notification_settings.update',
             'attendance.view', 'attendance.create',
             'leave.view', 'leave.create',
             'expense.view', 'expense.create',

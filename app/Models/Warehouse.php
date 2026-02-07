@@ -67,7 +67,6 @@ class Warehouse extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'code', 'address', 'is_active', 'is_default', 'manager_id'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

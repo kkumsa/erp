@@ -43,7 +43,6 @@ class Contact extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'email', 'phone', 'is_primary'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

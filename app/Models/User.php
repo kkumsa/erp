@@ -79,13 +79,37 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
 
     /**
+     * 알림 수신 여부 확인
+     * 기본값은 true (설정하지 않은 알림은 수신)
+     */
+    public function wantsNotification(string $notificationType): bool
+    {
+        return (bool) $this->getPreference("notifications.{$notificationType}", true);
+    }
+
+    /**
+     * 알림 설정 일괄 조회
+     */
+    public function getNotificationPreferences(): array
+    {
+        return $this->getPreference('notifications', []);
+    }
+
+    /**
+     * 알림 설정 일괄 저장
+     */
+    public function setNotificationPreferences(array $settings): void
+    {
+        $this->setPreference('notifications', $settings);
+    }
+
+    /**
      * Activity log options
      */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'email', 'is_active'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

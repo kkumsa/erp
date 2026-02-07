@@ -45,7 +45,6 @@ class Invoice extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'paid_amount'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

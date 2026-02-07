@@ -43,7 +43,6 @@ class Product extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'purchase_price', 'selling_price', 'is_active'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

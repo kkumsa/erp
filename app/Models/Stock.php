@@ -74,7 +74,6 @@ class Stock extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['quantity', 'reserved_quantity'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

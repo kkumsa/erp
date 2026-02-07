@@ -130,7 +130,6 @@ class StockMovement extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['type', 'quantity', 'warehouse_id', 'product_id'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

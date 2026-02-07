@@ -36,7 +36,6 @@ class Supplier extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['company_name', 'status'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

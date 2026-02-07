@@ -46,7 +46,6 @@ class Account extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'code', 'type', 'is_active'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -40,7 +40,6 @@ class ExpenseCategory extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'is_active'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

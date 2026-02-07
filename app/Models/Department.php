@@ -32,7 +32,6 @@ class Department extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'code', 'manager_id', 'is_active'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

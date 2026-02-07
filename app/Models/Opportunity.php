@@ -37,7 +37,6 @@ class Opportunity extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['stage', 'amount', 'probability', 'assigned_to'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

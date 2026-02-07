@@ -51,7 +51,6 @@ class Expense extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'approved_by'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

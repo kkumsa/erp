@@ -169,8 +169,10 @@ class AdminPanelProvider extends PanelProvider
                             border-top-color: transparent;
                         }
 
-                        /* 테이블을 container query 대상으로 설정 */
-                        .fi-ta {
+                        /* 페이지네이션 영역을 container query 대상으로 설정
+                           (.fi-ta에 적용하면 containment context가 테이블 전체를 감싸서
+                           bulk actions 등 fixed/absolute 요소의 위치가 깨짐) */
+                        .fi-ta .fi-pagination {
                             container-type: inline-size;
                         }
 
@@ -195,23 +197,23 @@ class AdminPanelProvider extends PanelProvider
 
                         /* 넓은 컨테이너 (>480px): 페이지번호 모드 - 이전/다음 단순 버튼 숨김 */
                         @container (min-width: 481px) {
-                            .fi-pagination .fi-pagination-previous-btn { display: none !important; }
-                            .fi-pagination .fi-pagination-next-btn { display: none !important; }
-                            .fi-pagination .fi-pagination-items { display: flex !important; }
+                            .fi-pagination-previous-btn { display: none !important; }
+                            .fi-pagination-next-btn { display: none !important; }
+                            .fi-pagination-items { display: flex !important; }
                         }
 
                         /* 중간 컨테이너 (≤650px): 페이지당 셀렉터 숨김 */
                         @container (max-width: 650px) {
-                            .fi-pagination > div:has(.fi-pagination-records-per-page-select) {
+                            div:has(> .fi-pagination-records-per-page-select) {
                                 display: none !important;
                             }
                         }
 
                         /* 좁은 컨테이너 (≤480px): 이전/다음 버튼 모드 - 나머지 전부 숨김 */
                         @container (max-width: 480px) {
-                            .fi-pagination .fi-pagination-items { display: none !important; }
-                            .fi-pagination .fi-pagination-overview { display: none !important; }
-                            .fi-pagination > div:has(.fi-pagination-records-per-page-select) { display: none !important; }
+                            .fi-pagination-items { display: none !important; }
+                            .fi-pagination-overview { display: none !important; }
+                            div:has(> .fi-pagination-records-per-page-select) { display: none !important; }
                         }
 
                         /* ─── 사이드바 그룹 드래그앤드롭 정렬 ─── */

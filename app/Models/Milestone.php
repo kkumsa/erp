@@ -60,7 +60,6 @@ class Milestone extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'status', 'due_date'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

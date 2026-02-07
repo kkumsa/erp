@@ -21,3 +21,6 @@ Schedule::call(function () {
         $project->update(['progress' => $project->calculateProgress()]);
     });
 })->daily();
+
+// 매일 오전 9시에 정기 알림 발송 (송장 연체, 계약 만료 임박, 재고 부족)
+Schedule::command('notifications:send-scheduled')->dailyAt('09:00');

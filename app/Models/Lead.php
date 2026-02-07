@@ -36,7 +36,6 @@ class Lead extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'assigned_to', 'converted_customer_id'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -62,7 +62,6 @@ class Attendance extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'check_in', 'check_out'])
-            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
