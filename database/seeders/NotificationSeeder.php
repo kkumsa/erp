@@ -20,20 +20,20 @@ class NotificationSeeder extends Seeder
 
         $now = Carbon::now();
 
-        // 다양한 알림 샘플 데이터
+        // 조직에 맞는 다양한 알림 샘플
         $notifications = [
-            // 업무 관련
+            // ── 업무/태스크 ──
             [
                 'title' => '태스크 배정',
-                'body' => '김대리님이 \'ERP 대시보드 UI 개선\' 태스크를 배정했습니다.',
+                'body' => '최개발님이 \'사용자 관리 API 개발\' 태스크를 배정했습니다. (프로젝트: 게임 백오피스 시스템)',
                 'icon' => 'heroicon-o-clipboard-document-check',
                 'iconColor' => 'info',
                 'status' => 'unread',
-                'ago' => 5, // 분 전
+                'ago' => 5,
             ],
             [
                 'title' => '태스크 완료',
-                'body' => '\'API 엔드포인트 리팩토링\' 태스크가 완료되었습니다. (프로젝트: 신규 ERP 시스템)',
+                'body' => '\'데이터베이스 스키마 구축\' 태스크가 완료되었습니다. (프로젝트: 게임 백오피스 시스템)',
                 'icon' => 'heroicon-o-check-circle',
                 'iconColor' => 'success',
                 'status' => 'unread',
@@ -41,59 +41,51 @@ class NotificationSeeder extends Seeder
             ],
             [
                 'title' => '마일스톤 완료',
-                'body' => '프로젝트 \'신규 ERP 시스템\'의 마일스톤 \'Phase 1 - 기본 기능 구현\'이 완료되었습니다.',
+                'body' => '프로젝트 \'게임 백오피스 시스템\'의 마일스톤 \'1단계: 요구사항 분석\'이 완료되었습니다.',
                 'icon' => 'heroicon-o-flag',
                 'iconColor' => 'success',
                 'status' => 'unread',
                 'ago' => 30,
             ],
 
-            // 승인/결재
+            // ── 결재/승인 ──
             [
-                'title' => '휴가 신청',
-                'body' => '박기술님이 연차 휴가를 신청했습니다. (2026-02-10 ~ 2026-02-12, 3일)',
+                'title' => '결재 요청 (구매주문)',
+                'body' => '오설계님이 구매주문 \'스마트팩토리 서버 부품\'의 승인을 요청했습니다. (금액: ₩28,600,000)',
+                'icon' => 'heroicon-o-shopping-cart',
+                'iconColor' => 'warning',
+                'status' => 'unread',
+                'ago' => 10,
+            ],
+            [
+                'title' => '휴가 승인 요청',
+                'body' => '강코딩님이 연차 휴가를 신청했습니다. (2026-02-14 ~ 2026-02-16, 3일)',
                 'icon' => 'heroicon-o-calendar-days',
                 'iconColor' => 'warning',
                 'status' => 'unread',
                 'ago' => 45,
             ],
             [
-                'title' => '휴가 승인',
-                'body' => '신청하신 연차 휴가(2026-02-14 ~ 2026-02-14)가 승인되었습니다.',
-                'icon' => 'heroicon-o-calendar-days',
+                'title' => '비용 청구 승인',
+                'body' => '청구하신 비용 \'AWS 클라우드 서비스 1월분\' ₩935,000이 승인되었습니다.',
+                'icon' => 'heroicon-o-banknotes',
                 'iconColor' => 'success',
                 'status' => 'read',
                 'ago' => 120,
             ],
             [
-                'title' => '비용 청구 승인 요청',
-                'body' => '이영업님이 비용 ₩350,000을 청구했습니다. (사유: 고객사 미팅 출장비)',
-                'icon' => 'heroicon-o-banknotes',
-                'iconColor' => 'warning',
-                'status' => 'unread',
-                'ago' => 60,
-            ],
-            [
-                'title' => '비용 승인',
-                'body' => '청구하신 비용 ₩150,000(사무용품 구매)이 승인되었습니다.',
-                'icon' => 'heroicon-o-banknotes',
+                'title' => '결재 완료',
+                'body' => '구매주문 \'KAIST GPU 서버 부품\'의 결재가 완료되었습니다. (CEO 최종 승인)',
+                'icon' => 'heroicon-o-check-badge',
                 'iconColor' => 'success',
                 'status' => 'read',
                 'ago' => 180,
             ],
-            [
-                'title' => '구매주문 승인 요청',
-                'body' => '새로운 구매주문 \'PO-2026-0042\'이 생성되었습니다. 승인이 필요합니다. (공급사: 한국전자, 금액: ₩2,500,000)',
-                'icon' => 'heroicon-o-shopping-cart',
-                'iconColor' => 'warning',
-                'status' => 'unread',
-                'ago' => 90,
-            ],
 
-            // CRM
+            // ── CRM ──
             [
                 'title' => '새 리드 배정',
-                'body' => '새로운 리드 \'(주)테크노솔루션\'이 배정되었습니다. (출처: 웹사이트 문의)',
+                'body' => '새로운 리드 \'(주)블루헬스\'가 배정되었습니다. (출처: 웹사이트, 예상매출: ₩60,000,000)',
                 'icon' => 'heroicon-o-user-plus',
                 'iconColor' => 'info',
                 'status' => 'unread',
@@ -101,53 +93,56 @@ class NotificationSeeder extends Seeder
             ],
             [
                 'title' => '영업기회 단계 변경',
-                'body' => '영업기회 \'클라우드 인프라 구축\'의 단계가 \'제안\' → \'협상\'으로 변경되었습니다.',
+                'body' => '영업기회 \'스마트팩토리 IoT 시스템\'의 단계가 \'제안\' → \'협상\'으로 변경되었습니다. (₩150,000,000)',
                 'icon' => 'heroicon-o-arrow-trending-up',
                 'iconColor' => 'info',
                 'status' => 'read',
                 'ago' => 240,
             ],
 
-            // 재무/재고
+            // ── 재무/재고 ──
             [
                 'title' => '송장 연체 알림',
-                'body' => '송장 \'INV-2026-0015\' (고객: (주)대한상사)의 결제 기한이 5일 경과했습니다. 미수금: ₩8,200,000',
+                'body' => '송장 \'결제 API 착수금\'의 결제 기한이 다가옵니다. (잔액: ₩19,250,000, 기한: 7일 후)',
                 'icon' => 'heroicon-o-exclamation-triangle',
                 'iconColor' => 'danger',
                 'status' => 'unread',
-                'ago' => 10,
-            ],
-            [
-                'title' => '계약 만료 임박',
-                'body' => '계약 \'연간 유지보수 계약\' (고객: (주)글로벌테크)이 7일 후 만료됩니다.',
-                'icon' => 'heroicon-o-document-text',
-                'iconColor' => 'warning',
-                'status' => 'unread',
-                'ago' => 35,
-            ],
-            [
-                'title' => '재고 부족 알림',
-                'body' => '상품 \'서버 메모리 DDR5 32GB\'의 재고가 부족합니다. (현재: 3개 / 최소: 10개)',
-                'icon' => 'heroicon-o-cube',
-                'iconColor' => 'danger',
-                'status' => 'unread',
-                'ago' => 50,
+                'ago' => 8,
             ],
             [
                 'title' => '결제 수신',
-                'body' => '송장 \'INV-2026-0012\'에 대해 ₩5,000,000 결제가 입금되었습니다. (방법: 계좌이체)',
+                'body' => 'KAIST GPU 서버 1차분 ₩137,500,000 결제가 입금되었습니다. (계좌이체)',
                 'icon' => 'heroicon-o-credit-card',
                 'iconColor' => 'success',
                 'status' => 'read',
                 'ago' => 300,
+            ],
+            [
+                'title' => '재고 부족 알림',
+                'body' => '상품 \'DDR5 ECC RDIMM 64GB\'의 재고가 부족합니다. (현재: 12개 / 최소: 10개)',
+                'icon' => 'heroicon-o-cube',
+                'iconColor' => 'warning',
+                'status' => 'unread',
+                'ago' => 50,
+            ],
+            [
+                'title' => '계약 만료 임박',
+                'body' => '\'AI 연구 GPU 서버 납품\' 계약이 30일 후 만료됩니다. (KAIST)',
+                'icon' => 'heroicon-o-document-text',
+                'iconColor' => 'warning',
+                'status' => 'unread',
+                'ago' => 35,
             ],
         ];
 
         $count = 0;
 
         foreach ($users as $user) {
-            foreach ($notifications as $notif) {
-                $createdAt = $now->copy()->subMinutes($notif['ago']);
+            // 각 사용자에게 5~8개 랜덤 알림 배정 (전체를 모두 주지 않고 현실적으로)
+            $selectedNotifs = collect($notifications)->shuffle()->take(rand(5, 8));
+
+            foreach ($selectedNotifs as $notif) {
+                $createdAt = $now->copy()->subMinutes($notif['ago'] + rand(0, 60));
 
                 $data = [
                     'title' => $notif['title'],
@@ -173,6 +168,6 @@ class NotificationSeeder extends Seeder
             }
         }
 
-        $this->command->info("  알림 시딩 완료: {$count}건 ({$users->count()}명 × " . count($notifications) . "개)");
+        $this->command->info("  알림 시딩 완료: {$count}건 ({$users->count()}명)");
     }
 }

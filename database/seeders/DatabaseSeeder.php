@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             ExpenseCategorySeeder::class,
             AccountSeeder::class,
             SampleDataSeeder::class,
+            ApprovalFlowSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }
