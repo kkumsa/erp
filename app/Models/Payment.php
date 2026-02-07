@@ -35,7 +35,9 @@ class Payment extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['amount', 'method', 'payment_date'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     protected static function boot()

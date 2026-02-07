@@ -43,7 +43,9 @@ class Product extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'purchase_price', 'selling_price', 'is_active'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function category(): BelongsTo

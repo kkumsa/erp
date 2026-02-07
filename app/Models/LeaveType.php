@@ -36,6 +36,8 @@ class LeaveType extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'days_per_year', 'is_active'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

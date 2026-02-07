@@ -45,6 +45,8 @@ class ProductCategory extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

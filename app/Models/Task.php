@@ -42,7 +42,9 @@ class Task extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'assigned_to', 'priority'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function project(): BelongsTo

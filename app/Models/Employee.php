@@ -51,7 +51,9 @@ class Employee extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['department_id', 'position', 'job_title', 'status', 'employment_type'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function user(): BelongsTo

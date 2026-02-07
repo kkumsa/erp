@@ -76,6 +76,8 @@ class PurchaseOrderItem extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['quantity', 'unit_price', 'amount', 'received_quantity'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

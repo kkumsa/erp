@@ -37,7 +37,9 @@ class Opportunity extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['stage', 'amount', 'probability', 'assigned_to'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function customer(): BelongsTo

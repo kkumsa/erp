@@ -40,7 +40,9 @@ class Customer extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['company_name', 'type', 'status', 'assigned_to'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function assignedUser(): BelongsTo

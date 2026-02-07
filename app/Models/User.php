@@ -85,6 +85,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'email', 'is_active'])
+            ->logOldValues()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -78,6 +78,8 @@ class Timesheet extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'hours', 'is_billable', 'approved_by'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

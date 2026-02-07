@@ -364,7 +364,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'projectListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ProjectResource\Pages\ListProjects::class,
             )
@@ -373,7 +373,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'customerListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\CustomerResource\Pages\ListCustomers::class,
             )
@@ -382,7 +382,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'opportunityListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\OpportunityResource\Pages\ListOpportunities::class,
             )
@@ -391,7 +391,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'contractListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ContractResource\Pages\ListContracts::class,
             )
@@ -400,7 +400,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'invoiceListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\InvoiceResource\Pages\ListInvoices::class,
             )
@@ -409,7 +409,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'userListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\UserResource\Pages\ListUsers::class,
             )
@@ -418,7 +418,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'supplierListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\SupplierResource\Pages\ListSuppliers::class,
             )
@@ -427,7 +427,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'productListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ProductResource\Pages\ListProducts::class,
             )
@@ -436,7 +436,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'leaveListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\LeaveResource\Pages\ListLeaves::class,
             )
@@ -445,7 +445,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'employeeListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\EmployeeResource\Pages\ListEmployees::class,
             )
@@ -454,7 +454,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'departmentListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\DepartmentResource\Pages\ListDepartments::class,
             )
@@ -463,7 +463,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'leadListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\LeadResource\Pages\ListLeads::class,
             )
@@ -472,7 +472,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'expenseListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ExpenseResource\Pages\ListExpenses::class,
             )
@@ -481,7 +481,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'paymentListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\PaymentResource\Pages\ListPayments::class,
             )
@@ -490,7 +490,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'purchaseOrderListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\PurchaseOrderResource\Pages\ListPurchaseOrders::class,
             )
@@ -499,7 +499,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'warehouseListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\WarehouseResource\Pages\ListWarehouses::class,
             )
@@ -508,7 +508,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'stockListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\StockResource\Pages\ListStocks::class,
             )
@@ -517,7 +517,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'attendanceListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\AttendanceResource\Pages\ListAttendances::class,
             )
@@ -526,7 +526,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'accountListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\AccountResource\Pages\ListAccounts::class,
             )
@@ -535,7 +535,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'leaveTypeListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\LeaveTypeResource\Pages\ListLeaveTypes::class,
             )
@@ -544,7 +544,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'expenseCategoryListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ExpenseCategoryResource\Pages\ListExpenseCategories::class,
             )
@@ -553,7 +553,7 @@ class AdminPanelProvider extends PanelProvider
                 fn () => view('components.view-mode-toggle', [
                     'storageKey' => 'productCategoryListViewMode',
                     'wireMethod' => 'setSlideOverMode',
-                    'defaultMode' => 'slide',
+                    'defaultMode' => 'page',
                 ]),
                 scopes: \App\Filament\Resources\ProductCategoryResource\Pages\ListProductCategories::class,
             )

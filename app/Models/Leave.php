@@ -43,7 +43,9 @@ class Leave extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'approved_by'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function employee(): BelongsTo

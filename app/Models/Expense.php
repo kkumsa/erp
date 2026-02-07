@@ -51,7 +51,9 @@ class Expense extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'approved_by'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     protected static function boot()

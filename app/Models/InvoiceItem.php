@@ -79,6 +79,8 @@ class InvoiceItem extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['quantity', 'unit_price', 'discount', 'amount'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

@@ -32,7 +32,9 @@ class Department extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'code', 'manager_id', 'is_active'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function parent(): BelongsTo

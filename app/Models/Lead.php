@@ -36,7 +36,9 @@ class Lead extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'assigned_to', 'converted_customer_id'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function assignedUser(): BelongsTo

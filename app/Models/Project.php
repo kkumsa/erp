@@ -46,7 +46,9 @@ class Project extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'progress', 'manager_id', 'budget'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     protected static function boot()

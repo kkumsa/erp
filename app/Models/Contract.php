@@ -41,7 +41,9 @@ class Contract extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['status', 'amount', 'signed_by'])
-            ->logOnlyDirty();
+            ->logOldValues()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     protected static function boot()
