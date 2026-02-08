@@ -23,6 +23,11 @@ class RecordLoginHistory
     public function handleLogout(Logout $event): void
     {
         if ($event->user) {
+            // 로그아웃 후 로그인 페이지가 현재 언어로 표시되도록 세션에 저장 (영문 상태 로그아웃 → 영문 로그인 페이지)
+            $locale = $event->user->locale ?? config('app.locale', 'ko');
+            if (in_array($locale, ['ko', 'en'])) {
+                session()->put('locale', $locale);
+            }
             $this->record($event->user, 'logout');
         }
     }
