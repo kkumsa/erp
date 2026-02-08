@@ -51,7 +51,7 @@ class ApprovalFlowSeeder extends Seeder
                     'step_order' => 1,
                     'approver_type' => 'role',
                     'approver_id' => $managerRole?->id,
-                    'action_type' => '승인',
+                    'action_type' => 'approval',
                 ]);
 
                 // 2단계: 본부장(Admin) 승인
@@ -60,7 +60,7 @@ class ApprovalFlowSeeder extends Seeder
                     'step_order' => 2,
                     'approver_type' => 'role',
                     'approver_id' => $adminRole?->id,
-                    'action_type' => '승인',
+                    'action_type' => 'approval',
                 ]);
 
                 // 3단계: CEO 최종 승인
@@ -69,7 +69,7 @@ class ApprovalFlowSeeder extends Seeder
                     'step_order' => 3,
                     'approver_type' => 'user',
                     'approver_id' => $ceo?->id ?? 1,
-                    'action_type' => '승인',
+                    'action_type' => 'approval',
                 ]);
             }
 
@@ -94,7 +94,7 @@ class ApprovalFlowSeeder extends Seeder
                     'step_order' => 1,
                     'approver_type' => 'role',
                     'approver_id' => $adminRole?->id,
-                    'action_type' => '승인',
+                    'action_type' => 'approval',
                 ]);
 
                 // 2단계: CEO 최종 승인
@@ -103,7 +103,7 @@ class ApprovalFlowSeeder extends Seeder
                     'step_order' => 2,
                     'approver_type' => 'user',
                     'approver_id' => $ceo?->id ?? 1,
-                    'action_type' => '승인',
+                    'action_type' => 'approval',
                 ]);
             }
 
@@ -127,7 +127,7 @@ class ApprovalFlowSeeder extends Seeder
                         'step_order' => 1,
                         'approver_type' => 'role',
                         'approver_id' => $managerRole?->id,
-                        'action_type' => '승인',
+                        'action_type' => 'approval',
                     ]);
 
                     ApprovalFlowStep::create([
@@ -135,7 +135,7 @@ class ApprovalFlowSeeder extends Seeder
                         'step_order' => 2,
                         'approver_type' => 'role',
                         'approver_id' => $adminRole?->id,
-                        'action_type' => '승인',
+                        'action_type' => 'approval',
                     ]);
 
                     ApprovalFlowStep::create([
@@ -143,7 +143,7 @@ class ApprovalFlowSeeder extends Seeder
                         'step_order' => 3,
                         'approver_type' => 'user',
                         'approver_id' => $ceo?->id ?? 1,
-                        'action_type' => '승인',
+                        'action_type' => 'approval',
                     ]);
                 }
             }
