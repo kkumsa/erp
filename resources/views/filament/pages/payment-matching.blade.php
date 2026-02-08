@@ -94,7 +94,9 @@
                             @foreach($this->getInvoices() as $invoice)
                                 @php
                                     $balance = $invoice->total_amount - $invoice->paid_amount;
-                                    $statusEnum = \App\Enums\InvoiceStatus::tryFrom($invoice->status);
+                                    $statusEnum = $invoice->status instanceof \App\Enums\InvoiceStatus
+                                        ? $invoice->status
+                                        : \App\Enums\InvoiceStatus::tryFrom($invoice->status);
                                 @endphp
                                 <tr
                                     x-on:dragover="dragOver($event, {{ $invoice->id }})"
