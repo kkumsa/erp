@@ -10,6 +10,8 @@ class ViewProject extends ViewRecord
 {
     protected static string $resource = ProjectResource::class;
 
+    protected static string $view = 'filament.pages.view-record-with-log';
+
     protected function getHeaderActions(): array
     {
         return [

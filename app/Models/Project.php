@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\ExpenseStatus;
+use App\Enums\Priority;
+use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
+use App\Enums\TimesheetStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,6 +45,8 @@ class Project extends Model
         'budget' => 'decimal:2',
         'actual_cost' => 'decimal:2',
         'meta' => 'array',
+        'status' => ProjectStatus::class,
+        'priority' => Priority::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -121,16 +128,16 @@ class Project extends Model
             return 0;
         }
 
-        $completedTasks = $this->tasks()->where('status', '완료')->count();
+        $completedTasks = $this->tasks()->where('status', TaskStatus::Completed)->count();
         return (int) round(($completedTasks / $totalTasks) * 100);
     }
 
     // 실비용 계산
     public function calculateActualCost(): float
     {
-        $expenseTotal = $this->expenses()->where('status', '승인')->sum('total_amount');
+        $expenseTotal = $this->expenses()->where('status', ExpenseStatus::Approved)->sum('total_amount');
         $timesheetCost = $this->timesheets()
-            ->where('status', '승인')
+            ->where('status', TimesheetStatus::Approved)
             ->where('is_billable', true)
             ->sum(\DB::raw('hours * COALESCE(hourly_rate, 0)'));
 
@@ -146,6 +153,6 @@ class Project extends Model
     // 일정 지연 여부
     public function getIsDelayedAttribute(): bool
     {
-        return $this->end_date && $this->end_date->isPast() && $this->status !== '완료';
+        return $this->end_date && $this->end_date->isPast() && $this->status !== ProjectStatus::Completed;
     }
 }

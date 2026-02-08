@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseOrderStatus;
 use App\Models\Traits\Approvable;
+use App\Scopes\FinanceDepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,13 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class PurchaseOrder extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity, Approvable;
+
+    public string $financeScopeMode = 'creator_or_project';
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new FinanceDepartmentScope);
+    }
 
     protected $fillable = [
         'po_number',
@@ -41,6 +50,7 @@ class PurchaseOrder extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'approved_at' => 'datetime',
+        'status' => PurchaseOrderStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -105,10 +115,10 @@ class PurchaseOrder extends Model
         $receivedQty = $this->items->sum('received_quantity');
 
         if ($receivedQty >= $totalQty) {
-            $this->status = '입고완료';
+            $this->status = PurchaseOrderStatus::Received;
             $this->received_date = now();
         } elseif ($receivedQty > 0) {
-            $this->status = '부분입고';
+            $this->status = PurchaseOrderStatus::PartiallyReceived;
         }
 
         $this->save();

@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
+use App\Enums\PurchaseOrderStatus;
+use App\Enums\SupplierPaymentTerms;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,6 +35,11 @@ class Supplier extends Model
         'note',
     ];
 
+    protected $casts = [
+        'status' => ActiveStatus::class,
+        'payment_terms' => SupplierPaymentTerms::class,
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -54,7 +62,7 @@ class Supplier extends Model
     public function getTotalPurchaseAmountAttribute(): float
     {
         return $this->purchaseOrders()
-            ->whereIn('status', ['발주완료', '부분입고', '입고완료'])
+            ->whereIn('status', [PurchaseOrderStatus::Ordered, PurchaseOrderStatus::PartiallyReceived, PurchaseOrderStatus::Received])
             ->sum('total_amount');
     }
 }

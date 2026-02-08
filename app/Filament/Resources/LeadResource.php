@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\LeadSource;
+use App\Enums\LeadStatus;
 use App\Filament\Resources\LeadResource\Pages;
 use App\Models\Lead;
 use Filament\Forms;
@@ -23,79 +25,79 @@ class LeadResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-funnel';
 
-    protected static ?string $navigationGroup = 'CRM';
-
-    protected static ?string $navigationLabel = '잠재 고객 발굴';
-
-    protected static ?string $modelLabel = '잠재 고객';
-
-    protected static ?string $pluralModelLabel = '잠재 고객';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.crm');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.lead');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.lead');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.lead_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('기본 정보')
+                Forms\Components\Section::make(__('common.sections.basic_info'))
                     ->schema([
                         Forms\Components\TextInput::make('company_name')
-                            ->label('회사명')
+                            ->label(__('fields.company_name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('contact_name')
-                            ->label('담당자')
+                            ->label(__('fields.contact_name'))
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
-                            ->label('이메일')
+                            ->label(__('fields.email'))
                             ->email()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('phone')
-                            ->label('전화번호')
+                            ->label(__('fields.phone'))
                             ->tel()
                             ->maxLength(20),
 
                         Forms\Components\Select::make('source')
-                            ->label('유입 경로')
-                            ->options([
-                                '웹사이트' => '웹사이트',
-                                '소개' => '소개',
-                                '광고' => '광고',
-                                '전시회' => '전시회',
-                                '기타' => '기타',
-                            ]),
+                            ->label(__('fields.source'))
+                            ->options(LeadSource::class),
 
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '신규' => '신규',
-                                '연락중' => '연락중',
-                                '적격' => '적격',
-                                '부적격' => '부적격',
-                                '전환' => '전환',
-                            ])
-                            ->default('신규')
+                            ->label(__('fields.status'))
+                            ->options(LeadStatus::class)
+                            ->default(LeadStatus::New)
                             ->required(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('추가 정보')
+                Forms\Components\Section::make(__('common.sections.additional_info'))
                     ->schema([
                         Forms\Components\TextInput::make('expected_revenue')
-                            ->label('예상 매출')
+                            ->label(__('fields.expected_revenue'))
                             ->numeric()
                             ->prefix('₩'),
 
                         Forms\Components\Select::make('assigned_to')
-                            ->label('담당자')
+                            ->label(__('fields.assigned_to'))
                             ->relationship('assignedUser', 'name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Textarea::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -106,64 +108,57 @@ class LeadResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('기본 정보')
+                Infolists\Components\Section::make(__('common.sections.basic_info'))
                     ->id('lead-info')
                     ->description(fn ($record) => $record->company_name)
                     ->schema([
                         Infolists\Components\TextEntry::make('company_name')
-                            ->label('회사명'),
+                            ->label(__('fields.company_name')),
 
                         Infolists\Components\TextEntry::make('contact_name')
-                            ->label('담당자'),
+                            ->label(__('fields.contact_name')),
 
                         Infolists\Components\TextEntry::make('email')
-                            ->label('이메일'),
+                            ->label(__('fields.email')),
 
                         Infolists\Components\TextEntry::make('phone')
-                            ->label('전화번호'),
+                            ->label(__('fields.phone')),
 
                         Infolists\Components\TextEntry::make('source')
-                            ->label('유입 경로')
+                            ->label(__('fields.source'))
                             ->badge(),
 
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '신규' => 'info',
-                                '연락중' => 'warning',
-                                '적격' => 'success',
-                                '부적격' => 'gray',
-                                '전환' => 'primary',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof LeadStatus ? $state->color() : (LeadStatus::tryFrom($state)?->color() ?? 'gray')),
                     ])
                     ->columns(2)
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Infolists\Components\Section::make('추가 정보')
+                Infolists\Components\Section::make(__('common.sections.additional_info'))
                     ->id('lead-extra')
-                    ->description(fn ($record) => $record->status)
+                    ->description(fn ($record) => $record->status instanceof LeadStatus ? $record->status->getLabel() : ($record->status ?? null))
                     ->schema([
                         Infolists\Components\TextEntry::make('expected_revenue')
-                            ->label('예상 매출')
+                            ->label(__('fields.expected_revenue'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('assignedUser.name')
-                            ->label('담당자'),
+                            ->label(__('fields.assigned_to')),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->columnSpanFull(),
 
                         Infolists\Components\TextEntry::make('created_at')
-                            ->label('등록일')
-                            ->dateTime('Y-m-d H:i'),
+                            ->label(__('fields.created_at'))
+                            ->dateTime('Y.m.d H:i'),
 
                         Infolists\Components\TextEntry::make('updated_at')
-                            ->label('수정일')
-                            ->dateTime('Y-m-d H:i'),
+                            ->label(__('fields.updated_at'))
+                            ->dateTime('Y.m.d H:i'),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -176,66 +171,47 @@ class LeadResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('company_name')
-                    ->label('회사명')
+                    ->label(__('fields.company_name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('contact_name')
-                    ->label('담당자'),
+                    ->label(__('fields.contact_name')),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('이메일'),
+                    ->label(__('fields.email')),
 
                 Tables\Columns\TextColumn::make('source')
-                    ->label('유입 경로')
+                    ->label(__('fields.source'))
                     ->badge(),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '신규' => 'info',
-                        '연락중' => 'warning',
-                        '적격' => 'success',
-                        '부적격' => 'gray',
-                        '전환' => 'primary',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof LeadStatus ? $state->color() : (LeadStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('expected_revenue')
-                    ->label('예상 매출')
+                    ->label(__('fields.expected_revenue'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('assignedUser.name')
-                    ->label('담당자'),
+                    ->label(__('fields.assigned_to')),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('등록일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.created_at'))
+                    ->date('Y.m.d')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '신규' => '신규',
-                        '연락중' => '연락중',
-                        '적격' => '적격',
-                        '부적격' => '부적격',
-                        '전환' => '전환',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(LeadStatus::class),
 
                 Tables\Filters\SelectFilter::make('source')
-                    ->label('유입 경로')
-                    ->options([
-                        '웹사이트' => '웹사이트',
-                        '소개' => '소개',
-                        '광고' => '광고',
-                        '전시회' => '전시회',
-                        '기타' => '기타',
-                    ]),
+                    ->label(__('fields.source'))
+                    ->options(LeadSource::class),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')

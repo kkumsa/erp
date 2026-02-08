@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\LeaveStatus;
 use App\Filament\Resources\LeaveResource;
 use App\Models\Leave;
 use Illuminate\Bus\Queueable;
@@ -15,7 +16,7 @@ class LeaveStatusChangedNotification extends Notification
 
     public function __construct(
         public Leave $leave,
-        public string $newStatus,
+        public LeaveStatus $newStatus,
     ) {}
 
     public function via($notifiable): array
@@ -26,8 +27,8 @@ class LeaveStatusChangedNotification extends Notification
     public function toDatabase($notifiable): array
     {
         $leaveType = $this->leave->leaveType?->name ?? '휴가';
-        $isApproved = $this->newStatus === '승인';
-        $statusLabel = $isApproved ? '승인' : '반려';
+        $isApproved = $this->newStatus === LeaveStatus::Approved;
+        $statusLabel = $this->newStatus->getLabel();
 
         return FilamentNotification::make()
             ->title("휴가 {$statusLabel}")

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CustomerResource\RelationManagers;
 
+use App\Enums\OpportunityStage;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,60 +13,63 @@ class OpportunitiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'opportunities';
 
-    protected static ?string $title = '영업 기회';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '영업 기회';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('models.opportunity');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.opportunity');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->label('기회명')
+                    ->label(__('fields.name'))
                     ->required()
                     ->maxLength(255),
 
                 Forms\Components\Select::make('contact_id')
-                    ->label('담당자')
+                    ->label(__('fields.contact_id'))
                     ->relationship('contact', 'name')
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\TextInput::make('amount')
-                    ->label('예상 금액')
+                    ->label(__('fields.amount'))
                     ->numeric()
                     ->prefix('₩'),
 
                 Forms\Components\Select::make('stage')
-                    ->label('단계')
-                    ->options([
-                        '발굴' => '발굴',
-                        '접촉' => '접촉',
-                        '제안' => '제안',
-                        '협상' => '협상',
-                        '계약완료' => '계약완료',
-                        '실패' => '실패',
-                    ])
-                    ->default('발굴')
+                    ->label(__('fields.stage'))
+                    ->options(OpportunityStage::class)
+                    ->default(OpportunityStage::Discovery)
                     ->required(),
 
                 Forms\Components\TextInput::make('probability')
-                    ->label('성공 확률')
+                    ->label(__('fields.probability'))
                     ->numeric()
                     ->suffix('%')
                     ->default(10),
 
                 Forms\Components\DatePicker::make('expected_close_date')
-                    ->label('예상 계약일'),
+                    ->label(__('fields.expected_close_date')),
 
                 Forms\Components\Select::make('assigned_to')
-                    ->label('영업 담당자')
+                    ->label(__('fields.assigned_to'))
                     ->relationship('assignedUser', 'name')
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Textarea::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->rows(2)
                     ->columnSpanFull(),
             ]);
@@ -76,37 +80,29 @@ class OpportunitiesRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('기회명')
+                    ->label(__('fields.name'))
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('예상 금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('stage')
-                    ->label('단계')
+                    ->label(__('fields.stage'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '발굴' => 'gray',
-                        '접촉' => 'info',
-                        '제안' => 'warning',
-                        '협상' => 'primary',
-                        '계약완료' => 'success',
-                        '실패' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof OpportunityStage ? $state->color() : (OpportunityStage::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('probability')
-                    ->label('확률')
+                    ->label(__('fields.probability'))
                     ->suffix('%'),
 
                 Tables\Columns\TextColumn::make('expected_close_date')
-                    ->label('예상 계약일')
-                    ->date('Y-m-d'),
+                    ->label(__('fields.expected_close_date'))
+                    ->date('Y.m.d'),
 
                 Tables\Columns\TextColumn::make('assignedUser.name')
-                    ->label('담당자'),
+                    ->label(__('fields.assigned_to')),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),

@@ -22,7 +22,7 @@
         <div class="flex-1">
             <h3 class="fi-section-header-heading text-base font-semibold leading-6 text-gray-950 dark:text-white flex items-center gap-2">
                 <x-heroicon-o-clock class="h-5 w-5 text-gray-400" />
-                활동 로그
+                {{ __('common.activity_log.title') }}
             </h3>
         </div>
     </div>
@@ -30,7 +30,7 @@
     <div class="fi-section-content border-t border-gray-200 dark:border-white/10">
         @if($activities->isEmpty())
             <div class="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                기록된 활동이 없습니다.
+                {{ __('common.activity_log.no_activity') }}
             </div>
         @else
             <div class="divide-y divide-gray-100 dark:divide-white/5">
@@ -65,13 +65,13 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 text-sm">
                                 <span class="font-medium text-gray-950 dark:text-white">
-                                    {{ $activity->causer?->name ?? '시스템' }}
+                                    {{ $activity->causer?->name ?? __('common.activity_log.system') }}
                                 </span>
                                 <span class="text-gray-500 dark:text-gray-400">
                                     @switch($activity->event)
-                                        @case('created') 생성 @break
-                                        @case('updated') 수정 @break
-                                        @case('deleted') 삭제 @break
+                                        @case('created') {{ __('common.activity_log.created') }} @break
+                                        @case('updated') {{ __('common.activity_log.updated') }} @break
+                                        @case('deleted') {{ __('common.activity_log.deleted') }} @break
                                         @default {{ $activity->description ?? $activity->event }}
                                     @endswitch
                                 </span>
@@ -106,7 +106,7 @@
                                         $attrs = collect($activity->properties['attributes'])->filter(fn($v) => !is_null($v) && $v !== '');
                                         $preview = $attrs->take(3)->map(fn($v, $k) => "$k: $v")->join(', ');
                                     @endphp
-                                    {{ $preview }}@if($attrs->count() > 3) ... 외 {{ $attrs->count() - 3 }}건 @endif
+                                    {{ $preview }}@if($attrs->count() > 3) {{ __('common.activity_log.and_more', ['count' => $attrs->count() - 3]) }} @endif
                                 </div>
                             @endif
                         </div>

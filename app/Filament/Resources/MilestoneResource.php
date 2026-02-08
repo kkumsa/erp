@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\MilestoneStatus;
 use App\Filament\Resources\MilestoneResource\Pages;
 use App\Models\Milestone;
 use Filament\Forms;
@@ -23,51 +24,59 @@ class MilestoneResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-flag';
 
-    protected static ?string $navigationGroup = '프로젝트';
-
-    protected static ?string $navigationLabel = '마일스톤';
-
-    protected static ?string $modelLabel = '마일스톤';
-
-    protected static ?string $pluralModelLabel = '마일스톤';
-
     protected static ?int $navigationSort = 4;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.project');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.milestone');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.milestone');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.milestone_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('project_id')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->relationship('project', 'name')
                     ->required()
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\TextInput::make('name')
-                    ->label('마일스톤명')
+                    ->label(__('fields.name'))
                     ->required()
                     ->maxLength(255),
 
                 Forms\Components\Textarea::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->rows(4)
                     ->columnSpanFull(),
 
                 Forms\Components\DatePicker::make('due_date')
-                    ->label('마감일'),
+                    ->label(__('fields.deadline')),
 
                 Forms\Components\Select::make('status')
-                    ->label('상태')
-                    ->options([
-                        '대기' => '대기',
-                        '진행중' => '진행중',
-                        '완료' => '완료',
-                    ])
-                    ->default('대기'),
+                    ->label(__('fields.status'))
+                    ->options(MilestoneStatus::class)
+                    ->default(MilestoneStatus::Pending),
 
                 Forms\Components\TextInput::make('sort_order')
-                    ->label('순서')
+                    ->label(__('fields.sort_order'))
                     ->numeric(),
             ]);
     }
@@ -76,36 +85,31 @@ class MilestoneResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('마일스톤 정보')
+                Infolists\Components\Section::make(__('common.sections.milestone_info'))
                     ->id('milestone-info')
                     ->description(fn ($record) => $record->name)
                     ->schema([
                         Infolists\Components\TextEntry::make('name')
-                            ->label('마일스톤명'),
+                            ->label(__('fields.name')),
 
                         Infolists\Components\TextEntry::make('project.name')
-                            ->label('프로젝트'),
+                            ->label(__('fields.project')),
 
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '대기' => 'gray',
-                                '진행중' => 'info',
-                                '완료' => 'success',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof MilestoneStatus ? $state->color() : (MilestoneStatus::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('due_date')
-                            ->label('마감일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.deadline'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('completed_date')
-                            ->label('완료일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.completed_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
@@ -119,31 +123,26 @@ class MilestoneResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('마일스톤명')
+                    ->label(__('fields.name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('project.name')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '대기' => 'gray',
-                        '진행중' => 'info',
-                        '완료' => 'success',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof MilestoneStatus ? $state->color() : (MilestoneStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('due_date')
-                    ->label('마감일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.deadline'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('tasks_count')
-                    ->label('작업 수')
+                    ->label(__('fields.task'))
                     ->counts('tasks')
                     ->sortable(),
             ])

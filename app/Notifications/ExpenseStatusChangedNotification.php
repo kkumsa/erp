@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\ExpenseStatus;
 use App\Filament\Resources\ExpenseResource;
 use App\Models\Expense;
 use Illuminate\Bus\Queueable;
@@ -15,7 +16,7 @@ class ExpenseStatusChangedNotification extends Notification
 
     public function __construct(
         public Expense $expense,
-        public string $newStatus,
+        public ExpenseStatus $newStatus,
     ) {}
 
     public function via($notifiable): array
@@ -25,8 +26,8 @@ class ExpenseStatusChangedNotification extends Notification
 
     public function toDatabase($notifiable): array
     {
-        $isApproved = $this->newStatus === '승인';
-        $statusLabel = $isApproved ? '승인' : '반려';
+        $isApproved = $this->newStatus === ExpenseStatus::Approved;
+        $statusLabel = $this->newStatus->getLabel();
         $amount = number_format($this->expense->total_amount) . '원';
 
         return FilamentNotification::make()

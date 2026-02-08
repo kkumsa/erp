@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
+use App\Enums\CustomerType;
+use App\Enums\InvoiceStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +37,8 @@ class Customer extends Model
 
     protected $casts = [
         'meta' => 'array',
+        'type' => CustomerType::class,
+        'status' => ActiveStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -82,6 +87,6 @@ class Customer extends Model
     // 총 거래액 계산
     public function getTotalRevenueAttribute(): float
     {
-        return $this->invoices()->where('status', '결제완료')->sum('total_amount');
+        return $this->invoices()->where('status', InvoiceStatus::Paid)->sum('total_amount');
     }
 }

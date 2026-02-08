@@ -14,35 +14,47 @@ class RoleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static ?string $navigationGroup = '시스템설정';
-
-    protected static ?string $navigationLabel = '역할 관리';
-
-    protected static ?string $modelLabel = '역할';
-
-    protected static ?string $pluralModelLabel = '역할';
-
     protected static ?int $navigationSort = 98;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.role');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.role');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.role_plural');
+    }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('역할명')
+                    ->label(__('fields.role_name'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('permissions_count')
-                    ->label('권한 수')
+                    ->label(__('fields.permissions_count'))
                     ->counts('permissions')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('users_count')
-                    ->label('사용자 수')
+                    ->label(__('fields.users_count'))
                     ->counts('users')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('생성일')
-                    ->dateTime('Y-m-d')
+                    ->label(__('fields.created_at'))
+                    ->dateTime('Y.m.d')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -76,11 +88,11 @@ class RoleResource extends Resource
 
     public static function canCreate(): bool
     {
-        return false; // 역할은 시더에서만 생성
+        return false;
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return false; // 역할 삭제 방지
+        return false;
     }
 }

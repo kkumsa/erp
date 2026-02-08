@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\StockMovementType;
 use App\Filament\Resources\StockMovementResource\Pages;
 use App\Models\StockMovement;
 use Filament\Forms;
@@ -23,15 +24,27 @@ class StockMovementResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
 
-    protected static ?string $navigationGroup = '재고/물류';
-
-    protected static ?string $navigationLabel = '재고 이동';
-
-    protected static ?string $modelLabel = '재고 이동';
-
-    protected static ?string $pluralModelLabel = '재고 이동';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.inventory_logistics');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.stock_movement');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.stock_movement');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.stock_movement_plural');
+    }
 
     public static function form(Form $form): Form
     {
@@ -39,46 +52,40 @@ class StockMovementResource extends Resource
             ->schema([
                 Forms\Components\Select::make('warehouse_id')
                     ->relationship('warehouse', 'name')
-                    ->label('창고')
+                    ->label(__('fields.warehouse_id'))
                     ->required()
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('product_id')
                     ->relationship('product', 'name')
-                    ->label('상품')
+                    ->label(__('fields.product_id'))
                     ->required()
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('type')
-                    ->options([
-                        '입고' => '입고',
-                        '출고' => '출고',
-                        '이동' => '이동',
-                        '조정' => '조정',
-                        '반품' => '반품',
-                    ])
+                    ->options(StockMovementType::class)
                     ->required()
-                    ->label('유형'),
+                    ->label(__('fields.type')),
 
                 Forms\Components\TextInput::make('quantity')
                     ->numeric()
                     ->required()
-                    ->label('수량'),
+                    ->label(__('fields.quantity')),
 
                 Forms\Components\TextInput::make('unit_cost')
                     ->numeric()
-                    ->label('단가'),
+                    ->label(__('fields.unit_cost')),
 
                 Forms\Components\Select::make('destination_warehouse_id')
                     ->relationship('destinationWarehouse', 'name')
-                    ->label('목적지 창고')
+                    ->label(__('fields.destination_warehouse_id'))
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Textarea::make('reason')
-                    ->label('사유'),
+                    ->label(__('fields.reason')),
             ]);
     }
 
@@ -86,51 +93,44 @@ class StockMovementResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('재고 이동 정보')
+                Infolists\Components\Section::make(__('common.sections.stock_movement_info'))
                     ->id('stock-movement-info')
                     ->schema([
                         Infolists\Components\TextEntry::make('reference_number')
-                            ->label('참조번호'),
+                            ->label(__('fields.reference_number')),
 
                         Infolists\Components\TextEntry::make('warehouse.name')
-                            ->label('창고'),
+                            ->label(__('fields.warehouse')),
 
                         Infolists\Components\TextEntry::make('product.name')
-                            ->label('상품'),
+                            ->label(__('fields.product')),
 
                         Infolists\Components\TextEntry::make('type')
-                            ->label('유형')
+                            ->label(__('fields.type'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '입고' => 'success',
-                                '출고' => 'danger',
-                                '이동' => 'info',
-                                '조정' => 'warning',
-                                '반품' => 'gray',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state?->color() ?? 'gray'),
 
                         Infolists\Components\TextEntry::make('quantity')
-                            ->label('수량'),
+                            ->label(__('fields.quantity')),
 
                         Infolists\Components\TextEntry::make('before_quantity')
-                            ->label('이전수량'),
+                            ->label(__('fields.before_quantity')),
 
                         Infolists\Components\TextEntry::make('after_quantity')
-                            ->label('이후수량'),
+                            ->label(__('fields.after_quantity')),
 
                         Infolists\Components\TextEntry::make('unit_cost')
-                            ->label('단가')
+                            ->label(__('fields.unit_cost'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('destinationWarehouse.name')
-                            ->label('목적지 창고'),
+                            ->label(__('fields.destination_warehouse_id')),
 
                         Infolists\Components\TextEntry::make('reason')
-                            ->label('사유'),
+                            ->label(__('fields.reason')),
 
                         Infolists\Components\TextEntry::make('creator.name')
-                            ->label('처리자'),
+                            ->label(__('fields.creator')),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -143,50 +143,43 @@ class StockMovementResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('reference_number')
-                    ->label('참조번호')
+                    ->label(__('fields.reference_number'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('warehouse.name')
-                    ->label('창고')
+                    ->label(__('fields.warehouse'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('product.name')
-                    ->label('상품')
+                    ->label(__('fields.product'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->label('유형')
+                    ->label(__('fields.type'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '입고' => 'success',
-                        '출고' => 'danger',
-                        '이동' => 'info',
-                        '조정' => 'warning',
-                        '반품' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state?->color() ?? 'gray'),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('수량')
+                    ->label(__('fields.quantity'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('before_quantity')
-                    ->label('이전수량')
+                    ->label(__('fields.before_quantity'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('after_quantity')
-                    ->label('이후수량')
+                    ->label(__('fields.after_quantity'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('creator.name')
-                    ->label('처리자'),
+                    ->label(__('fields.creator')),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('등록일')
-                    ->dateTime('Y-m-d H:i')
+                    ->label(__('fields.created_at'))
+                    ->dateTime('Y.m.d H:i')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

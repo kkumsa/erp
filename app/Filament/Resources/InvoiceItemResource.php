@@ -23,15 +23,27 @@ class InvoiceItemResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = '재무/회계';
+    protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationLabel = '청구서 항목';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.finance');
+    }
 
-    protected static ?string $modelLabel = '청구서 항목';
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.invoice_item');
+    }
 
-    protected static ?string $pluralModelLabel = '청구서 항목';
+    public static function getModelLabel(): string
+    {
+        return __('models.invoice_item');
+    }
 
-    protected static ?int $navigationSort = 6;
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.invoice_item_plural');
+    }
 
     public static function form(Form $form): Form
     {
@@ -39,39 +51,39 @@ class InvoiceItemResource extends Resource
             ->schema([
                 Forms\Components\Select::make('invoice_id')
                     ->relationship('invoice', 'invoice_number')
-                    ->label('청구서')
+                    ->label(__('fields.invoice_id'))
                     ->required()
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('product_id')
                     ->relationship('product', 'name')
-                    ->label('상품')
+                    ->label(__('fields.product_id'))
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\TextInput::make('description')
-                    ->label('설명'),
+                    ->label(__('fields.description')),
 
                 Forms\Components\TextInput::make('quantity')
                     ->numeric()
                     ->required(),
 
                 Forms\Components\TextInput::make('unit')
-                    ->label('단위'),
+                    ->label(__('fields.unit')),
 
                 Forms\Components\TextInput::make('unit_price')
                     ->numeric()
                     ->required()
-                    ->label('단가'),
+                    ->label(__('fields.unit_price')),
 
                 Forms\Components\TextInput::make('discount')
                     ->numeric()
-                    ->label('할인율 %'),
+                    ->label(__('fields.discount')),
 
                 Forms\Components\TextInput::make('tax_rate')
                     ->numeric()
-                    ->label('세율 %'),
+                    ->label(__('fields.tax_rate')),
             ]);
     }
 
@@ -79,36 +91,36 @@ class InvoiceItemResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('청구서 항목 정보')
+                Infolists\Components\Section::make(__('common.sections.invoice_item_info'))
                     ->id('invoice-item-info')
                     ->schema([
                         Infolists\Components\TextEntry::make('invoice.invoice_number')
-                            ->label('청구서'),
+                            ->label(__('fields.invoice')),
 
                         Infolists\Components\TextEntry::make('product.name')
-                            ->label('상품'),
+                            ->label(__('fields.product')),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명'),
+                            ->label(__('fields.description')),
 
                         Infolists\Components\TextEntry::make('quantity')
-                            ->label('수량'),
+                            ->label(__('fields.quantity')),
 
                         Infolists\Components\TextEntry::make('unit')
-                            ->label('단위'),
+                            ->label(__('fields.unit')),
 
                         Infolists\Components\TextEntry::make('unit_price')
-                            ->label('단가')
+                            ->label(__('fields.unit_price'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('discount')
-                            ->label('할인율 %'),
+                            ->label(__('fields.discount')),
 
                         Infolists\Components\TextEntry::make('tax_rate')
-                            ->label('세율 %'),
+                            ->label(__('fields.tax_rate')),
 
                         Infolists\Components\TextEntry::make('amount')
-                            ->label('금액')
+                            ->label(__('fields.amount'))
                             ->money('KRW'),
                     ])
                     ->columns(2)
@@ -122,34 +134,34 @@ class InvoiceItemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('invoice.invoice_number')
-                    ->label('청구서')
+                    ->label(__('fields.invoice'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('product.name')
-                    ->label('상품')
+                    ->label(__('fields.product'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->limit(30),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('수량')
+                    ->label(__('fields.quantity'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('unit_price')
-                    ->label('단가')
+                    ->label(__('fields.unit_price'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('discount')
-                    ->label('할인율')
+                    ->label(__('fields.discount'))
                     ->suffix('%'),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW')
                     ->sortable(),
             ])

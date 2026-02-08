@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ActiveStatus;
+use App\Enums\CustomerType;
+use App\Enums\LeadSource;
+use App\Enums\LeadStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +34,8 @@ class Lead extends Model
     protected $casts = [
         'expected_revenue' => 'decimal:2',
         'converted_at' => 'datetime',
+        'status' => LeadStatus::class,
+        'source' => LeadSource::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -57,8 +63,8 @@ class Lead extends Model
             'company_name' => $this->company_name ?? $this->contact_name,
             'phone' => $this->phone,
             'email' => $this->email,
-            'type' => '고객',
-            'status' => '활성',
+            'type' => CustomerType::Customer,
+            'status' => ActiveStatus::Active,
             'assigned_to' => $this->assigned_to,
         ]);
 
@@ -73,7 +79,7 @@ class Lead extends Model
         }
 
         $this->update([
-            'status' => '전환완료',
+            'status' => LeadStatus::Converted,
             'converted_customer_id' => $customer->id,
             'converted_at' => now(),
         ]);

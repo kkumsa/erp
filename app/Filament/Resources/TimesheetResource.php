@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\TimesheetStatus;
 use App\Filament\Resources\TimesheetResource\Pages;
 use App\Models\Timesheet;
 use Filament\Forms;
@@ -23,78 +24,96 @@ class TimesheetResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationGroup = '프로젝트';
-
-    protected static ?string $navigationLabel = '근무기록';
-
-    protected static ?string $modelLabel = '근무기록';
-
-    protected static ?string $pluralModelLabel = '근무기록';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.project');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.timesheet');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.timesheet');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.timesheet_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('근무기록 정보')
+                Forms\Components\Section::make(__('common.sections.timesheet_info'))
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                            ->label('작업자')
+                            ->label(__('fields.user_id'))
                             ->relationship('user', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
 
                         Forms\Components\Select::make('project_id')
-                            ->label('프로젝트')
+                            ->label(__('fields.project'))
                             ->relationship('project', 'name')
                             ->searchable()
                             ->preload()
-                            ->reactive(),
+                            ->live()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('task_id', null)),
 
                         Forms\Components\Select::make('task_id')
-                            ->label('작업')
-                            ->relationship('task', 'title')
+                            ->label(__('fields.task'))
+                            ->options(function (Forms\Get $get) {
+                                $projectId = $get('project_id');
+                                if (!$projectId) {
+                                    return [];
+                                }
+                                return \App\Models\Task::where('project_id', $projectId)
+                                    ->pluck('title', 'id');
+                            })
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->placeholder(fn (Forms\Get $get) => $get('project_id') ? __('common.placeholders.select_task') : __('common.placeholders.select_project_first'))
+                            ->disabled(fn (Forms\Get $get) => !$get('project_id')),
 
                         Forms\Components\DatePicker::make('date')
-                            ->label('날짜')
+                            ->label(__('fields.date'))
                             ->required()
                             ->default(now()),
 
                         Forms\Components\TextInput::make('hours')
-                            ->label('시간')
+                            ->label(__('fields.hours'))
                             ->numeric()
                             ->required()
                             ->suffix('h'),
 
                         Forms\Components\Textarea::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('청구 및 상태')
+                Forms\Components\Section::make(__('common.sections.billing_and_status'))
                     ->schema([
                         Forms\Components\Toggle::make('is_billable')
-                            ->label('청구 가능')
+                            ->label(__('fields.is_billable'))
                             ->default(false),
 
                         Forms\Components\TextInput::make('hourly_rate')
-                            ->label('시간당 단가')
+                            ->label(__('fields.hourly_rate'))
                             ->numeric()
                             ->prefix('₩'),
 
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '대기' => '대기',
-                                '승인' => '승인',
-                                '반려' => '반려',
-                            ])
-                            ->default('대기')
+                            ->label(__('fields.status'))
+                            ->options(TimesheetStatus::class)
+                            ->default(TimesheetStatus::Pending)
                             ->required(),
                     ])->columns(3),
             ]);
@@ -104,47 +123,42 @@ class TimesheetResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('근무기록 정보')
+                Infolists\Components\Section::make(__('common.sections.timesheet_info'))
                     ->id('timesheet-info')
                     ->description(fn ($record) => $record->date?->format('Y-m-d'))
                     ->schema([
                         Infolists\Components\TextEntry::make('date')
-                            ->label('날짜')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('user.name')
-                            ->label('작업자'),
+                            ->label(__('fields.user_id')),
 
                         Infolists\Components\TextEntry::make('project.name')
-                            ->label('프로젝트'),
+                            ->label(__('fields.project')),
 
                         Infolists\Components\TextEntry::make('task.title')
-                            ->label('작업'),
+                            ->label(__('fields.task')),
 
                         Infolists\Components\TextEntry::make('hours')
-                            ->label('시간')
+                            ->label(__('fields.hours'))
                             ->suffix('h'),
 
                         Infolists\Components\IconEntry::make('is_billable')
-                            ->label('청구 가능')
+                            ->label(__('fields.is_billable'))
                             ->boolean(),
 
                         Infolists\Components\TextEntry::make('hourly_rate')
-                            ->label('시간당 단가')
+                            ->label(__('fields.hourly_rate'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '대기' => 'gray',
-                                '승인' => 'success',
-                                '반려' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof TimesheetStatus ? $state->color() : (TimesheetStatus::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
@@ -158,57 +172,48 @@ class TimesheetResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('date')
-                    ->label('날짜')
-                    ->date('Y-m-d')
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('작업자')
+                    ->label(__('fields.date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('project.name')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('task.title')
-                    ->label('작업')
+                    ->label(__('fields.task'))
                     ->limit(30),
 
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label(__('fields.user_id'))
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('hours')
-                    ->label('시간')
+                    ->label(__('fields.hours'))
                     ->suffix('h')
                     ->sortable(),
 
                 Tables\Columns\IconColumn::make('is_billable')
-                    ->label('청구가능')
+                    ->label(__('fields.is_billable'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '대기' => 'gray',
-                        '승인' => 'success',
-                        '반려' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof TimesheetStatus ? $state->color() : (TimesheetStatus::tryFrom($state)?->color() ?? 'gray')),
             ])
             ->defaultSort('date', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '대기' => '대기',
-                        '승인' => '승인',
-                        '반려' => '반려',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(TimesheetStatus::class),
 
                 Tables\Filters\SelectFilter::make('project_id')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->relationship('project', 'name'),
 
                 Tables\Filters\TernaryFilter::make('is_billable')
-                    ->label('청구 가능'),
+                    ->label(__('fields.is_billable')),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')

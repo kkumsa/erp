@@ -92,15 +92,15 @@ class ApprovalFlow extends Model
     }
 
     /**
-     * 대상 타입 한글 라벨
+     * 대상 타입 라벨
      */
     public function getTargetLabelAttribute(): string
     {
         return match ($this->target_type) {
-            'App\\Models\\PurchaseOrder' => '구매주문',
-            'App\\Models\\Expense' => '비용',
-            'App\\Models\\Leave' => '휴가',
-            'App\\Models\\Timesheet' => '근무기록',
+            PurchaseOrder::class => __('models.purchase_order'),
+            Expense::class => __('models.expense'),
+            Leave::class => __('models.leave'),
+            Timesheet::class => __('models.timesheet'),
             default => class_basename($this->target_type),
         };
     }

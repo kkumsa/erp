@@ -2,17 +2,22 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\ExpenseStatus;
+use App\Enums\InvoiceStatus;
 use App\Models\Expense;
 use App\Models\Invoice;
 use Filament\Widgets\ChartWidget;
 
 class RevenueChart extends ChartWidget
 {
-    protected static ?string $heading = '월별 매출/비용 현황';
-
     protected static ?int $sort = 2;
 
     protected int | string | array $columnSpan = 'full';
+
+    public function getHeading(): string|\Illuminate\Contracts\Support\Htmlable|null
+    {
+        return __('common.widgets.monthly_revenue_expense');
+    }
 
     public static function canView(): bool
     {
@@ -34,12 +39,12 @@ class RevenueChart extends ChartWidget
             $monthStart = $date->copy()->startOfMonth();
             $monthEnd = $date->copy()->endOfMonth();
 
-            $revenue = Invoice::where('status', '결제완료')
+            $revenue = Invoice::where('status', InvoiceStatus::Paid->value)
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->sum('total_amount');
             $revenues->push($revenue);
 
-            $expense = Expense::where('status', '승인')
+            $expense = Expense::where('status', ExpenseStatus::Approved->value)
                 ->whereBetween('expense_date', [$monthStart, $monthEnd])
                 ->sum('total_amount');
             $expenses->push($expense);
@@ -48,13 +53,13 @@ class RevenueChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => '매출',
+                    'label' => __('common.widgets.revenue'),
                     'data' => $revenues->toArray(),
                     'backgroundColor' => 'rgba(59, 130, 246, 0.5)',
                     'borderColor' => 'rgb(59, 130, 246)',
                 ],
                 [
-                    'label' => '비용',
+                    'label' => __('common.widgets.expense'),
                     'data' => $expenses->toArray(),
                     'backgroundColor' => 'rgba(239, 68, 68, 0.5)',
                     'borderColor' => 'rgb(239, 68, 68)',

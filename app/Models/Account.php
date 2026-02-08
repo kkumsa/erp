@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AccountType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,7 @@ class Account extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'type' => AccountType::class,
     ];
 
     public function parent(): BelongsTo
@@ -40,6 +42,21 @@ class Account extends Model
     public function expenseCategories(): HasMany
     {
         return $this->hasMany(ExpenseCategory::class);
+    }
+
+    public function salesProductCategories(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class, 'sales_account_id');
+    }
+
+    public function purchaseProductCategories(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class, 'purchase_account_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -2,6 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\ApprovalAction as ApprovalActionEnum;
+use App\Enums\ApprovalActionType;
+use App\Enums\ApprovalStatus;
+use App\Enums\ExpenseStatus;
+use App\Enums\LeaveStatus;
+use App\Enums\PurchaseOrderStatus;
+use App\Enums\TimesheetStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,6 +34,7 @@ class ApprovalRequest extends Model
         return [
             'requested_at' => 'datetime',
             'completed_at' => 'datetime',
+            'status' => ApprovalStatus::class,
         ];
     }
 
@@ -63,7 +71,7 @@ class ApprovalRequest extends Model
      */
     public function isCurrentApprover(User $user): bool
     {
-        if ($this->status !== '진행중') {
+        if ($this->status !== ApprovalStatus::InProgress) {
             return false;
         }
 
@@ -146,15 +154,15 @@ class ApprovalRequest extends Model
                 'approval_request_id' => $this->id,
                 'step_order' => $this->current_step,
                 'approver_id' => $this->requested_by,
-                'action' => '자동스킵',
-                'comment' => '신청자가 해당 단계 권한 보유 (자동 스킵)',
+                'action' => ApprovalActionEnum::AutoSkipped->value,
+                'comment' => __('approval.auto_skip_comment'),
                 'acted_at' => now(),
             ]);
 
             // 마지막 단계였으면 자동 승인
             if ($this->current_step >= $maxSteps) {
                 $this->update([
-                    'status' => '승인',
+                    'status' => ApprovalStatus::Approved,
                     'completed_at' => now(),
                 ]);
                 $this->updateApprovableOnApprove();
@@ -179,7 +187,9 @@ class ApprovalRequest extends Model
             return false;
         }
 
-        $actionType = $step->action_type === '참조' ? '참조확인' : '승인';
+        $actionType = $step->action_type === ApprovalActionType::Reference
+            ? ApprovalActionEnum::Acknowledged->value
+            : ApprovalActionEnum::Approved->value;
 
         // 이미 이 단계에서 이 사용자가 액션을 수행했는지 체크
         $existing = $this->actions()
@@ -216,7 +226,7 @@ class ApprovalRequest extends Model
         }
 
         // 참조 단계는 반려 불가
-        if ($step->action_type === '참조') {
+        if ($step->action_type === ApprovalActionType::Reference) {
             return false;
         }
 
@@ -224,13 +234,13 @@ class ApprovalRequest extends Model
             'approval_request_id' => $this->id,
             'step_order' => $this->current_step,
             'approver_id' => $userId,
-            'action' => '반려',
+            'action' => ApprovalActionEnum::Rejected->value,
             'comment' => $comment,
             'acted_at' => now(),
         ]);
 
         $this->update([
-            'status' => '반려',
+            'status' => ApprovalStatus::Rejected,
             'completed_at' => now(),
         ]);
 
@@ -248,7 +258,7 @@ class ApprovalRequest extends Model
         if ($this->current_step >= $this->total_steps) {
             // 최종 승인
             $this->update([
-                'status' => '승인',
+                'status' => ApprovalStatus::Approved,
                 'completed_at' => now(),
             ]);
 
@@ -277,7 +287,7 @@ class ApprovalRequest extends Model
         }
 
         $lastAction = $this->actions()
-            ->where('action', '!=', '자동스킵')
+            ->where('action', '!=', ApprovalActionEnum::AutoSkipped->value)
             ->latest('acted_at')
             ->first();
 
@@ -285,13 +295,25 @@ class ApprovalRequest extends Model
 
         if ($model instanceof PurchaseOrder) {
             $model->update([
-                'status' => '승인',
+                'status' => PurchaseOrderStatus::Approved,
                 'approved_by' => $approverId,
                 'approved_at' => now(),
             ]);
-        } elseif ($model instanceof Expense || $model instanceof Leave || $model instanceof Timesheet) {
+        } elseif ($model instanceof Expense) {
             $model->update([
-                'status' => '승인',
+                'status' => ExpenseStatus::Approved,
+                'approved_by' => $approverId,
+                'approved_at' => now(),
+            ]);
+        } elseif ($model instanceof Leave) {
+            $model->update([
+                'status' => LeaveStatus::Approved,
+                'approved_by' => $approverId,
+                'approved_at' => now(),
+            ]);
+        } elseif ($model instanceof Timesheet) {
+            $model->update([
+                'status' => TimesheetStatus::Approved,
                 'approved_by' => $approverId,
                 'approved_at' => now(),
             ]);
@@ -308,19 +330,25 @@ class ApprovalRequest extends Model
             return;
         }
 
-        $lastAction = $this->actions()->where('action', '반려')->latest('acted_at')->first();
+        $lastAction = $this->actions()->where('action', ApprovalActionEnum::Rejected->value)->latest('acted_at')->first();
         $rejectionReason = $lastAction?->comment;
 
         if ($model instanceof PurchaseOrder) {
-            $model->update(['status' => '초안']);
-        } elseif ($model instanceof Expense || $model instanceof Leave) {
-            $updateData = ['status' => '반려'];
+            $model->update(['status' => PurchaseOrderStatus::Draft]);
+        } elseif ($model instanceof Expense) {
+            $updateData = ['status' => ExpenseStatus::Rejected];
+            if ($rejectionReason) {
+                $updateData['rejection_reason'] = $rejectionReason;
+            }
+            $model->update($updateData);
+        } elseif ($model instanceof Leave) {
+            $updateData = ['status' => LeaveStatus::Rejected];
             if ($rejectionReason) {
                 $updateData['rejection_reason'] = $rejectionReason;
             }
             $model->update($updateData);
         } elseif ($model instanceof Timesheet) {
-            $model->update(['status' => '반려']);
+            $model->update(['status' => TimesheetStatus::Rejected]);
         }
     }
 

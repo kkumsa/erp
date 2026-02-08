@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ExpenseStatus;
 use App\Models\ApprovalFlow;
 use App\Models\Expense;
 use App\Models\User;
@@ -33,7 +34,7 @@ class ExpenseObserver
         // 결재라인을 통한 변경은 ApprovalRequest에서 처리하므로 여기서는 수동 변경만
         if ($expense->isDirty('status') && !$expense->hasPendingApproval()) {
             $newStatus = $expense->status;
-            if (in_array($newStatus, ['승인', '반려'])) {
+            if (in_array($newStatus, [ExpenseStatus::Approved, ExpenseStatus::Rejected])) {
                 $expense->loadMissing('employee.user');
                 $user = $expense->employee?->user;
                 if ($user && $user->wantsNotification('expense_status_changed')) {

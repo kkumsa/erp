@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Priority;
+use App\Enums\ProjectStatus;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Project;
@@ -24,104 +26,105 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = '프로젝트';
-
-    protected static ?string $navigationLabel = '프로젝트 관리';
-
-    protected static ?string $modelLabel = '프로젝트';
-
-    protected static ?string $pluralModelLabel = '프로젝트';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.project');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.project');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.project');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.project_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('프로젝트 정보')
+                Forms\Components\Section::make(__('common.sections.project_info'))
                     ->schema([
                         Forms\Components\TextInput::make('code')
-                            ->label('프로젝트 코드')
+                            ->label(__('fields.code'))
                             ->disabled()
                             ->dehydrated(false)
-                            ->placeholder('자동 생성'),
+                            ->placeholder(__('common.placeholders.auto_generated')),
 
                         Forms\Components\TextInput::make('name')
-                            ->label('프로젝트명')
+                            ->label(__('fields.name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\Select::make('customer_id')
-                            ->label('고객')
+                            ->label(__('fields.customer'))
                             ->relationship('customer', 'company_name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('contract_id')
-                            ->label('계약')
+                            ->label(__('fields.contract'))
                             ->relationship('contract', 'title')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('manager_id')
-                            ->label('프로젝트 매니저')
+                            ->label(__('fields.manager_id'))
                             ->relationship('manager', 'name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Textarea::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('일정')
+                Forms\Components\Section::make(__('common.sections.schedule'))
                     ->schema([
                         Forms\Components\DatePicker::make('start_date')
-                            ->label('시작일')
+                            ->label(__('fields.start_date'))
                             ->required()
                             ->default(now()),
 
                         Forms\Components\DatePicker::make('end_date')
-                            ->label('종료 예정일')
+                            ->label(__('fields.end_date'))
                             ->afterOrEqual('start_date'),
 
                         Forms\Components\DatePicker::make('actual_end_date')
-                            ->label('실제 종료일'),
+                            ->label(__('fields.actual_end_date')),
                     ])->columns(3),
 
-                Forms\Components\Section::make('예산 및 상태')
+                Forms\Components\Section::make(__('common.sections.budget_and_status'))
                     ->schema([
                         Forms\Components\TextInput::make('budget')
-                            ->label('예산')
+                            ->label(__('fields.budget'))
                             ->numeric()
                             ->prefix('₩'),
 
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '계획중' => '계획중',
-                                '진행중' => '진행중',
-                                '보류' => '보류',
-                                '완료' => '완료',
-                                '취소' => '취소',
-                            ])
-                            ->default('계획중')
+                            ->label(__('fields.status'))
+                            ->options(ProjectStatus::class)
+                            ->default(ProjectStatus::Planning)
                             ->required(),
 
                         Forms\Components\Select::make('priority')
-                            ->label('우선순위')
-                            ->options([
-                                '낮음' => '낮음',
-                                '보통' => '보통',
-                                '높음' => '높음',
-                                '긴급' => '긴급',
-                            ])
-                            ->default('보통')
+                            ->label(__('fields.priority'))
+                            ->options(Priority::class)
+                            ->default(Priority::Normal)
                             ->required(),
 
                         Forms\Components\TextInput::make('progress')
-                            ->label('진행률')
+                            ->label(__('fields.progress'))
                             ->numeric()
                             ->suffix('%')
                             ->default(0)
@@ -135,87 +138,74 @@ class ProjectResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('프로젝트 정보')
+                Infolists\Components\Section::make(__('common.sections.project_info'))
                     ->id('project-info')
                     ->description(fn ($record) => $record->name)
                     ->schema([
                         Infolists\Components\TextEntry::make('code')
-                            ->label('프로젝트 코드'),
+                            ->label(__('fields.code')),
 
                         Infolists\Components\TextEntry::make('name')
-                            ->label('프로젝트명'),
+                            ->label(__('fields.name')),
 
                         Infolists\Components\TextEntry::make('customer.company_name')
-                            ->label('고객'),
+                            ->label(__('fields.customer')),
 
                         Infolists\Components\TextEntry::make('contract.title')
-                            ->label('계약'),
+                            ->label(__('fields.contract')),
 
                         Infolists\Components\TextEntry::make('manager.name')
-                            ->label('프로젝트 매니저'),
+                            ->label(__('fields.manager_id')),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Infolists\Components\Section::make('일정')
+                Infolists\Components\Section::make(__('common.sections.schedule'))
                     ->id('project-schedule')
-                    ->description(fn ($record) => $record->start_date?->format('Y-m-d') . ' ~ ' . ($record->actual_end_date?->format('Y-m-d') ?? $record->end_date?->format('Y-m-d') ?? '미정'))
+                    ->description(fn ($record) => $record->start_date?->format('Y-m-d') . ' ~ ' . ($record->actual_end_date?->format('Y-m-d') ?? $record->end_date?->format('Y-m-d') ?? '-'))
                     ->schema([
                         Infolists\Components\TextEntry::make('start_date')
-                            ->label('시작일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.start_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('end_date')
-                            ->label('종료 예정일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.end_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('actual_end_date')
-                            ->label('실제 종료일')
-                            ->date('Y-m-d')
+                            ->label(__('fields.actual_end_date'))
+                            ->date('Y.m.d')
                             ->placeholder('-'),
                     ])
                     ->columns(3)
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Infolists\Components\Section::make('예산 및 상태')
+                Infolists\Components\Section::make(__('common.sections.budget_and_status'))
                     ->id('project-budget')
                     ->description(fn ($record) => $record->budget ? '₩' . number_format($record->budget) : '-')
                     ->schema([
                         Infolists\Components\TextEntry::make('budget')
-                            ->label('예산')
+                            ->label(__('fields.budget'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '계획중' => 'gray',
-                                '진행중' => 'info',
-                                '보류' => 'warning',
-                                '완료' => 'success',
-                                '취소' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof ProjectStatus ? $state->color() : (ProjectStatus::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('priority')
-                            ->label('우선순위')
+                            ->label(__('fields.priority'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '낮음' => 'gray',
-                                '보통' => 'info',
-                                '높음' => 'warning',
-                                '긴급' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('progress')
-                            ->label('진행률')
+                            ->label(__('fields.progress'))
                             ->suffix('%'),
                     ])
                     ->columns(4)
@@ -229,84 +219,60 @@ class ProjectResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('code')
-                    ->label('코드')
+                    ->label(__('fields.code'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('프로젝트명')
+                    ->label(__('fields.name'))
                     ->searchable()
                     ->sortable()
                     ->limit(30),
 
                 Tables\Columns\TextColumn::make('customer.company_name')
-                    ->label('고객')
+                    ->label(__('fields.customer'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('manager.name')
-                    ->label('PM'),
+                    ->label(__('fields.manager_id')),
 
                 Tables\Columns\TextColumn::make('start_date')
-                    ->label('시작일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.start_date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('end_date')
-                    ->label('종료 예정일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.end_date'))
+                    ->date('Y.m.d')
                     ->color(fn ($record) => $record->is_delayed ? 'danger' : null),
 
                 Tables\Columns\TextColumn::make('progress')
-                    ->label('진행률')
+                    ->label(__('fields.progress'))
                     ->suffix('%')
                     ->color(fn ($state) => $state >= 100 ? 'success' : ($state >= 50 ? 'warning' : 'gray')),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '계획중' => 'gray',
-                        '진행중' => 'info',
-                        '보류' => 'warning',
-                        '완료' => 'success',
-                        '취소' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof ProjectStatus ? $state->color() : (ProjectStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('priority')
-                    ->label('우선순위')
+                    ->label(__('fields.priority'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '낮음' => 'gray',
-                        '보통' => 'info',
-                        '높음' => 'warning',
-                        '긴급' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '계획중' => '계획중',
-                        '진행중' => '진행중',
-                        '보류' => '보류',
-                        '완료' => '완료',
-                        '취소' => '취소',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(ProjectStatus::class),
 
                 Tables\Filters\SelectFilter::make('priority')
-                    ->label('우선순위')
-                    ->options([
-                        '낮음' => '낮음',
-                        '보통' => '보통',
-                        '높음' => '높음',
-                        '긴급' => '긴급',
-                    ]),
+                    ->label(__('fields.priority'))
+                    ->options(Priority::class),
 
                 Tables\Filters\SelectFilter::make('manager_id')
-                    ->label('PM')
+                    ->label(__('fields.manager_id'))
                     ->relationship('manager', 'name'),
             ])
             ->recordUrl(null)

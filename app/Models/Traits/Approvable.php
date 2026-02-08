@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits;
 
+use App\Enums\ApprovalStatus;
 use App\Models\ApprovalFlow;
 use App\Models\ApprovalRequest;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -48,7 +49,7 @@ trait Approvable
             'approval_flow_id' => $flow->id,
             'current_step' => 1,
             'total_steps' => $flow->steps->count(),
-            'status' => '진행중',
+            'status' => ApprovalStatus::InProgress,
             'requested_by' => $userId,
             'requested_at' => now(),
         ]);
@@ -57,7 +58,7 @@ trait Approvable
         if (method_exists($this, 'onApprovalSubmitted')) {
             $this->onApprovalSubmitted();
         } else {
-            $this->update(['status' => '승인요청']);
+            $this->update(['status' => 'approval_requested']);
         }
 
         // 신청자 역할에 따라 불필요한 단계 스킵 후 첫 유효 단계로 이동
@@ -66,7 +67,7 @@ trait Approvable
 
         // 자동 스킵으로 전체 승인 완료된 경우 체크
         $request->refresh();
-        if ($request->status === '승인') {
+        if ($request->status === ApprovalStatus::Approved) {
             // 이미 자동 승인됨 → 신청자에게 완료 알림
             $requester = \App\Models\User::find($userId);
             if ($requester) {
@@ -89,7 +90,7 @@ trait Approvable
     public function hasPendingApproval(): bool
     {
         return $this->approvalRequest()
-            ->where('status', '진행중')
+            ->where('status', ApprovalStatus::InProgress)
             ->exists();
     }
 

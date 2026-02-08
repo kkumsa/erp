@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ContractPaymentTerms;
+use App\Enums\ContractStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +37,8 @@ class Contract extends Model
         'end_date' => 'date',
         'amount' => 'decimal:2',
         'signed_at' => 'datetime',
+        'status' => ContractStatus::class,
+        'payment_terms' => ContractPaymentTerms::class,
     ];
 
     public function getActivitylogOptions(): LogOptions

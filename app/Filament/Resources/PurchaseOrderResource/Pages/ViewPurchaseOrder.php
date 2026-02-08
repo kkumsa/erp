@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\PurchaseOrderResource\Pages;
 
 use App\Filament\Resources\PurchaseOrderResource;
-use App\Models\ApprovalRequest;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -129,17 +128,4 @@ class ViewPurchaseOrder extends ViewRecord
         return $actions;
     }
 
-    /**
-     * 결재 진행 데이터를 뷰에 전달
-     */
-    protected function getViewData(): array
-    {
-        $approvalRequest = $this->record->approvalRequest()
-            ->with(['flow.steps', 'actions.approver', 'requester'])
-            ->first();
-
-        return [
-            'approvalRequest' => $approvalRequest,
-        ];
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\ApprovalActionType;
 use App\Filament\Resources\ExpenseResource;
 use App\Filament\Resources\LeaveResource;
 use App\Filament\Resources\PurchaseOrderResource;
@@ -38,7 +39,7 @@ class ApprovalStepNotification extends Notification
         $stepOrder = $this->step->step_order;
         $totalSteps = $this->approvalRequest->total_steps;
         $actionType = $this->step->action_type;
-        $isRef = $actionType === '참조';
+        $isRef = $actionType === ApprovalActionType::Reference;
 
         $info = $this->getApprovableInfo($approvable, $requester, $stepOrder, $totalSteps, $isRef);
 
@@ -93,8 +94,8 @@ class ApprovalStepNotification extends Notification
 
         if ($approvable instanceof Timesheet) {
             return [
-                'title' => "근무기록 결재 {$type} {$step}",
-                'body' => "{$name}님이 근무기록 ({$approvable->date?->format('Y-m-d')}, {$approvable->hours}시간)의 결재를 요청했습니다.",
+                'title' => "타임시트 결재 {$type} {$step}",
+                'body' => "{$name}님이 타임시트 ({$approvable->date?->format('Y-m-d')}, {$approvable->hours}시간)의 결재를 요청했습니다.",
                 'icon' => 'heroicon-o-clock',
                 'url' => TimesheetResource::getUrl('edit', ['record' => $approvable]),
             ];

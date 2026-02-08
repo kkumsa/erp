@@ -27,7 +27,7 @@ class ApprovalFlowSeeder extends Seeder
             'App\\Models\\PurchaseOrder' => '구매주문',
             'App\\Models\\Expense' => '비용',
             'App\\Models\\Leave' => '휴가',
-            'App\\Models\\Timesheet' => '근무기록',
+            'App\\Models\\Timesheet' => '타임시트',
         ];
 
         foreach ($targetTypes as $targetType => $label) {

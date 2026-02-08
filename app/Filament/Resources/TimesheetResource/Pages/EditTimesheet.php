@@ -57,7 +57,7 @@ class EditTimesheet extends EditRecord
 
                     return [
                         Forms\Components\Placeholder::make('info')
-                            ->label('근무기록 정보')
+                            ->label('타임시트 정보')
                             ->content($this->record->date?->format('Y-m-d') . ' · ' . $this->record->hours . '시간'),
                         Forms\Components\Radio::make('approval_flow_id')
                             ->label('결재라인 선택')

@@ -23,15 +23,27 @@ class PurchaseOrderItemResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document';
 
-    protected static ?string $navigationGroup = '재무/회계';
+    protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationLabel = '발주 항목';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.purchasing');
+    }
 
-    protected static ?string $modelLabel = '발주 항목';
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.purchase_order_item');
+    }
 
-    protected static ?string $pluralModelLabel = '발주 항목';
+    public static function getModelLabel(): string
+    {
+        return __('models.purchase_order_item');
+    }
 
-    protected static ?int $navigationSort = 10;
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.purchase_order_item_plural');
+    }
 
     public static function form(Form $form): Form
     {
@@ -39,35 +51,36 @@ class PurchaseOrderItemResource extends Resource
             ->schema([
                 Forms\Components\Select::make('purchase_order_id')
                     ->relationship('purchaseOrder', 'po_number')
-                    ->label('발주서')
+                    ->label(__('fields.po_number'))
                     ->required()
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('product_id')
                     ->relationship('product', 'name')
-                    ->label('상품')
+                    ->label(__('fields.product_id'))
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\TextInput::make('description')
-                    ->label('설명'),
+                    ->label(__('fields.description')),
 
                 Forms\Components\TextInput::make('quantity')
+                    ->label(__('fields.quantity'))
                     ->numeric()
                     ->required(),
 
                 Forms\Components\TextInput::make('unit')
-                    ->label('단위'),
+                    ->label(__('fields.unit')),
 
                 Forms\Components\TextInput::make('unit_price')
+                    ->label(__('fields.unit_price'))
                     ->numeric()
-                    ->required()
-                    ->label('단가'),
+                    ->required(),
 
                 Forms\Components\TextInput::make('tax_rate')
-                    ->numeric()
-                    ->label('세율 %'),
+                    ->label(__('fields.tax_rate'))
+                    ->numeric(),
             ]);
     }
 
@@ -75,37 +88,37 @@ class PurchaseOrderItemResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('발주 항목 정보')
+                Infolists\Components\Section::make(__('common.sections.purchase_order_item_info'))
                     ->id('purchase-order-item-info')
                     ->schema([
                         Infolists\Components\TextEntry::make('purchaseOrder.po_number')
-                            ->label('발주번호'),
+                            ->label(__('fields.po_number')),
 
                         Infolists\Components\TextEntry::make('product.name')
-                            ->label('상품'),
+                            ->label(__('fields.product')),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명'),
+                            ->label(__('fields.description')),
 
                         Infolists\Components\TextEntry::make('quantity')
-                            ->label('수량'),
+                            ->label(__('fields.quantity')),
 
                         Infolists\Components\TextEntry::make('unit')
-                            ->label('단위'),
+                            ->label(__('fields.unit')),
 
                         Infolists\Components\TextEntry::make('unit_price')
-                            ->label('단가')
+                            ->label(__('fields.unit_price'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('tax_rate')
-                            ->label('세율 %'),
+                            ->label(__('fields.tax_rate')),
 
                         Infolists\Components\TextEntry::make('amount')
-                            ->label('금액')
+                            ->label(__('fields.amount'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('received_quantity')
-                            ->label('입고수량'),
+                            ->label(__('fields.received_quantity')),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -118,31 +131,31 @@ class PurchaseOrderItemResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('purchaseOrder.po_number')
-                    ->label('발주번호')
+                    ->label(__('fields.po_number'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('product.name')
-                    ->label('상품')
+                    ->label(__('fields.product'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('수량')
+                    ->label(__('fields.quantity'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('unit_price')
-                    ->label('단가')
+                    ->label(__('fields.unit_price'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('received_quantity')
-                    ->label('입고수량')
+                    ->label(__('fields.received_quantity'))
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')

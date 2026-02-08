@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\ExpenseStatus;
 use App\Models\Traits\Approvable;
-use App\Scopes\DepartmentScope;
+use App\Scopes\FinanceDepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,9 +17,11 @@ class Expense extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity, Approvable;
 
+    public string $financeScopeMode = 'employee';
+
     protected static function booted(): void
     {
-        static::addGlobalScope(new DepartmentScope);
+        static::addGlobalScope(new FinanceDepartmentScope);
     }
 
     protected $fillable = [
@@ -46,6 +49,7 @@ class Expense extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'approved_at' => 'datetime',
+        'status' => ExpenseStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions

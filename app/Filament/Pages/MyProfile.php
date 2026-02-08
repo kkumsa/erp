@@ -22,14 +22,26 @@ class MyProfile extends Page implements HasForms, HasTable
     use InteractsWithTable;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static ?string $navigationGroup = '내 설정';
-    protected static ?string $navigationLabel = '프로필 관리';
-    protected static ?string $title = '프로필 관리';
     protected static ?int $navigationSort = 0;
     protected static string $view = 'filament.pages.my-profile';
 
     public ?array $profileData = [];
     public ?array $passwordData = [];
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.my_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.my_profile');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('common.pages.my_profile');
+    }
 
     public function mount(): void
     {
@@ -56,11 +68,11 @@ class MyProfile extends Page implements HasForms, HasTable
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('기본 정보')
-                    ->description('이름, 이메일, 프로필 사진을 수정합니다.')
+                Forms\Components\Section::make(__('common.sections.basic_info'))
+                    ->description(__('common.helpers.profile_description'))
                     ->schema([
                         Forms\Components\FileUpload::make('avatar_url')
-                            ->label('프로필 사진')
+                            ->label(__('fields.profile_photo'))
                             ->image()
                             ->avatar()
                             ->disk('public')
@@ -72,12 +84,12 @@ class MyProfile extends Page implements HasForms, HasTable
                             ->columnSpanFull(),
 
                         Forms\Components\TextInput::make('name')
-                            ->label('이름')
+                            ->label(__('fields.name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
-                            ->label('이메일')
+                            ->label(__('fields.email'))
                             ->disabled()
                             ->dehydrated(false),
                     ])->columns(2),
@@ -89,18 +101,18 @@ class MyProfile extends Page implements HasForms, HasTable
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('비밀번호 변경')
-                    ->description('비밀번호를 변경합니다. 변경하지 않으려면 비워두세요.')
+                Forms\Components\Section::make(__('common.sections.password_change'))
+                    ->description(__('common.helpers.password_description'))
                     ->schema([
                         Forms\Components\TextInput::make('current_password')
-                            ->label('현재 비밀번호')
+                            ->label(__('fields.current_password'))
                             ->password()
                             ->revealable()
                             ->required()
                             ->currentPassword(),
 
                         Forms\Components\TextInput::make('password')
-                            ->label('새 비밀번호')
+                            ->label(__('fields.new_password'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -108,7 +120,7 @@ class MyProfile extends Page implements HasForms, HasTable
                             ->different('current_password'),
 
                         Forms\Components\TextInput::make('password_confirmation')
-                            ->label('새 비밀번호 확인')
+                            ->label(__('fields.password_confirmation'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -128,14 +140,9 @@ class MyProfile extends Page implements HasForms, HasTable
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('event')
-                    ->label('구분')
+                    ->label(__('fields.event'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'login' => '로그인',
-                        'logout' => '로그아웃',
-                        'login_failed' => '로그인 실패',
-                        default => $state,
-                    })
+                    ->formatStateUsing(fn (string $state) => __('common.events.' . $state))
                     ->color(fn (string $state): string => match ($state) {
                         'login' => 'success',
                         'logout' => 'gray',
@@ -144,21 +151,21 @@ class MyProfile extends Page implements HasForms, HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('ip_address')
-                    ->label('IP 주소'),
+                    ->label(__('fields.ip_address')),
 
                 Tables\Columns\TextColumn::make('user_agent')
-                    ->label('브라우저')
+                    ->label(__('fields.user_agent'))
                     ->limit(60)
                     ->tooltip(fn ($record) => $record->user_agent),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('일시')
-                    ->dateTime('Y-m-d H:i:s')
+                    ->label(__('fields.datetime'))
+                    ->dateTime('Y.m.d H:i:s')
                     ->sortable(),
             ])
             ->paginated([10, 25, 50])
-            ->emptyStateHeading('로그인 기록이 없습니다')
-            ->emptyStateDescription('로그인/로그아웃 기록이 여기에 표시됩니다.')
+            ->emptyStateHeading(__('common.empty_states.no_login_history'))
+            ->emptyStateDescription(__('common.empty_states.login_history_description'))
             ->emptyStateIcon('heroicon-o-finger-print');
     }
 
@@ -173,7 +180,7 @@ class MyProfile extends Page implements HasForms, HasTable
         ]);
 
         Notification::make()
-            ->title('프로필이 업데이트되었습니다.')
+            ->title(__('common.notifications.profile_updated'))
             ->success()
             ->send();
     }
@@ -190,7 +197,7 @@ class MyProfile extends Page implements HasForms, HasTable
         $this->passwordForm->fill();
 
         Notification::make()
-            ->title('비밀번호가 변경되었습니다.')
+            ->title(__('common.notifications.password_changed'))
             ->success()
             ->send();
     }

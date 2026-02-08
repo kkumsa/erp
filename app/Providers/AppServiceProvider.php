@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -69,5 +71,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super Admin') ? true : null;
         });
+
+        // Filament 날짜 표시 형식 전역 설정
+        DatePicker::configureUsing(fn (DatePicker $component) => $component->displayFormat('Y.m.d'));
+        DateTimePicker::configureUsing(fn (DateTimePicker $component) => $component->displayFormat('Y.m.d H:i'));
     }
 }

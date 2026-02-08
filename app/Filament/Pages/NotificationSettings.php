@@ -14,11 +14,23 @@ class NotificationSettings extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-bell';
-    protected static ?string $navigationGroup = '내 설정';
-    protected static ?string $navigationLabel = '알림 설정';
-    protected static ?string $title = '알림 설정';
     protected static ?int $navigationSort = 1;
     protected static string $view = 'filament.pages.notification-settings';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.my_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.notification_settings');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('common.pages.notification_settings');
+    }
 
     /**
      * 알림 타입 정의 (key => [label, description, category])
@@ -27,26 +39,26 @@ class NotificationSettings extends Page implements HasForms
     {
         return [
             // 업무 관련
-            'task_assigned' => ['label' => '태스크 배정', 'desc' => '태스크가 나에게 배정되었을 때', 'category' => '업무'],
-            'task_status_changed' => ['label' => '태스크 완료', 'desc' => '담당 프로젝트의 태스크가 완료되었을 때', 'category' => '업무'],
-            'milestone_completed' => ['label' => '마일스톤 완료', 'desc' => '담당 프로젝트의 마일스톤이 완료되었을 때', 'category' => '업무'],
+            'task_assigned' => ['label' => __('common.notification_settings.task_assigned_label'), 'desc' => __('common.notification_settings.task_assigned_desc'), 'category' => __('common.notification_settings.category_work')],
+            'task_status_changed' => ['label' => __('common.notification_settings.task_status_changed_label'), 'desc' => __('common.notification_settings.task_status_changed_desc'), 'category' => __('common.notification_settings.category_work')],
+            'milestone_completed' => ['label' => __('common.notification_settings.milestone_completed_label'), 'desc' => __('common.notification_settings.milestone_completed_desc'), 'category' => __('common.notification_settings.category_work')],
 
             // 승인/결재
-            'leave_requested' => ['label' => '휴가 신청', 'desc' => '새로운 휴가 신청이 접수되었을 때', 'category' => '승인/결재'],
-            'leave_status_changed' => ['label' => '휴가 승인/반려', 'desc' => '신청한 휴가가 승인 또는 반려되었을 때', 'category' => '승인/결재'],
-            'expense_submitted' => ['label' => '비용 청구', 'desc' => '새로운 비용 청구 승인 요청이 접수되었을 때', 'category' => '승인/결재'],
-            'expense_status_changed' => ['label' => '비용 승인/반려', 'desc' => '청구한 비용이 승인 또는 반려되었을 때', 'category' => '승인/결재'],
-            'purchase_order_approval' => ['label' => '구매주문 승인', 'desc' => '새로운 구매주문 승인 요청이 접수되었을 때', 'category' => '승인/결재'],
+            'leave_requested' => ['label' => __('common.notification_settings.leave_requested_label'), 'desc' => __('common.notification_settings.leave_requested_desc'), 'category' => __('common.notification_settings.category_approval')],
+            'leave_status_changed' => ['label' => __('common.notification_settings.leave_status_changed_label'), 'desc' => __('common.notification_settings.leave_status_changed_desc'), 'category' => __('common.notification_settings.category_approval')],
+            'expense_submitted' => ['label' => __('common.notification_settings.expense_submitted_label'), 'desc' => __('common.notification_settings.expense_submitted_desc'), 'category' => __('common.notification_settings.category_approval')],
+            'expense_status_changed' => ['label' => __('common.notification_settings.expense_status_changed_label'), 'desc' => __('common.notification_settings.expense_status_changed_desc'), 'category' => __('common.notification_settings.category_approval')],
+            'purchase_order_approval' => ['label' => __('common.notification_settings.purchase_order_approval_label'), 'desc' => __('common.notification_settings.purchase_order_approval_desc'), 'category' => __('common.notification_settings.category_approval')],
 
             // CRM
-            'lead_assigned' => ['label' => '리드 배정', 'desc' => '새 리드가 나에게 배정되었을 때', 'category' => 'CRM'],
-            'opportunity_stage_changed' => ['label' => '영업기회 단계 변경', 'desc' => '담당 영업기회의 단계가 변경되었을 때', 'category' => 'CRM'],
+            'lead_assigned' => ['label' => __('common.notification_settings.lead_assigned_label'), 'desc' => __('common.notification_settings.lead_assigned_desc'), 'category' => __('common.notification_settings.category_crm')],
+            'opportunity_stage_changed' => ['label' => __('common.notification_settings.opportunity_stage_changed_label'), 'desc' => __('common.notification_settings.opportunity_stage_changed_desc'), 'category' => __('common.notification_settings.category_crm')],
 
             // 재무/재고
-            'invoice_overdue' => ['label' => '송장 연체', 'desc' => '송장 결제 기한이 초과되었을 때', 'category' => '재무/재고'],
-            'contract_expiring' => ['label' => '계약 만료 임박', 'desc' => '계약 만료일이 가까울 때', 'category' => '재무/재고'],
-            'low_stock' => ['label' => '재고 부족', 'desc' => '상품 재고가 최소 수량 이하일 때', 'category' => '재무/재고'],
-            'payment_received' => ['label' => '결제 수신', 'desc' => '담당 송장에 결제가 입금되었을 때', 'category' => '재무/재고'],
+            'invoice_overdue' => ['label' => __('common.notification_settings.invoice_overdue_label'), 'desc' => __('common.notification_settings.invoice_overdue_desc'), 'category' => __('common.notification_settings.category_finance')],
+            'contract_expiring' => ['label' => __('common.notification_settings.contract_expiring_label'), 'desc' => __('common.notification_settings.contract_expiring_desc'), 'category' => __('common.notification_settings.category_finance')],
+            'low_stock' => ['label' => __('common.notification_settings.low_stock_label'), 'desc' => __('common.notification_settings.low_stock_desc'), 'category' => __('common.notification_settings.category_finance')],
+            'payment_received' => ['label' => __('common.notification_settings.payment_received_label'), 'desc' => __('common.notification_settings.payment_received_desc'), 'category' => __('common.notification_settings.category_finance')],
         ];
     }
 
@@ -57,7 +69,6 @@ class NotificationSettings extends Page implements HasForms
         $user = auth()->user();
         $prefs = $user->getNotificationPreferences();
 
-        // 기본값: 모든 알림 활성화
         $data = [];
         foreach (self::notificationTypes() as $key => $info) {
             $data[$key] = $prefs[$key] ?? true;
@@ -71,7 +82,6 @@ class NotificationSettings extends Page implements HasForms
         $schema = [];
         $grouped = [];
 
-        // 카테고리별 그룹화
         foreach (self::notificationTypes() as $key => $info) {
             $grouped[$info['category']][$key] = $info;
         }
@@ -104,7 +114,7 @@ class NotificationSettings extends Page implements HasForms
         $user->setNotificationPreferences($data);
 
         Notification::make()
-            ->title('알림 설정이 저장되었습니다.')
+            ->title(__('common.notification_settings.saved'))
             ->success()
             ->send();
     }

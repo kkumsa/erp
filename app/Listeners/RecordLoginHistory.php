@@ -12,6 +12,12 @@ class RecordLoginHistory
     public function handleLogin(Login $event): void
     {
         $this->record($event->user, 'login');
+
+        // 로그인 화면에서 선택한 언어를 사용자 설정에 반영 (영문 로그인 → 영문, 한글 로그인 → 한글)
+        $locale = session('locale');
+        if ($locale && in_array($locale, ['ko', 'en']) && in_array('locale', $event->user->getFillable())) {
+            $event->user->update(['locale' => $locale]);
+        }
     }
 
     public function handleLogout(Logout $event): void

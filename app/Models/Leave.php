@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LeaveStatus;
 use App\Models\Traits\Approvable;
 use App\Scopes\DepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,6 +39,7 @@ class Leave extends Model
         'end_date' => 'date',
         'days' => 'decimal:1',
         'approved_at' => 'datetime',
+        'status' => LeaveStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions

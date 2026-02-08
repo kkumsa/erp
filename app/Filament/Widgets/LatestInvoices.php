@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
 use Filament\Tables;
@@ -10,11 +11,14 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class LatestInvoices extends BaseWidget
 {
-    protected static ?string $heading = '최근 청구서';
-
     protected static ?int $sort = 3;
 
     protected int | string | array $columnSpan = 'full';
+
+    public function getTableHeading(): string|\Illuminate\Contracts\Support\Htmlable|null
+    {
+        return __('common.widgets.latest_invoices');
+    }
 
     public static function canView(): bool
     {
@@ -33,40 +37,33 @@ class LatestInvoices extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('invoice_number')
-                    ->label('청구서 번호'),
+                    ->label(__('fields.invoice_number')),
 
                 Tables\Columns\TextColumn::make('customer.company_name')
-                    ->label('고객'),
+                    ->label(__('fields.customer')),
 
                 Tables\Columns\TextColumn::make('issue_date')
-                    ->label('발행일')
-                    ->date('Y-m-d'),
+                    ->label(__('fields.issue_date'))
+                    ->date('Y.m.d'),
 
                 Tables\Columns\TextColumn::make('due_date')
-                    ->label('납부기한')
-                    ->date('Y-m-d')
+                    ->label(__('fields.due_date'))
+                    ->date('Y.m.d')
                     ->color(fn ($record) => $record->is_overdue ? 'danger' : null),
 
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW'),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '초안' => 'gray',
-                        '발행' => 'info',
-                        '부분결제' => 'warning',
-                        '결제완료' => 'success',
-                        '연체' => 'danger',
-                        '취소' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->formatStateUsing(fn ($state) => $state instanceof InvoiceStatus ? $state->getLabel() : (InvoiceStatus::tryFrom($state)?->getLabel() ?? $state))
+                    ->color(fn ($state) => $state instanceof InvoiceStatus ? $state->color() : (InvoiceStatus::tryFrom($state)?->color() ?? 'gray')),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
-                    ->label('보기')
+                    ->label(__('common.buttons.view'))
                     ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record])),
             ])
             ->paginated(false);

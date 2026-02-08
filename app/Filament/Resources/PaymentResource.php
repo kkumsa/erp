@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\PaymentMethod;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Models\Payment;
 use Filament\Forms;
@@ -23,50 +24,64 @@ class PaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationGroup = '재무/회계';
-
-    protected static ?string $navigationLabel = '결제 관리';
-
-    protected static ?string $modelLabel = '결제';
-
-    protected static ?string $pluralModelLabel = '결제';
-
     protected static ?int $navigationSort = 4;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.finance');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.payment');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.payment');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.payment_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('결제 정보')
+                Forms\Components\Section::make(__('common.sections.payment_info'))
                     ->schema([
                         Forms\Components\DatePicker::make('payment_date')
-                            ->label('결제일')
+                            ->label(__('fields.payment_date'))
                             ->required()
                             ->default(now()),
 
                         Forms\Components\TextInput::make('amount')
-                            ->label('금액')
+                            ->label(__('fields.amount'))
                             ->numeric()
                             ->prefix('₩')
                             ->required(),
 
                         Forms\Components\Select::make('method')
-                            ->label('결제 방법')
-                            ->options([
-                                '계좌이체' => '계좌이체',
-                                '현금' => '현금',
-                                '카드' => '카드',
-                                '수표' => '수표',
-                                '기타' => '기타',
-                            ])
+                            ->label(__('fields.method'))
+                            ->options(PaymentMethod::class)
                             ->required(),
 
+                        Forms\Components\Select::make('account_id')
+                            ->label(__('fields.account_id'))
+                            ->relationship('account', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder(__('common.placeholders.select'))
+                            ->helperText(__('common.helpers.account_for_payment')),
+
                         Forms\Components\TextInput::make('reference')
-                            ->label('참조번호')
+                            ->label(__('fields.reference'))
                             ->maxLength(255),
 
                         Forms\Components\Textarea::make('note')
-                            ->label('메모')
+                            ->label(__('fields.memo'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -77,35 +92,39 @@ class PaymentResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('결제 정보')
+                Infolists\Components\Section::make(__('common.sections.payment_info'))
                     ->id('payment-info')
                     ->description(fn ($record) => $record->payment_number)
                     ->schema([
                         Infolists\Components\TextEntry::make('payment_number')
-                            ->label('결제번호'),
+                            ->label(__('fields.payment_number')),
 
                         Infolists\Components\TextEntry::make('payment_date')
-                            ->label('결제일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.payment_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('amount')
-                            ->label('금액')
+                            ->label(__('fields.amount'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('method')
-                            ->label('결제 방법')
+                            ->label(__('fields.method'))
                             ->badge(),
 
+                        Infolists\Components\TextEntry::make('account.name')
+                            ->label(__('fields.account_id'))
+                            ->placeholder('-'),
+
                         Infolists\Components\TextEntry::make('reference')
-                            ->label('참조번호')
+                            ->label(__('fields.reference'))
                             ->placeholder('-'),
 
                         Infolists\Components\TextEntry::make('recorder.name')
-                            ->label('등록자')
+                            ->label(__('fields.recorder'))
                             ->placeholder('-'),
 
                         Infolists\Components\TextEntry::make('note')
-                            ->label('메모')
+                            ->label(__('fields.memo'))
                             ->placeholder('-')
                             ->columnSpanFull(),
                     ])
@@ -120,43 +139,41 @@ class PaymentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('payment_number')
-                    ->label('결제번호')
+                    ->label(__('fields.payment_number'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('payment_date')
-                    ->label('결제일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.payment_date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('method')
-                    ->label('결제 방법')
+                    ->label(__('fields.method'))
                     ->badge(),
 
+                Tables\Columns\TextColumn::make('account.name')
+                    ->label(__('fields.account_id'))
+                    ->placeholder('-'),
+
                 Tables\Columns\TextColumn::make('recorder.name')
-                    ->label('등록자'),
+                    ->label(__('fields.recorder')),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('등록일')
-                    ->dateTime('Y-m-d')
+                    ->label(__('fields.created_at'))
+                    ->dateTime('Y.m.d')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('method')
-                    ->label('결제 방법')
-                    ->options([
-                        '계좌이체' => '계좌이체',
-                        '현금' => '현금',
-                        '카드' => '카드',
-                        '수표' => '수표',
-                        '기타' => '기타',
-                    ]),
+                    ->label(__('fields.method'))
+                    ->options(PaymentMethod::class),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')

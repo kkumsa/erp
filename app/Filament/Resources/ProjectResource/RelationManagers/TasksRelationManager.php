@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
+use App\Enums\Priority;
+use App\Enums\TaskStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,64 +14,63 @@ class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
-    protected static ?string $title = '태스크';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '태스크';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('models.task');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.task');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                    ->label('제목')
+                    ->label(__('fields.title'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
 
                 Forms\Components\Textarea::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->rows(3)
                     ->columnSpanFull(),
 
                 Forms\Components\Select::make('assigned_to')
-                    ->label('담당자')
+                    ->label(__('fields.assigned_to'))
                     ->relationship('assignee', 'name')
                     ->searchable()
                     ->preload(),
 
                 Forms\Components\Select::make('status')
-                    ->label('상태')
-                    ->options([
-                        '할일' => '할일',
-                        '진행중' => '진행중',
-                        '검토중' => '검토중',
-                        '완료' => '완료',
-                        '보류' => '보류',
-                    ])
-                    ->default('할일')
+                    ->label(__('fields.status'))
+                    ->options(TaskStatus::class)
+                    ->default(TaskStatus::Pending)
                     ->required(),
 
                 Forms\Components\Select::make('priority')
-                    ->label('우선순위')
-                    ->options([
-                        '낮음' => '낮음',
-                        '보통' => '보통',
-                        '높음' => '높음',
-                        '긴급' => '긴급',
-                    ])
-                    ->default('보통')
+                    ->label(__('fields.priority'))
+                    ->options(Priority::class)
+                    ->default(Priority::Normal)
                     ->required(),
 
                 Forms\Components\DatePicker::make('start_date')
-                    ->label('시작일'),
+                    ->label(__('fields.start_date')),
 
                 Forms\Components\DatePicker::make('due_date')
-                    ->label('마감일'),
+                    ->label(__('fields.deadline')),
 
                 Forms\Components\TextInput::make('estimated_hours')
-                    ->label('예상 시간')
+                    ->label(__('fields.estimated_hours'))
                     ->numeric()
-                    ->suffix('시간'),
+                    ->suffix('h'),
             ]);
     }
 
@@ -78,43 +79,30 @@ class TasksRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->label('제목')
+                    ->label(__('fields.title'))
                     ->searchable()
                     ->limit(40),
 
                 Tables\Columns\TextColumn::make('assignee.name')
-                    ->label('담당자'),
+                    ->label(__('fields.assigned_to')),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '할일' => 'gray',
-                        '진행중' => 'info',
-                        '검토중' => 'warning',
-                        '완료' => 'success',
-                        '보류' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof TaskStatus ? $state->color() : (TaskStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('priority')
-                    ->label('우선순위')
+                    ->label(__('fields.priority'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '낮음' => 'gray',
-                        '보통' => 'info',
-                        '높음' => 'warning',
-                        '긴급' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('due_date')
-                    ->label('마감일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.deadline'))
+                    ->date('Y.m.d')
                     ->color(fn ($record) => $record->is_delayed ? 'danger' : null),
 
                 Tables\Columns\TextColumn::make('actual_hours')
-                    ->label('실제 시간')
+                    ->label(__('fields.actual_hours'))
                     ->suffix('h'),
             ])
             ->headerActions([

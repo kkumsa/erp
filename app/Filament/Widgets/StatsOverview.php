@@ -2,6 +2,11 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\EmployeeStatus;
+use App\Enums\ExpenseStatus;
+use App\Enums\InvoiceStatus;
+use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Expense;
@@ -44,11 +49,11 @@ class StatsOverview extends BaseWidget
         $thisMonth = now()->startOfMonth();
         $lastMonth = now()->subMonth()->startOfMonth();
 
-        $thisMonthRevenue = Invoice::where('status', '결제완료')
+        $thisMonthRevenue = Invoice::where('status', InvoiceStatus::Paid->value)
             ->where('created_at', '>=', $thisMonth)
             ->sum('total_amount');
 
-        $lastMonthRevenue = Invoice::where('status', '결제완료')
+        $lastMonthRevenue = Invoice::where('status', InvoiceStatus::Paid->value)
             ->whereBetween('created_at', [$lastMonth, $thisMonth])
             ->sum('total_amount');
 
@@ -56,31 +61,33 @@ class StatsOverview extends BaseWidget
             ? round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
             : 0;
 
-        $pendingInvoices = Invoice::whereIn('status', ['발행', '부분결제', '연체'])->sum('total_amount') -
-            Invoice::whereIn('status', ['발행', '부분결제', '연체'])->sum('paid_amount');
+        $pendingInvoices = Invoice::whereIn('status', [InvoiceStatus::Issued->value, InvoiceStatus::PartiallyPaid->value, InvoiceStatus::Overdue->value])->sum('total_amount') -
+            Invoice::whereIn('status', [InvoiceStatus::Issued->value, InvoiceStatus::PartiallyPaid->value, InvoiceStatus::Overdue->value])->sum('paid_amount');
 
-        $activeProjects = Project::where('status', '진행중')->count();
-        $totalCustomers = Customer::where('status', '활성')->count();
-        $activeEmployees = Employee::where('status', '재직')->count();
+        $activeProjects = Project::where('status', ProjectStatus::InProgress->value)->count();
+        $totalCustomers = Customer::where('status', 'active')->count();
+        $activeEmployees = Employee::where('status', EmployeeStatus::Active->value)->count();
 
         return [
-            Stat::make('이번 달 매출', '₩' . number_format($thisMonthRevenue))
-                ->description($revenueChange >= 0 ? "{$revenueChange}% 증가" : "{$revenueChange}% 감소")
+            Stat::make(__('common.stats.monthly_revenue'), '₩' . number_format($thisMonthRevenue))
+                ->description($revenueChange >= 0
+                    ? __('common.stats.increase', ['value' => $revenueChange])
+                    : __('common.stats.decrease', ['value' => $revenueChange]))
                 ->descriptionIcon($revenueChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($revenueChange >= 0 ? 'success' : 'danger'),
 
-            Stat::make('미결제 금액', '₩' . number_format($pendingInvoices))
-                ->description('결제 대기 중')
+            Stat::make(__('common.stats.pending_amount'), '₩' . number_format($pendingInvoices))
+                ->description(__('common.stats.payment_pending'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('진행 중 프로젝트', $activeProjects . '개')
-                ->description('활성 프로젝트')
+            Stat::make(__('common.stats.active_projects'), __('common.stats.projects_count', ['count' => $activeProjects]))
+                ->description(__('common.stats.active_projects_desc'))
                 ->descriptionIcon('heroicon-m-clipboard-document-list')
                 ->color('info'),
 
-            Stat::make('고객 / 직원', "{$totalCustomers}개사 / {$activeEmployees}명")
-                ->description('활성 고객 / 재직 직원')
+            Stat::make(__('common.stats.customers_employees'), __('common.stats.customers_employees_value', ['customers' => $totalCustomers, 'employees' => $activeEmployees]))
+                ->description(__('common.stats.active_customers_employees'))
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
         ];
@@ -90,37 +97,37 @@ class StatsOverview extends BaseWidget
     {
         $thisMonth = now()->startOfMonth();
 
-        $thisMonthRevenue = Invoice::where('status', '결제완료')
+        $thisMonthRevenue = Invoice::where('status', InvoiceStatus::Paid->value)
             ->where('created_at', '>=', $thisMonth)
             ->sum('total_amount');
 
-        $pendingInvoices = Invoice::whereIn('status', ['발행', '부분결제', '연체'])->sum('total_amount') -
-            Invoice::whereIn('status', ['발행', '부분결제', '연체'])->sum('paid_amount');
+        $pendingInvoices = Invoice::whereIn('status', [InvoiceStatus::Issued->value, InvoiceStatus::PartiallyPaid->value, InvoiceStatus::Overdue->value])->sum('total_amount') -
+            Invoice::whereIn('status', [InvoiceStatus::Issued->value, InvoiceStatus::PartiallyPaid->value, InvoiceStatus::Overdue->value])->sum('paid_amount');
 
-        $thisMonthExpense = Expense::where('status', '승인')
+        $thisMonthExpense = Expense::where('status', ExpenseStatus::Approved->value)
             ->where('expense_date', '>=', $thisMonth)
             ->sum('total_amount');
 
-        $pendingExpenses = Expense::where('status', '제출')->count();
+        $pendingExpenses = Expense::where('status', ExpenseStatus::Pending->value)->count();
 
         return [
-            Stat::make('이번 달 매출', '₩' . number_format($thisMonthRevenue))
-                ->description('결제완료 기준')
+            Stat::make(__('common.stats.monthly_revenue'), '₩' . number_format($thisMonthRevenue))
+                ->description(__('common.stats.paid_basis'))
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
 
-            Stat::make('미결제 금액', '₩' . number_format($pendingInvoices))
-                ->description('결제 대기 중')
+            Stat::make(__('common.stats.pending_amount'), '₩' . number_format($pendingInvoices))
+                ->description(__('common.stats.payment_pending'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('이번 달 비용', '₩' . number_format($thisMonthExpense))
-                ->description('승인된 비용')
+            Stat::make(__('common.stats.monthly_expense'), '₩' . number_format($thisMonthExpense))
+                ->description(__('common.stats.approved_expense'))
                 ->descriptionIcon('heroicon-m-receipt-percent')
                 ->color('danger'),
 
-            Stat::make('승인 대기 비용', $pendingExpenses . '건')
-                ->description('검토 필요')
+            Stat::make(__('common.stats.pending_approval_expense'), __('common.stats.count_suffix', ['count' => $pendingExpenses]))
+                ->description(__('common.stats.needs_review'))
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('warning'),
         ];
@@ -128,32 +135,32 @@ class StatsOverview extends BaseWidget
 
     protected function getHrStats(): array
     {
-        $activeEmployees = Employee::where('status', '재직')->count();
+        $activeEmployees = Employee::where('status', EmployeeStatus::Active->value)->count();
 
-        $pendingLeaves = Leave::where('status', '대기')->count();
+        $pendingLeaves = Leave::where('status', 'pending')->count();
 
         $todayAttendance = \App\Models\Attendance::whereDate('date', today())->count();
 
         $newEmployeesThisMonth = Employee::where('hire_date', '>=', now()->startOfMonth())->count();
 
         return [
-            Stat::make('재직 직원', $activeEmployees . '명')
-                ->description('현재 재직 중')
+            Stat::make(__('common.stats.active_employees'), __('common.stats.person_count', ['count' => $activeEmployees]))
+                ->description(__('common.stats.currently_active'))
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
 
-            Stat::make('오늘 출근', $todayAttendance . '명')
-                ->description('금일 출근 현황')
+            Stat::make(__('common.stats.today_attendance'), __('common.stats.person_count', ['count' => $todayAttendance]))
+                ->description(__('common.stats.today_attendance_desc'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('info'),
 
-            Stat::make('휴가 승인 대기', $pendingLeaves . '건')
-                ->description('검토 필요')
+            Stat::make(__('common.stats.pending_leave'), __('common.stats.count_suffix', ['count' => $pendingLeaves]))
+                ->description(__('common.stats.needs_review'))
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('warning'),
 
-            Stat::make('이번 달 신규 입사', $newEmployeesThisMonth . '명')
-                ->description(now()->format('Y년 m월'))
+            Stat::make(__('common.stats.new_hires_month'), __('common.stats.person_count', ['count' => $newEmployeesThisMonth]))
+                ->description(__('common.stats.year_month_format', ['year' => now()->format('Y'), 'month' => now()->format('m')]))
                 ->descriptionIcon('heroicon-m-user-plus')
                 ->color('info'),
         ];
@@ -165,10 +172,10 @@ class StatsOverview extends BaseWidget
         $employee = $user->employee;
 
         $myTasks = Task::where('assigned_to', $user->id)
-            ->where('status', '!=', '완료')
+            ->where('status', '!=', TaskStatus::Completed->value)
             ->count();
 
-        $myProjects = Project::where('status', '진행중')
+        $myProjects = Project::where('status', ProjectStatus::InProgress->value)
             ->where(function ($q) use ($user) {
                 $q->where('manager_id', $user->id)
                   ->orWhereHas('members', fn ($mq) => $mq->where('users.id', $user->id));
@@ -178,27 +185,27 @@ class StatsOverview extends BaseWidget
         $remainingLeave = $employee?->remaining_leave_days ?? 0;
 
         $pendingExpenses = $employee
-            ? Expense::where('employee_id', $employee->id)->where('status', '제출')->count()
+            ? Expense::where('employee_id', $employee->id)->where('status', ExpenseStatus::Pending->value)->count()
             : 0;
 
         return [
-            Stat::make('내 작업', $myTasks . '건')
-                ->description('진행 중인 작업')
+            Stat::make(__('common.stats.my_tasks'), __('common.stats.count_suffix', ['count' => $myTasks]))
+                ->description(__('common.stats.in_progress_tasks'))
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
                 ->color('info'),
 
-            Stat::make('참여 프로젝트', $myProjects . '개')
-                ->description('진행 중')
+            Stat::make(__('common.stats.participating_projects'), __('common.stats.projects_count', ['count' => $myProjects]))
+                ->description(__('common.stats.in_progress'))
                 ->descriptionIcon('heroicon-m-briefcase')
                 ->color('success'),
 
-            Stat::make('남은 연차', $remainingLeave . '일')
-                ->description(now()->format('Y') . '년 기준')
+            Stat::make(__('common.stats.remaining_leave'), __('common.stats.day_count', ['count' => $remainingLeave]))
+                ->description(__('common.stats.year_basis', ['year' => now()->format('Y')]))
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('warning'),
 
-            Stat::make('비용 처리 대기', $pendingExpenses . '건')
-                ->description('제출한 비용')
+            Stat::make(__('common.stats.pending_expenses'), __('common.stats.count_suffix', ['count' => $pendingExpenses]))
+                ->description(__('common.stats.submitted_expenses'))
                 ->descriptionIcon('heroicon-m-receipt-percent')
                 ->color($pendingExpenses > 0 ? 'warning' : 'success'),
         ];

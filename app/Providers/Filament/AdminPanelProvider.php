@@ -40,20 +40,20 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Pretendard')
-            ->brandName('스타트업 ERP')
+            ->brandName('스타트업 GRP')
             ->brandLogo(null)
             ->favicon(asset('favicon.ico'))
             ->navigationGroups([
-                '대시보드',
-                'CRM',
-                '프로젝트',
-                '인사관리',
-                '구매관리',
-                '재무/회계',
-                '재고관리',
-                '재고/물류',
-                '내 설정',
-                '시스템설정',
+                __('navigation.groups.dashboard'),
+                __('navigation.groups.crm'),
+                __('navigation.groups.project'),
+                __('navigation.groups.hr'),
+                __('navigation.groups.purchasing'),
+                __('navigation.groups.finance'),
+                __('navigation.groups.inventory'),
+                __('navigation.groups.inventory_logistics'),
+                __('navigation.groups.my_settings'),
+                __('navigation.groups.system_settings'),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -63,7 +63,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                // 커스텀 AccountWidget은 discoverWidgets로 자동 등록됨
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -75,17 +75,27 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\SetLocale::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\SetLocale::class,
             ])
             ->databaseNotifications()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
+                fn () => \Livewire\Livewire::mount('locale-switcher'),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn () => view('components.login-locale-switcher'),
+            )
+            ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => new HtmlString(
                     '<div style="text-align:center; margin-top:1rem; font-size:0.75rem; color:rgb(156 163 175);">'
-                    . '접속 IP: ' . request()->ip()
+                    . __('common.pages.login_ip') . ': ' . request()->ip()
                     . '</div>'
                 ),
             )
@@ -118,6 +128,10 @@ class AdminPanelProvider extends PanelProvider
                         /* 스크롤바 공간 미리 확보 - 레이아웃 흔들림 방지 */
                         html {
                             scrollbar-gutter: stable;
+                        }
+                        /* 사이드바 네비 영역 레이아웃 안정화 - 메뉴 위치 고정 */
+                        .fi-sidebar-nav {
+                            contain: layout;
                         }
 
                         /* 뒤로가기 버튼 + 브레드크럼 wrapper */
@@ -302,6 +316,7 @@ class AdminPanelProvider extends PanelProvider
                             margin-top: 0.75rem;
                             padding-top: 0.5rem;
                             border-top: 1px solid rgb(229 231 235);
+                            min-height: 4.25rem;
                         }
                         .dark .nav-order-controls { border-top-color: rgb(55 65 81); }
 
@@ -334,12 +349,15 @@ class AdminPanelProvider extends PanelProvider
                         .nav-order-btn.is-editing:hover {
                             background: rgba(59 130 246, 0.15);
                         }
-                        /* 순서 초기화 버튼 */
+                        /* 순서 초기화 버튼 - visibility로 표시만 제어하여 레이아웃 고정 */
                         .nav-order-reset {
-                            display: none;
+                            display: flex;
+                            visibility: hidden;
+                            pointer-events: none;
                         }
                         .nav-order-reset.is-visible {
-                            display: flex;
+                            visibility: visible;
+                            pointer-events: auto;
                         }
 
                         /* 사이드바 네비게이션 클릭 잠금 상태 */
@@ -570,20 +588,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_END,
-                fn () => new HtmlString('
-                    <div class="nav-order-controls" id="nav-order-controls">
-                        <div class="nav-order-btn nav-order-toggle-btn" id="nav-order-toggle">
-                            <span class="nav-order-toggle-icon" id="nav-order-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
-                            </span>
-                            <span class="nav-order-toggle-label" id="nav-order-label">순서변경</span>
-                        </div>
-                        <div class="nav-order-btn nav-order-reset" id="nav-order-reset">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                            순서 초기화
-                        </div>
-                    </div>
-                ')
+                fn () => new HtmlString(view('components.nav-order-controls')->render())
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
@@ -729,14 +734,16 @@ class AdminPanelProvider extends PanelProvider
                                 var icon = document.getElementById("nav-order-icon");
                                 var label = document.getElementById("nav-order-label");
                                 if (!btn) return;
+                                var changeLabel = btn.getAttribute("data-label-change") || "순서 변경";
+                                var applyLabel = btn.getAttribute("data-label-apply") || "순서 적용";
                                 if (editMode) {
                                     btn.classList.add("is-editing");
                                     if (icon) icon.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>";
-                                    if (label) label.textContent = "순서적용";
+                                    if (label) label.textContent = applyLabel;
                                 } else {
                                     btn.classList.remove("is-editing");
                                     if (icon) icon.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21 16-4 4-4-4\"/><path d=\"M17 20V4\"/><path d=\"m3 8 4-4 4 4\"/><path d=\"M7 4v16\"/></svg>";
-                                    if (label) label.textContent = "순서변경";
+                                    if (label) label.textContent = changeLabel;
                                 }
                             }
 
@@ -872,10 +879,15 @@ class AdminPanelProvider extends PanelProvider
                                 syncServer();
                             }
 
-                            /* ─── DOM 변경 감지 ─── */
+                            /* ─── DOM 변경 감지 (디바운스로 깜빡임 감소) ─── */
+                            var obsTimer = null;
                             var obs = new MutationObserver(function() {
-                                if (!controlsBound) bindControls();
-                                if (needsHandles()) addHandles();
+                                if (obsTimer) clearTimeout(obsTimer);
+                                obsTimer = setTimeout(function() {
+                                    obsTimer = null;
+                                    if (!controlsBound) bindControls();
+                                    if (needsHandles()) addHandles();
+                                }, 180);
                             });
 
                             function observe() {
@@ -887,13 +899,13 @@ class AdminPanelProvider extends PanelProvider
                             boot();
                             observe();
 
-                            /* Livewire 네비게이션 후 재실행 */
+                            /* Livewire 네비게이션 후 재실행 - 짧은 지연으로 DOM 준비 후 한 번만 실행 */
                             document.addEventListener("livewire:navigated", function() {
                                 handlesAdded = false;
                                 controlsBound = false;
                                 editMode = false;
                                 bootAttempts = 0;
-                                setTimeout(function() { boot(); observe(); }, 100);
+                                var t = setTimeout(function() { boot(); observe(); }, 50);
                             });
                         })();
 

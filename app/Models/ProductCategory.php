@@ -17,6 +17,8 @@ class ProductCategory extends Model
         'name',
         'code',
         'parent_id',
+        'sales_account_id',
+        'purchase_account_id',
         'description',
         'is_active',
         'sort_order',
@@ -29,6 +31,16 @@ class ProductCategory extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'parent_id');
+    }
+
+    public function salesAccount(): BelongsTo
+    {
+        return $this->belongsTo(Account::class, 'sales_account_id');
+    }
+
+    public function purchaseAccount(): BelongsTo
+    {
+        return $this->belongsTo(Account::class, 'purchase_account_id');
     }
 
     public function children(): HasMany

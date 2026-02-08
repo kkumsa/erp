@@ -12,47 +12,57 @@ class ContactsRelationManager extends RelationManager
 {
     protected static string $relationship = 'contacts';
 
-    protected static ?string $title = '담당자';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '담당자';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('models.contact');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.contact');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->label('이름')
+                    ->label(__('fields.name'))
                     ->required()
                     ->maxLength(255),
 
                 Forms\Components\TextInput::make('position')
-                    ->label('직책')
+                    ->label(__('fields.position'))
                     ->maxLength(100),
 
                 Forms\Components\TextInput::make('department')
-                    ->label('부서')
+                    ->label(__('fields.department'))
                     ->maxLength(100),
 
                 Forms\Components\TextInput::make('phone')
-                    ->label('전화')
+                    ->label(__('fields.phone'))
                     ->tel()
                     ->maxLength(20),
 
                 Forms\Components\TextInput::make('mobile')
-                    ->label('휴대폰')
+                    ->label(__('fields.mobile'))
                     ->tel()
                     ->maxLength(20),
 
                 Forms\Components\TextInput::make('email')
-                    ->label('이메일')
+                    ->label(__('fields.email'))
                     ->email()
                     ->maxLength(255),
 
                 Forms\Components\Toggle::make('is_primary')
-                    ->label('대표 담당자'),
+                    ->label(__('fields.is_primary')),
 
                 Forms\Components\Textarea::make('note')
-                    ->label('메모')
+                    ->label(__('fields.memo'))
                     ->rows(2)
                     ->columnSpanFull(),
             ]);
@@ -63,23 +73,23 @@ class ContactsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('이름')
+                    ->label(__('fields.name'))
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('position')
-                    ->label('직책'),
+                    ->label(__('fields.position')),
 
                 Tables\Columns\TextColumn::make('department')
-                    ->label('부서'),
+                    ->label(__('fields.department')),
 
                 Tables\Columns\TextColumn::make('phone')
-                    ->label('전화'),
+                    ->label(__('fields.phone')),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('이메일'),
+                    ->label(__('fields.email')),
 
                 Tables\Columns\IconColumn::make('is_primary')
-                    ->label('대표')
+                    ->label(__('fields.is_primary'))
                     ->boolean(),
             ])
             ->headerActions([

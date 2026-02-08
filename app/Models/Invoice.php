@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\InvoiceStatus;
+use App\Scopes\FinanceDepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,13 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Invoice extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
+
+    public string $financeScopeMode = 'creator_or_project';
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new FinanceDepartmentScope);
+    }
 
     protected $fillable = [
         'invoice_number',
@@ -39,6 +48,7 @@ class Invoice extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
+        'status' => InvoiceStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -119,11 +129,11 @@ class Invoice extends Model
         $this->paid_amount = $this->payments->sum('amount');
 
         if ($this->paid_amount >= $this->total_amount) {
-            $this->status = '결제완료';
+            $this->status = InvoiceStatus::Paid;
         } elseif ($this->paid_amount > 0) {
-            $this->status = '부분결제';
+            $this->status = InvoiceStatus::PartiallyPaid;
         } elseif ($this->due_date->isPast()) {
-            $this->status = '연체';
+            $this->status = InvoiceStatus::Overdue;
         }
 
         $this->save();

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Priority;
+use App\Enums\TaskStatus;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Models\Task;
 use Filament\Forms;
@@ -23,92 +25,93 @@ class TaskResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-check-circle';
 
-    protected static ?string $navigationGroup = '프로젝트';
-
-    protected static ?string $navigationLabel = '작업';
-
-    protected static ?string $modelLabel = '작업';
-
-    protected static ?string $pluralModelLabel = '작업';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.project');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.task');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.task');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.task_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('작업 정보')
+                Forms\Components\Section::make(__('common.sections.task_info'))
                     ->schema([
                         Forms\Components\Select::make('project_id')
-                            ->label('프로젝트')
+                            ->label(__('fields.project'))
                             ->relationship('project', 'name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('milestone_id')
-                            ->label('마일스톤')
+                            ->label(__('fields.milestone'))
                             ->relationship('milestone', 'name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('parent_id')
-                            ->label('상위 작업')
+                            ->label(__('fields.parent_id'))
                             ->relationship('parent', 'title')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\TextInput::make('title')
-                            ->label('제목')
+                            ->label(__('fields.title'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\RichEditor::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('담당 및 상태')
+                Forms\Components\Section::make(__('common.sections.assignment_and_status'))
                     ->schema([
                         Forms\Components\Select::make('assigned_to')
-                            ->label('담당자')
+                            ->label(__('fields.assigned_to'))
                             ->relationship('assignee', 'name')
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '대기' => '대기',
-                                '진행중' => '진행중',
-                                '검토중' => '검토중',
-                                '완료' => '완료',
-                                '보류' => '보류',
-                            ])
-                            ->default('대기')
+                            ->label(__('fields.status'))
+                            ->options(TaskStatus::class)
+                            ->default(TaskStatus::Pending)
                             ->required(),
 
                         Forms\Components\Select::make('priority')
-                            ->label('우선순위')
-                            ->options([
-                                '낮음' => '낮음',
-                                '보통' => '보통',
-                                '높음' => '높음',
-                                '긴급' => '긴급',
-                            ])
-                            ->default('보통')
+                            ->label(__('fields.priority'))
+                            ->options(Priority::class)
+                            ->default(Priority::Normal)
                             ->required(),
                     ])->columns(3),
 
-                Forms\Components\Section::make('일정')
+                Forms\Components\Section::make(__('common.sections.schedule'))
                     ->schema([
                         Forms\Components\DatePicker::make('start_date')
-                            ->label('시작일'),
+                            ->label(__('fields.start_date')),
 
                         Forms\Components\DatePicker::make('due_date')
-                            ->label('마감일'),
+                            ->label(__('fields.deadline')),
 
                         Forms\Components\TextInput::make('estimated_hours')
-                            ->label('예상 시간')
+                            ->label(__('fields.estimated_hours'))
                             ->numeric()
                             ->suffix('h'),
                     ])->columns(3),
@@ -119,60 +122,47 @@ class TaskResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('작업 정보')
+                Infolists\Components\Section::make(__('common.sections.task_info'))
                     ->id('task-info')
                     ->description(fn ($record) => $record->title)
                     ->schema([
                         Infolists\Components\TextEntry::make('title')
-                            ->label('제목'),
+                            ->label(__('fields.title')),
 
                         Infolists\Components\TextEntry::make('project.name')
-                            ->label('프로젝트'),
+                            ->label(__('fields.project')),
 
                         Infolists\Components\TextEntry::make('assignee.name')
-                            ->label('담당자'),
+                            ->label(__('fields.assigned_to')),
 
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '대기' => 'gray',
-                                '진행중' => 'info',
-                                '검토중' => 'warning',
-                                '완료' => 'success',
-                                '보류' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof TaskStatus ? $state->color() : (TaskStatus::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('priority')
-                            ->label('우선순위')
+                            ->label(__('fields.priority'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '낮음' => 'gray',
-                                '보통' => 'info',
-                                '높음' => 'warning',
-                                '긴급' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
 
                         Infolists\Components\TextEntry::make('start_date')
-                            ->label('시작일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.start_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('due_date')
-                            ->label('마감일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.deadline'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('estimated_hours')
-                            ->label('예상 시간')
+                            ->label(__('fields.estimated_hours'))
                             ->suffix('h'),
 
                         Infolists\Components\TextEntry::make('actual_hours')
-                            ->label('실제 시간')
+                            ->label(__('fields.actual_hours'))
                             ->suffix('h'),
 
                         Infolists\Components\TextEntry::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->html()
                             ->columnSpanFull(),
                     ])
@@ -187,73 +177,49 @@ class TaskResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->label('제목')
+                    ->label(__('fields.title'))
                     ->searchable()
                     ->sortable()
                     ->limit(30),
 
                 Tables\Columns\TextColumn::make('project.name')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('assignee.name')
-                    ->label('담당자'),
+                    ->label(__('fields.assigned_to')),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '대기' => 'gray',
-                        '진행중' => 'info',
-                        '검토중' => 'warning',
-                        '완료' => 'success',
-                        '보류' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof TaskStatus ? $state->color() : (TaskStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('priority')
-                    ->label('우선순위')
+                    ->label(__('fields.priority'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '낮음' => 'gray',
-                        '보통' => 'info',
-                        '높음' => 'warning',
-                        '긴급' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('due_date')
-                    ->label('마감일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.deadline'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('estimated_hours')
-                    ->label('예상/실제')
+                    ->label(__('fields.estimated_hours'))
                     ->formatStateUsing(fn ($record) => ($record->estimated_hours ?? 0) . 'h / ' . ($record->actual_hours ?? 0) . 'h'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '대기' => '대기',
-                        '진행중' => '진행중',
-                        '검토중' => '검토중',
-                        '완료' => '완료',
-                        '보류' => '보류',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(TaskStatus::class),
 
                 Tables\Filters\SelectFilter::make('priority')
-                    ->label('우선순위')
-                    ->options([
-                        '낮음' => '낮음',
-                        '보통' => '보통',
-                        '높음' => '높음',
-                        '긴급' => '긴급',
-                    ]),
+                    ->label(__('fields.priority'))
+                    ->options(Priority::class),
 
                 Tables\Filters\SelectFilter::make('project_id')
-                    ->label('프로젝트')
+                    ->label(__('fields.project'))
                     ->relationship('project', 'name'),
             ])
             ->recordUrl(null)

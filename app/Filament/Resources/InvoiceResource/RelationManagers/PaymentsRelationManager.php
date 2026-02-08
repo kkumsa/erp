@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InvoiceResource\RelationManagers;
 
+use App\Enums\PaymentMethod;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,43 +13,54 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
-    protected static ?string $title = '결제 내역';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '결제';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle($ownerRecord, string $pageClass): string
+    {
+        return __('models.payment_plural');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.payment');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\DatePicker::make('payment_date')
-                    ->label('결제일')
+                    ->label(__('fields.payment_date'))
                     ->required()
                     ->default(now()),
 
                 Forms\Components\TextInput::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->numeric()
                     ->required()
                     ->prefix('₩'),
 
                 Forms\Components\Select::make('method')
-                    ->label('결제 방법')
-                    ->options([
-                        '현금' => '현금',
-                        '카드' => '카드',
-                        '계좌이체' => '계좌이체',
-                        '어음' => '어음',
-                        '기타' => '기타',
-                    ])
+                    ->label(__('fields.method'))
+                    ->options(PaymentMethod::class)
                     ->required()
-                    ->default('계좌이체'),
+                    ->default(PaymentMethod::BankTransfer),
+
+                Forms\Components\Select::make('account_id')
+                    ->label(__('fields.account_id'))
+                    ->relationship('account', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->placeholder(__('common.placeholders.select')),
 
                 Forms\Components\TextInput::make('reference')
-                    ->label('참조번호')
+                    ->label(__('fields.reference'))
                     ->maxLength(100),
 
                 Forms\Components\Textarea::make('note')
-                    ->label('메모')
+                    ->label(__('fields.memo'))
                     ->rows(2)
                     ->columnSpanFull(),
             ]);
@@ -59,25 +71,29 @@ class PaymentsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('payment_number')
-                    ->label('결제번호'),
+                    ->label(__('fields.payment_number')),
 
                 Tables\Columns\TextColumn::make('payment_date')
-                    ->label('결제일')
-                    ->date('Y-m-d'),
+                    ->label(__('fields.payment_date'))
+                    ->date('Y.m.d'),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW'),
 
                 Tables\Columns\TextColumn::make('method')
-                    ->label('결제 방법')
+                    ->label(__('fields.method'))
                     ->badge(),
 
+                Tables\Columns\TextColumn::make('account.name')
+                    ->label(__('fields.account_id'))
+                    ->placeholder('-'),
+
                 Tables\Columns\TextColumn::make('reference')
-                    ->label('참조번호'),
+                    ->label(__('fields.reference')),
 
                 Tables\Columns\TextColumn::make('recorder.name')
-                    ->label('등록자'),
+                    ->label(__('fields.recorder')),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()

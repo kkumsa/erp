@@ -4,10 +4,9 @@
         @click="
             if (!$wire.slideOverMode || !$wire.selectedRecordId) return;
             const target = $event.target;
-            const tableRoot = target.closest('.fi-ta');
-            if (!tableRoot) return;
             if (target.closest('tbody tr')) return;
             if (target.closest('button, a, input, select, textarea, label, [role=button]')) return;
+            if (target.closest('.fi-slide-over-panel, [x-ref=panel]')) return;
             window.dispatchEvent(new CustomEvent('panel-close'));
         "
     >
@@ -37,13 +36,17 @@
                     class="fi-btn inline-grid grid-flow-col items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold shadow-sm bg-primary-600 text-white hover:bg-primary-500"
                 >
                     <x-heroicon-m-pencil-square class="h-4 w-4" />
-                    수정
+                    {{ __('common.buttons.edit') }}
                 </a>
             @endif
         </x-slot>
 
         @if($selectedRecordId)
             {{ $this->recordInfolist }}
+
+            <div class="mt-6">
+                <x-approval-status-panel :record="$selectedRecord" />
+            </div>
 
             <div class="mt-6">
                 <x-activity-log-panel

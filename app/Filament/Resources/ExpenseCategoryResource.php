@@ -17,56 +17,68 @@ class ExpenseCategoryResource extends Resource
 {
     use HasResourcePermissions;
 
-    protected static ?string $permissionPrefix = 'setting';
+    protected static ?string $permissionPrefix = 'expense';
 
     protected static ?string $model = ExpenseCategory::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationGroup = '시스템설정';
+    protected static ?int $navigationSort = 8;
 
-    protected static ?string $navigationLabel = '비용 카테고리';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.finance');
+    }
 
-    protected static ?string $modelLabel = '비용 카테고리';
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.expense_category');
+    }
 
-    protected static ?string $pluralModelLabel = '비용 카테고리';
+    public static function getModelLabel(): string
+    {
+        return __('models.expense_category');
+    }
 
-    protected static ?int $navigationSort = 4;
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.expense_category_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('비용 카테고리 정보')
+                Forms\Components\Section::make(__('common.sections.expense_category_info'))
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('카테고리명')
+                            ->label(__('fields.category_name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('code')
-                            ->label('코드')
+                            ->label(__('fields.code'))
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
 
                         Forms\Components\Select::make('account_id')
-                            ->label('연결 계정')
+                            ->label(__('fields.linked_account'))
                             ->relationship('account', 'name')
                             ->searchable()
                             ->preload()
-                            ->placeholder('없음'),
+                            ->placeholder(__('common.placeholders.none')),
 
                         Forms\Components\Toggle::make('is_active')
-                            ->label('활성화')
+                            ->label(__('fields.is_active'))
                             ->default(true),
 
                         Forms\Components\TextInput::make('color')
-                            ->label('색상')
+                            ->label(__('fields.color'))
                             ->maxLength(50),
 
                         Forms\Components\Textarea::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -78,26 +90,26 @@ class ExpenseCategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('카테고리명')
+                    ->label(__('fields.category_name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('code')
-                    ->label('코드')
+                    ->label(__('fields.code'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('account.name')
-                    ->label('연결 계정')
+                    ->label(__('fields.linked_account'))
                     ->placeholder('-'),
 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('활성화')
+                    ->label(__('fields.is_active'))
                     ->boolean(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('활성화'),
+                    ->label(__('fields.is_active')),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')
@@ -116,14 +128,14 @@ class ExpenseCategoryResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('비용 카테고리 정보')
+                Infolists\Components\Section::make(__('common.sections.expense_category_info'))
                     ->schema([
-                        Infolists\Components\TextEntry::make('name')->label('카테고리명'),
-                        Infolists\Components\TextEntry::make('code')->label('코드'),
-                        Infolists\Components\TextEntry::make('account.name')->label('연결 계정')->placeholder('-'),
-                        Infolists\Components\IconEntry::make('is_active')->label('활성화')->boolean(),
-                        Infolists\Components\TextEntry::make('color')->label('색상')->badge(),
-                        Infolists\Components\TextEntry::make('description')->label('설명')->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('name')->label(__('fields.category_name')),
+                        Infolists\Components\TextEntry::make('code')->label(__('fields.code')),
+                        Infolists\Components\TextEntry::make('account.name')->label(__('fields.linked_account'))->placeholder('-'),
+                        Infolists\Components\IconEntry::make('is_active')->label(__('fields.is_active'))->boolean(),
+                        Infolists\Components\TextEntry::make('color')->label(__('fields.color'))->badge(),
+                        Infolists\Components\TextEntry::make('description')->label(__('fields.description'))->columnSpanFull(),
                     ])->columns(2),
             ]);
     }

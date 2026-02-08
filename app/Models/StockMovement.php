@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StockMovementType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,7 @@ class StockMovement extends Model
         'before_quantity' => 'decimal:2',
         'after_quantity' => 'decimal:2',
         'unit_cost' => 'decimal:2',
+        'type' => StockMovementType::class,
     ];
 
     protected static function boot()
@@ -87,14 +89,14 @@ class StockMovement extends Model
 
         $this->before_quantity = $stock->quantity;
 
-        if (in_array($this->type, ['입고', '반품'])) {
+        if (in_array($this->type, [StockMovementType::Incoming, StockMovementType::ReturnStock])) {
             $stock->addStock(abs($this->quantity));
-        } elseif (in_array($this->type, ['출고'])) {
+        } elseif ($this->type === StockMovementType::Outgoing) {
             $stock->reduceStock(abs($this->quantity));
-        } elseif ($this->type === '조정') {
+        } elseif ($this->type === StockMovementType::Adjustment) {
             $stock->quantity = $this->quantity;
             $stock->save();
-        } elseif ($this->type === '이동' && $this->destination_warehouse_id) {
+        } elseif ($this->type === StockMovementType::Transfer && $this->destination_warehouse_id) {
             // 출발 창고에서 차감
             $stock->reduceStock(abs($this->quantity));
 
@@ -116,7 +118,7 @@ class StockMovement extends Model
         return static::create([
             'warehouse_id' => $warehouseId,
             'product_id' => $item->product_id,
-            'type' => '입고',
+            'type' => StockMovementType::Incoming,
             'quantity' => $quantity,
             'unit_cost' => $item->unit_price,
             'reference_type' => PurchaseOrder::class,

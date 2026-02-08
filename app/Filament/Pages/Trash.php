@@ -18,30 +18,30 @@ class Trash extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-trash';
 
-    protected static ?string $navigationGroup = '시스템설정';
-
-    protected static ?string $navigationLabel = '휴지통';
-
-    protected static ?string $title = '휴지통';
-
     protected static ?int $navigationSort = 99;
 
     protected static string $view = 'filament.pages.trash';
 
     public string $selectedModel = '';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.trash');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('common.pages.trash');
+    }
+
     public function mount(): void
     {
-        // 기본 선택: 삭제 항목이 있는 첫 번째 모델
-        foreach (static::getTrashableModels() as $modelClass => $meta) {
-            if ($modelClass::onlyTrashed()->count() > 0) {
-                $this->selectedModel = $modelClass;
-                return;
-            }
-        }
-
-        // 삭제 항목이 없으면 첫 번째 모델
-        $this->selectedModel = array_key_first(static::getTrashableModels());
+        $this->selectedModel = '__all__';
     }
 
     /**
@@ -51,92 +51,92 @@ class Trash extends Page implements HasTable
     {
         return [
             \App\Models\User::class => [
-                'label' => '사용자',
+                'label' => __('models.user'),
                 'displayColumn' => 'name',
                 'columns' => ['name', 'email'],
             ],
             \App\Models\Department::class => [
-                'label' => '부서',
+                'label' => __('models.department'),
                 'displayColumn' => 'name',
                 'columns' => ['name', 'code'],
             ],
             \App\Models\Employee::class => [
-                'label' => '직원',
+                'label' => __('models.employee'),
                 'displayColumn' => 'employee_code',
                 'columns' => ['employee_code', 'position'],
             ],
             \App\Models\Customer::class => [
-                'label' => '고객',
+                'label' => __('models.customer'),
                 'displayColumn' => 'company_name',
                 'columns' => ['company_name', 'email'],
             ],
             \App\Models\Contact::class => [
-                'label' => '연락처',
+                'label' => __('models.contact'),
                 'displayColumn' => 'name',
                 'columns' => ['name', 'email'],
             ],
             \App\Models\Lead::class => [
-                'label' => '리드',
+                'label' => __('models.lead'),
                 'displayColumn' => 'company_name',
                 'columns' => ['company_name', 'contact_name'],
             ],
             \App\Models\Opportunity::class => [
-                'label' => '영업 기회',
+                'label' => __('models.opportunity'),
                 'displayColumn' => 'name',
                 'columns' => ['name', 'stage'],
             ],
             \App\Models\Contract::class => [
-                'label' => '계약',
+                'label' => __('models.contract'),
                 'displayColumn' => 'title',
                 'columns' => ['contract_number', 'title'],
             ],
             \App\Models\Invoice::class => [
-                'label' => '청구서',
+                'label' => __('models.invoice'),
                 'displayColumn' => 'invoice_number',
                 'columns' => ['invoice_number', 'total_amount'],
             ],
             \App\Models\Payment::class => [
-                'label' => '결제',
+                'label' => __('models.payment'),
                 'displayColumn' => 'payment_number',
                 'columns' => ['payment_number', 'amount'],
             ],
             \App\Models\Expense::class => [
-                'label' => '비용',
+                'label' => __('models.expense'),
                 'displayColumn' => 'title',
                 'columns' => ['expense_number', 'title'],
             ],
             \App\Models\Project::class => [
-                'label' => '프로젝트',
+                'label' => __('models.project'),
                 'displayColumn' => 'name',
                 'columns' => ['code', 'name'],
             ],
             \App\Models\Task::class => [
-                'label' => '작업',
+                'label' => __('models.task'),
                 'displayColumn' => 'title',
                 'columns' => ['title', 'status'],
             ],
             \App\Models\Leave::class => [
-                'label' => '휴가',
+                'label' => __('models.leave'),
                 'displayColumn' => 'id',
                 'columns' => ['start_date', 'end_date', 'status'],
             ],
             \App\Models\Product::class => [
-                'label' => '상품',
+                'label' => __('models.product'),
                 'displayColumn' => 'name',
                 'columns' => ['code', 'name'],
             ],
             \App\Models\Supplier::class => [
-                'label' => '공급업체',
+                'label' => __('models.supplier'),
                 'displayColumn' => 'company_name',
                 'columns' => ['code', 'company_name'],
             ],
             \App\Models\PurchaseOrder::class => [
-                'label' => '구매주문',
+                'label' => __('models.purchase_order'),
                 'displayColumn' => 'po_number',
                 'columns' => ['po_number', 'status'],
             ],
             \App\Models\Warehouse::class => [
-                'label' => '창고',
+                'label' => __('models.warehouse'),
                 'displayColumn' => 'name',
                 'columns' => ['code', 'name'],
             ],
@@ -162,6 +162,18 @@ class Trash extends Page implements HasTable
         return $options;
     }
 
+    /**
+     * 전체 삭제 항목 수
+     */
+    public function getTotalTrashedCount(): int
+    {
+        $total = 0;
+        foreach (static::getTrashableModels() as $modelClass => $meta) {
+            $total += $modelClass::onlyTrashed()->count();
+        }
+        return $total;
+    }
+
     public function updatedSelectedModel(): void
     {
         $this->resetTable();
@@ -173,7 +185,7 @@ class Trash extends Page implements HasTable
             ->query(function (): Builder {
                 $modelClass = $this->selectedModel;
 
-                if (!$modelClass || !array_key_exists($modelClass, static::getTrashableModels())) {
+                if (!$modelClass || $modelClass === '__all__' || !array_key_exists($modelClass, static::getTrashableModels())) {
                     $modelClass = array_key_first(static::getTrashableModels());
                 }
 
@@ -183,7 +195,7 @@ class Trash extends Page implements HasTable
             })
             ->columns([
                 Tables\Columns\TextColumn::make('display_name')
-                    ->label('이름')
+                    ->label(__('common.trash_page.name_col'))
                     ->getStateUsing(function (Model $record): string {
                         $meta = static::getTrashableModels()[get_class($record)] ?? null;
                         if (!$meta) return (string) $record->getKey();
@@ -203,7 +215,7 @@ class Trash extends Page implements HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('detail_1')
-                    ->label('상세 1')
+                    ->label(__('common.trash_page.detail_1'))
                     ->getStateUsing(function (Model $record): ?string {
                         $meta = static::getTrashableModels()[get_class($record)] ?? null;
                         if (!$meta || !isset($meta['columns'][0])) return null;
@@ -211,7 +223,7 @@ class Trash extends Page implements HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('detail_2')
-                    ->label('상세 2')
+                    ->label(__('common.trash_page.detail_2'))
                     ->getStateUsing(function (Model $record): ?string {
                         $meta = static::getTrashableModels()[get_class($record)] ?? null;
                         if (!$meta || !isset($meta['columns'][1])) return null;
@@ -219,38 +231,38 @@ class Trash extends Page implements HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('deleted_at')
-                    ->label('삭제일')
-                    ->dateTime('Y-m-d H:i')
+                    ->label(__('fields.deleted_at'))
+                    ->dateTime('Y.m.d H:i')
                     ->sortable(),
             ])
             ->defaultSort('deleted_at', 'desc')
             ->actions([
                 Tables\Actions\Action::make('restore')
-                    ->label('복원')
+                    ->label(__('common.buttons.restore'))
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('복원 확인')
-                    ->modalDescription('이 항목을 복원하시겠습니까?')
+                    ->modalHeading(__('common.confirmations.restore_heading'))
+                    ->modalDescription(__('common.confirmations.restore'))
                     ->action(function (Model $record) {
                         $record->restore();
                         Notification::make()
-                            ->title('복원 완료')
+                            ->title(__('common.notifications.restored'))
                             ->success()
                             ->send();
                     }),
 
                 Tables\Actions\Action::make('forceDelete')
-                    ->label('영구 삭제')
+                    ->label(__('common.buttons.force_delete'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('영구 삭제 확인')
-                    ->modalDescription('이 항목을 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.')
+                    ->modalHeading(__('common.confirmations.force_delete_heading'))
+                    ->modalDescription(__('common.confirmations.force_delete'))
                     ->action(function (Model $record) {
                         $record->forceDelete();
                         Notification::make()
-                            ->title('영구 삭제 완료')
+                            ->title(__('common.notifications.force_deleted'))
                             ->warning()
                             ->send();
                     }),
@@ -258,43 +270,106 @@ class Trash extends Page implements HasTable
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('restoreSelected')
-                        ->label('선택 복원')
+                        ->label(__('common.buttons.restore_selected'))
                         ->icon('heroicon-o-arrow-uturn-left')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->modalHeading('선택 항목 복원')
-                        ->modalDescription('선택한 항목을 모두 복원하시겠습니까?')
+                        ->modalHeading(__('common.confirmations.restore_selected_heading'))
+                        ->modalDescription(__('common.confirmations.restore_selected'))
                         ->action(function ($records) {
                             $records->each->restore();
                             Notification::make()
-                                ->title($records->count() . '건 복원 완료')
+                                ->title(__('common.notifications.restored_count', ['count' => $records->count()]))
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
 
                     Tables\Actions\BulkAction::make('forceDeleteSelected')
-                        ->label('선택 영구 삭제')
+                        ->label(__('common.buttons.force_delete_selected'))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->requiresConfirmation()
-                        ->modalHeading('선택 항목 영구 삭제')
-                        ->modalDescription('선택한 항목을 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.')
+                        ->modalHeading(__('common.confirmations.force_delete_selected_heading'))
+                        ->modalDescription(__('common.confirmations.force_delete_selected'))
                         ->action(function ($records) {
                             $count = $records->count();
                             $records->each->forceDelete();
                             Notification::make()
-                                ->title($count . '건 영구 삭제 완료')
+                                ->title(__('common.notifications.force_deleted_count', ['count' => $count]))
                                 ->warning()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ])
-            ->emptyStateHeading('삭제된 항목 없음')
-            ->emptyStateDescription('휴지통이 비어 있습니다.')
+            ->emptyStateHeading(__('common.empty_states.no_deleted_items'))
+            ->emptyStateDescription(__('common.empty_states.trash_empty'))
             ->emptyStateIcon('heroicon-o-trash')
             ->poll('30s');
+    }
+
+    /**
+     * "전체" 모드에서 모든 모델의 삭제 항목을 가져온다.
+     */
+    public function getAllTrashedRecords(): \Illuminate\Support\Collection
+    {
+        $allRecords = collect();
+
+        foreach (static::getTrashableModels() as $modelClass => $meta) {
+            $records = $modelClass::onlyTrashed()
+                ->latest('deleted_at')
+                ->limit(50)
+                ->get()
+                ->map(function ($record) use ($meta, $modelClass) {
+                    $record->_model_label = $meta['label'];
+                    $record->_model_class = $modelClass;
+                    $record->_display_name = $record->{$meta['displayColumn']} ?? $record->getKey();
+                    $record->_detail_1 = isset($meta['columns'][0]) ? ($record->{$meta['columns'][0]} ?? '-') : '-';
+                    $record->_detail_2 = isset($meta['columns'][1]) ? ($record->{$meta['columns'][1]} ?? '-') : '-';
+                    return $record;
+                });
+
+            $allRecords = $allRecords->concat($records);
+        }
+
+        return $allRecords->sortByDesc('deleted_at')->values();
+    }
+
+    /**
+     * "전체" 모드에서 단일 레코드 복원
+     */
+    public function restoreRecord(string $modelClass, int $id): void
+    {
+        if (!array_key_exists($modelClass, static::getTrashableModels())) {
+            return;
+        }
+
+        $record = $modelClass::onlyTrashed()->find($id);
+        $record?->restore();
+
+        Notification::make()
+            ->title(__('common.notifications.restored'))
+            ->success()
+            ->send();
+    }
+
+    /**
+     * "전체" 모드에서 단일 레코드 영구 삭제
+     */
+    public function forceDeleteRecord(string $modelClass, int $id): void
+    {
+        if (!array_key_exists($modelClass, static::getTrashableModels())) {
+            return;
+        }
+
+        $record = $modelClass::onlyTrashed()->find($id);
+        $record?->forceDelete();
+
+        Notification::make()
+            ->title(__('common.notifications.force_deleted'))
+            ->warning()
+            ->send();
     }
 
     public static function canAccess(): bool

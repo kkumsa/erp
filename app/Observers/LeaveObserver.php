@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\LeaveStatus;
 use App\Models\ApprovalFlow;
 use App\Models\Leave;
 use App\Models\User;
@@ -32,7 +33,7 @@ class LeaveObserver
         // 상태 변경 시 신청자에게 알림 (결재라인 통한 변경은 ApprovalRequest에서 처리)
         if ($leave->isDirty('status') && !$leave->hasPendingApproval()) {
             $newStatus = $leave->status;
-            if (in_array($newStatus, ['승인', '반려'])) {
+            if (in_array($newStatus, [LeaveStatus::Approved, LeaveStatus::Rejected])) {
                 $leave->loadMissing('employee.user');
                 $user = $leave->employee?->user;
                 if ($user && $user->wantsNotification('leave_status_changed')) {

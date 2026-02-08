@@ -8,7 +8,15 @@ class Dashboard extends BaseDashboard
 {
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
-    protected static ?string $title = '대시보드';
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('common.pages.dashboard');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.dashboard');
+    }
 
     public function getColumns(): int | string | array
     {

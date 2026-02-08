@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\PurchaseOrderStatus;
 use App\Filament\Resources\PurchaseOrderResource\Pages;
 use App\Models\PurchaseOrder;
 use Filament\Forms;
@@ -23,61 +24,73 @@ class PurchaseOrderResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = '구매관리';
-
-    protected static ?string $navigationLabel = '구매주문';
-
-    protected static ?string $modelLabel = '구매주문';
-
-    protected static ?string $pluralModelLabel = '구매주문';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.purchasing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.purchase_order');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.purchase_order');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.purchase_order_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('주문 정보')
+                Forms\Components\Section::make(__('common.sections.order_info'))
                     ->schema([
                         Forms\Components\Select::make('supplier_id')
-                            ->label('공급업체')
+                            ->label(__('fields.supplier_id'))
                             ->relationship('supplier', 'company_name')
                             ->required()
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('project_id')
-                            ->label('프로젝트')
+                            ->label(__('fields.project_id'))
                             ->relationship('project', 'name')
                             ->nullable()
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\DatePicker::make('order_date')
-                            ->label('주문일')
+                            ->label(__('fields.order_date'))
                             ->required()
                             ->default(now()),
 
                         Forms\Components\DatePicker::make('expected_date')
-                            ->label('예상 납기일'),
+                            ->label(__('fields.expected_date')),
 
                         Forms\Components\Textarea::make('shipping_address')
-                            ->label('배송 주소')
+                            ->label(__('fields.shipping_address'))
                             ->rows(2),
 
                         Forms\Components\Textarea::make('note')
-                            ->label('비고')
+                            ->label(__('fields.note'))
                             ->rows(2),
                     ])->columns(2),
 
-                Forms\Components\Section::make('주문 품목')
+                Forms\Components\Section::make(__('common.sections.order_items'))
                     ->schema([
                         Forms\Components\Repeater::make('items')
                             ->label('')
                             ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('product_id')
-                                    ->label('제품')
+                                    ->label(__('fields.product_id'))
                                     ->relationship('product', 'name')
                                     ->searchable()
                                     ->preload()
@@ -96,12 +109,12 @@ class PurchaseOrderResource extends Resource
                                     ->live(),
 
                                 Forms\Components\TextInput::make('description')
-                                    ->label('품명/설명')
+                                    ->label(__('fields.description'))
                                     ->required()
                                     ->columnSpan(2),
 
                                 Forms\Components\TextInput::make('quantity')
-                                    ->label('수량')
+                                    ->label(__('fields.quantity'))
                                     ->numeric()
                                     ->required()
                                     ->default(1)
@@ -112,12 +125,12 @@ class PurchaseOrderResource extends Resource
                                     ),
 
                                 Forms\Components\TextInput::make('unit')
-                                    ->label('단위')
+                                    ->label(__('fields.unit'))
                                     ->default('개')
                                     ->required(),
 
                                 Forms\Components\TextInput::make('unit_price')
-                                    ->label('단가')
+                                    ->label(__('fields.unit_price'))
                                     ->numeric()
                                     ->required()
                                     ->prefix('₩')
@@ -127,13 +140,13 @@ class PurchaseOrderResource extends Resource
                                     ),
 
                                 Forms\Components\TextInput::make('tax_rate')
-                                    ->label('세율(%)')
+                                    ->label(__('fields.tax_rate'))
                                     ->numeric()
                                     ->default(10)
                                     ->suffix('%'),
 
                                 Forms\Components\TextInput::make('amount')
-                                    ->label('금액')
+                                    ->label(__('fields.amount'))
                                     ->numeric()
                                     ->prefix('₩')
                                     ->disabled()
@@ -142,7 +155,7 @@ class PurchaseOrderResource extends Resource
                             ])
                             ->columns(4)
                             ->orderColumn('sort_order')
-                            ->addActionLabel('품목 추가')
+                            ->addActionLabel(__('common.buttons.add_item'))
                             ->reorderable()
                             ->collapsible()
                             ->defaultItems(1)
@@ -153,24 +166,16 @@ class PurchaseOrderResource extends Resource
                             ),
                     ]),
 
-                Forms\Components\Section::make('승인')
+                Forms\Components\Section::make(__('common.sections.approval'))
                     ->schema([
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '초안' => '초안',
-                                '승인요청' => '승인요청',
-                                '승인' => '승인',
-                                '발주완료' => '발주완료',
-                                '부분입고' => '부분입고',
-                                '입고완료' => '입고완료',
-                                '취소' => '취소',
-                            ])
-                            ->default('초안')
+                            ->label(__('fields.status'))
+                            ->options(PurchaseOrderStatus::class)
+                            ->default(PurchaseOrderStatus::Draft)
                             ->required(),
 
                         Forms\Components\Select::make('approved_by')
-                            ->label('승인자')
+                            ->label(__('fields.approved_by'))
                             ->relationship('approver', 'name')
                             ->searchable()
                             ->preload(),
@@ -182,69 +187,69 @@ class PurchaseOrderResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('주문 정보')
+                Infolists\Components\Section::make(__('common.sections.order_info'))
                     ->id('purchase-order-info')
                     ->description(fn ($record) => $record->po_number)
                     ->schema([
                         Infolists\Components\TextEntry::make('po_number')
-                            ->label('주문번호'),
+                            ->label(__('fields.po_number')),
 
                         Infolists\Components\TextEntry::make('supplier.company_name')
-                            ->label('공급업체'),
+                            ->label(__('fields.supplier')),
 
                         Infolists\Components\TextEntry::make('project.name')
-                            ->label('프로젝트')
+                            ->label(__('fields.project'))
                             ->placeholder('-'),
 
                         Infolists\Components\TextEntry::make('order_date')
-                            ->label('주문일')
-                            ->date('Y-m-d'),
+                            ->label(__('fields.order_date'))
+                            ->date('Y.m.d'),
 
                         Infolists\Components\TextEntry::make('expected_date')
-                            ->label('예상 납기일')
-                            ->date('Y-m-d')
+                            ->label(__('fields.expected_date'))
+                            ->date('Y.m.d')
                             ->placeholder('-'),
 
                         Infolists\Components\TextEntry::make('total_amount')
-                            ->label('금액')
+                            ->label(__('fields.total_amount'))
                             ->money('KRW'),
 
                         Infolists\Components\TextEntry::make('shipping_address')
-                            ->label('배송 주소')
+                            ->label(__('fields.shipping_address'))
                             ->placeholder('-'),
 
                         Infolists\Components\TextEntry::make('note')
-                            ->label('비고')
+                            ->label(__('fields.note'))
                             ->placeholder('-'),
                     ])
                     ->columns(2)
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Infolists\Components\Section::make('주문 품목')
+                Infolists\Components\Section::make(__('common.sections.order_items'))
                     ->id('purchase-order-items')
-                    ->description(fn ($record) => $record->items->count() . '개 품목')
+                    ->description(fn ($record) => __('common.general.items_count', ['count' => $record->items->count()]))
                     ->schema([
                         Infolists\Components\RepeatableEntry::make('items')
                             ->label('')
                             ->schema([
                                 Infolists\Components\TextEntry::make('description')
-                                    ->label('품명'),
+                                    ->label(__('fields.description')),
 
                                 Infolists\Components\TextEntry::make('quantity')
-                                    ->label('수량')
+                                    ->label(__('fields.quantity'))
                                     ->formatStateUsing(fn ($state, $record) => number_format($state, 0) . ' ' . ($record->unit ?? '개')),
 
                                 Infolists\Components\TextEntry::make('unit_price')
-                                    ->label('단가')
+                                    ->label(__('fields.unit_price'))
                                     ->money('KRW'),
 
                                 Infolists\Components\TextEntry::make('tax_rate')
-                                    ->label('세율')
+                                    ->label(__('fields.tax_rate'))
                                     ->formatStateUsing(fn ($state) => $state . '%'),
 
                                 Infolists\Components\TextEntry::make('amount')
-                                    ->label('금액')
+                                    ->label(__('fields.amount'))
                                     ->money('KRW'),
                             ])
                             ->columns(5),
@@ -252,15 +257,15 @@ class PurchaseOrderResource extends Resource
                         Infolists\Components\Grid::make(3)
                             ->schema([
                                 Infolists\Components\TextEntry::make('subtotal')
-                                    ->label('소계')
+                                    ->label(__('fields.subtotal'))
                                     ->money('KRW'),
 
                                 Infolists\Components\TextEntry::make('tax_amount')
-                                    ->label('세액')
+                                    ->label(__('fields.tax_amount'))
                                     ->money('KRW'),
 
                                 Infolists\Components\TextEntry::make('total_amount')
-                                    ->label('합계')
+                                    ->label(__('fields.total_amount'))
                                     ->money('KRW')
                                     ->weight('bold')
                                     ->size('lg'),
@@ -269,26 +274,17 @@ class PurchaseOrderResource extends Resource
                     ->collapsible()
                     ->persistCollapsed(),
 
-                Infolists\Components\Section::make('승인')
+                Infolists\Components\Section::make(__('common.sections.approval'))
                     ->id('purchase-order-approval')
-                    ->description(fn ($record) => $record->status)
+                    ->description(fn ($record) => $record->status?->getLabel())
                     ->schema([
                         Infolists\Components\TextEntry::make('status')
-                            ->label('상태')
+                            ->label(__('fields.status'))
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                '초안' => 'gray',
-                                '승인요청' => 'warning',
-                                '승인' => 'info',
-                                '발주완료' => 'primary',
-                                '부분입고' => 'warning',
-                                '입고완료' => 'success',
-                                '취소' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->color(fn ($state) => $state?->color() ?? 'gray'),
 
                         Infolists\Components\TextEntry::make('approver.name')
-                            ->label('승인자')
+                            ->label(__('fields.approved_by'))
                             ->placeholder('-'),
                     ])
                     ->columns(2)
@@ -302,57 +298,40 @@ class PurchaseOrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('po_number')
-                    ->label('주문번호')
+                    ->label(__('fields.po_number'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('supplier.company_name')
-                    ->label('공급업체')
+                    ->label(__('fields.supplier'))
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('금액')
+                    ->label(__('fields.total_amount'))
                     ->money('KRW'),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '초안' => 'gray',
-                        '승인요청' => 'warning',
-                        '승인' => 'info',
-                        '발주완료' => 'primary',
-                        '부분입고' => 'warning',
-                        '입고완료' => 'success',
-                        '취소' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state?->color() ?? 'gray'),
 
                 Tables\Columns\TextColumn::make('order_date')
-                    ->label('주문일')
-                    ->date('Y-m-d')
+                    ->label(__('fields.order_date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('expected_date')
-                    ->label('납기일')
-                    ->date('Y-m-d'),
+                    ->label(__('fields.expected_date'))
+                    ->date('Y.m.d'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '초안' => '초안',
-                        '승인요청' => '승인요청',
-                        '승인' => '승인',
-                        '발주완료' => '발주완료',
-                        '부분입고' => '부분입고',
-                        '입고완료' => '입고완료',
-                        '취소' => '취소',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(PurchaseOrderStatus::class),
 
                 Tables\Filters\SelectFilter::make('supplier_id')
-                    ->label('공급업체')
+                    ->label(__('fields.supplier_id'))
                     ->relationship('supplier', 'company_name'),
             ])
             ->recordUrl(null)

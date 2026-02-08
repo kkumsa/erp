@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OpportunityStage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,7 @@ class Opportunity extends Model
         'amount' => 'decimal:2',
         'expected_close_date' => 'date',
         'actual_close_date' => 'date',
+        'stage' => OpportunityStage::class,
     ];
 
     public function getActivitylogOptions(): LogOptions

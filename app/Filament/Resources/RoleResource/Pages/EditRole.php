@@ -29,45 +29,30 @@ class EditRole extends Page
      * 시스템에 정의된 모듈과 액션 목록
      */
     protected static array $moduleDefinitions = [
-        'user' => ['label' => '사용자', 'actions' => ['view', 'create', 'update', 'delete']],
-        'department' => ['label' => '부서', 'actions' => ['view', 'create', 'update', 'delete']],
-        'employee' => ['label' => '직원', 'actions' => ['view', 'create', 'update', 'delete']],
-        'attendance' => ['label' => '근태', 'actions' => ['view', 'create', 'update', 'delete']],
-        'leave' => ['label' => '휴가', 'actions' => ['view', 'create', 'update', 'delete', 'approve']],
-        'customer' => ['label' => '고객', 'actions' => ['view', 'create', 'update', 'delete']],
-        'contact' => ['label' => '연락처', 'actions' => ['view', 'create', 'update', 'delete']],
-        'lead' => ['label' => '리드', 'actions' => ['view', 'create', 'update', 'delete', 'convert']],
-        'opportunity' => ['label' => '영업 기회', 'actions' => ['view', 'create', 'update', 'delete']],
-        'contract' => ['label' => '계약', 'actions' => ['view', 'create', 'update', 'delete', 'sign']],
-        'invoice' => ['label' => '청구서', 'actions' => ['view', 'create', 'update', 'delete', 'approve']],
-        'expense' => ['label' => '비용', 'actions' => ['view', 'create', 'update', 'delete', 'approve']],
-        'payment' => ['label' => '결제', 'actions' => ['view', 'create', 'update', 'delete']],
-        'project' => ['label' => '프로젝트', 'actions' => ['view', 'create', 'update', 'delete']],
-        'task' => ['label' => '작업', 'actions' => ['view', 'create', 'update', 'delete']],
-        'timesheet' => ['label' => '근무기록', 'actions' => ['view', 'create', 'update', 'delete', 'approve']],
-        'supplier' => ['label' => '공급업체', 'actions' => ['view', 'create', 'update', 'delete']],
-        'purchase_order' => ['label' => '구매주문', 'actions' => ['view', 'create', 'update', 'delete', 'approve']],
-        'product' => ['label' => '상품', 'actions' => ['view', 'create', 'update', 'delete']],
-        'warehouse' => ['label' => '창고', 'actions' => ['view', 'create', 'update', 'delete']],
-        'stock' => ['label' => '재고', 'actions' => ['view', 'create', 'update', 'delete', 'adjust']],
-        'account' => ['label' => '계정과목', 'actions' => ['view', 'create', 'update', 'delete']],
-        'report' => ['label' => '리포트', 'actions' => ['view', 'export']],
-        'setting' => ['label' => '설정', 'actions' => ['view', 'update']],
-    ];
-
-    /**
-     * 액션 라벨 매핑
-     */
-    protected static array $actionLabels = [
-        'view' => '보기',
-        'create' => '생성',
-        'update' => '수정',
-        'delete' => '삭제',
-        'approve' => '승인',
-        'sign' => '서명',
-        'convert' => '전환',
-        'export' => '내보내기',
-        'adjust' => '조정',
+        'user' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'department' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'employee' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'attendance' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'leave' => ['actions' => ['view', 'create', 'update', 'delete', 'approve']],
+        'customer' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'contact' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'lead' => ['actions' => ['view', 'create', 'update', 'delete', 'convert']],
+        'opportunity' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'contract' => ['actions' => ['view', 'create', 'update', 'delete', 'sign']],
+        'invoice' => ['actions' => ['view', 'create', 'update', 'delete', 'approve']],
+        'expense' => ['actions' => ['view', 'create', 'update', 'delete', 'approve']],
+        'payment' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'project' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'task' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'timesheet' => ['actions' => ['view', 'create', 'update', 'delete', 'approve']],
+        'supplier' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'purchase_order' => ['actions' => ['view', 'create', 'update', 'delete', 'approve']],
+        'product' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'warehouse' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'stock' => ['actions' => ['view', 'create', 'update', 'delete', 'adjust']],
+        'account' => ['actions' => ['view', 'create', 'update', 'delete']],
+        'report' => ['actions' => ['view', 'export']],
+        'setting' => ['actions' => ['view', 'update']],
     ];
 
     public function mount(int|string $record): void
@@ -122,7 +107,7 @@ class EditRole extends Page
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         Notification::make()
-            ->title('권한이 저장되었습니다.')
+            ->title(__('common.permissions.saved'))
             ->success()
             ->send();
     }
@@ -168,23 +153,31 @@ class EditRole extends Page
 
     public function getTitle(): string
     {
-        return "역할 편집: {$this->roleName}";
+        return __('common.permissions.edit_title', ['name' => $this->roleName]);
     }
 
     /**
-     * 뷰에서 사용할 모듈 정의 반환
+     * 뷰에서 사용할 모듈 정의 반환 (라벨을 런타임에 번역)
      */
     public function getModuleDefinitionsProperty(): array
     {
-        return static::$moduleDefinitions;
+        return collect(static::$moduleDefinitions)->map(function ($config, $module) {
+            return array_merge($config, [
+                'label' => __("models.{$module}"),
+            ]);
+        })->toArray();
     }
 
     /**
-     * 뷰에서 사용할 액션 라벨 반환
+     * 뷰에서 사용할 액션 라벨 반환 (런타임에 번역)
      */
     public function getActionLabelsProperty(): array
     {
-        return static::$actionLabels;
+        $labels = [];
+        foreach (['view', 'create', 'update', 'delete', 'approve', 'sign', 'convert', 'export', 'adjust'] as $action) {
+            $labels[$action] = __("common.permissions.actions.{$action}");
+        }
+        return $labels;
     }
 
     /**
@@ -210,8 +203,8 @@ class EditRole extends Page
     public function getBreadcrumbs(): array
     {
         return [
-            RoleResource::getUrl() => '역할 관리',
-            '#' => "역할 편집: {$this->roleName}",
+            RoleResource::getUrl() => __('navigation.labels.role'),
+            '#' => __('common.permissions.edit_title', ['name' => $this->roleName]),
         ];
     }
 }

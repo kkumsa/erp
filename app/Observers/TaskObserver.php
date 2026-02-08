@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\TaskStatus;
 use App\Models\Task;
 use App\Models\User;
 use App\Notifications\TaskAssignedNotification;
@@ -37,7 +38,7 @@ class TaskObserver
             $oldStatus = $task->getOriginal('status');
             $newStatus = $task->status;
 
-            if ($newStatus === '완료') {
+            if ($newStatus === TaskStatus::Completed) {
                 $task->loadMissing('project');
                 $manager = $task->project?->manager;
                 if ($manager && $manager->wantsNotification('task_status_changed')) {

@@ -10,6 +10,8 @@ class ViewCustomer extends ViewRecord
 {
     protected static string $resource = CustomerResource::class;
 
+    protected static string $view = 'filament.pages.view-record-with-log';
+
     protected function getHeaderActions(): array
     {
         return [

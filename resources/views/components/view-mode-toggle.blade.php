@@ -77,7 +77,7 @@
             :class="!slideOverMode ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
         >
             <x-heroicon-o-arrow-top-right-on-square class="w-4 h-4" />
-            페이지
+            {{ __('common.view_mode.page') }}
         </button>
         <button
             @click="select('slide')"
@@ -86,7 +86,7 @@
             :class="slideOverMode ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
         >
             <x-heroicon-o-arrows-right-left class="w-4 h-4" />
-            슬라이드
+            {{ __('common.view_mode.slide') }}
         </button>
     </div>
 </div>

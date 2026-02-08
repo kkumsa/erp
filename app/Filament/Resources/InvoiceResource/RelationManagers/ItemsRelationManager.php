@@ -12,16 +12,26 @@ class ItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
 
-    protected static ?string $title = '청구 항목';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '항목';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle($ownerRecord, string $pageClass): string
+    {
+        return __('models.invoice_item_plural');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.invoice_item');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('product_id')
-                    ->label('상품')
+                    ->label(__('fields.product_id'))
                     ->relationship('product', 'name')
                     ->searchable()
                     ->preload()
@@ -38,36 +48,36 @@ class ItemsRelationManager extends RelationManager
                     }),
 
                 Forms\Components\TextInput::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
 
                 Forms\Components\TextInput::make('quantity')
-                    ->label('수량')
+                    ->label(__('fields.quantity'))
                     ->numeric()
                     ->required()
                     ->default(1),
 
                 Forms\Components\TextInput::make('unit')
-                    ->label('단위')
+                    ->label(__('fields.unit'))
                     ->default('개')
                     ->maxLength(20),
 
                 Forms\Components\TextInput::make('unit_price')
-                    ->label('단가')
+                    ->label(__('fields.unit_price'))
                     ->numeric()
                     ->required()
                     ->prefix('₩'),
 
                 Forms\Components\TextInput::make('discount')
-                    ->label('할인율')
+                    ->label(__('fields.discount'))
                     ->numeric()
                     ->default(0)
                     ->suffix('%'),
 
                 Forms\Components\TextInput::make('tax_rate')
-                    ->label('세율')
+                    ->label(__('fields.tax_rate'))
                     ->numeric()
                     ->default(10)
                     ->suffix('%'),
@@ -79,26 +89,26 @@ class ItemsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('description')
-                    ->label('설명')
+                    ->label(__('fields.description'))
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('수량')
+                    ->label(__('fields.quantity'))
                     ->numeric(),
 
                 Tables\Columns\TextColumn::make('unit')
-                    ->label('단위'),
+                    ->label(__('fields.unit')),
 
                 Tables\Columns\TextColumn::make('unit_price')
-                    ->label('단가')
+                    ->label(__('fields.unit_price'))
                     ->money('KRW'),
 
                 Tables\Columns\TextColumn::make('discount')
-                    ->label('할인')
+                    ->label(__('fields.discount'))
                     ->suffix('%'),
 
                 Tables\Columns\TextColumn::make('amount')
-                    ->label('금액')
+                    ->label(__('fields.amount'))
                     ->money('KRW'),
             ])
             ->headerActions([

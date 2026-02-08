@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TimesheetStatus;
 use App\Models\Traits\Approvable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,6 +34,7 @@ class Timesheet extends Model
         'hourly_rate' => 'decimal:2',
         'is_billable' => 'boolean',
         'approved_at' => 'datetime',
+        'status' => TimesheetStatus::class,
     ];
 
     protected static function boot()

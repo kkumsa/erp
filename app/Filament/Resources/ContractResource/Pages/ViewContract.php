@@ -10,6 +10,8 @@ class ViewContract extends ViewRecord
 {
     protected static string $resource = ContractResource::class;
 
+    protected static string $view = 'filament.pages.view-record-with-log';
+
     protected function getHeaderActions(): array
     {
         return [

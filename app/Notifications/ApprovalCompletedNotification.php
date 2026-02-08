@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\ApprovalAction as ApprovalActionEnum;
 use App\Filament\Resources\ExpenseResource;
 use App\Filament\Resources\LeaveResource;
 use App\Filament\Resources\PurchaseOrderResource;
@@ -75,7 +76,7 @@ class ApprovalCompletedNotification extends Notification
 
             case 'rejected':
                 $lastAction = $this->approvalRequest->actions()
-                    ->where('action', '반려')
+                    ->where('action', ApprovalActionEnum::Rejected->value)
                     ->latest('acted_at')
                     ->first();
                 $rejectBy = $lastAction?->approver?->name ?? '승인자';
@@ -103,11 +104,11 @@ class ApprovalCompletedNotification extends Notification
     protected function getModelLabel($approvable): string
     {
         return match (true) {
-            $approvable instanceof PurchaseOrder => '구매주문',
-            $approvable instanceof Expense => '비용',
-            $approvable instanceof Leave => '휴가',
-            $approvable instanceof Timesheet => '근무기록',
-            default => '문서',
+            $approvable instanceof PurchaseOrder => __('models.purchase_order'),
+            $approvable instanceof Expense => __('models.expense'),
+            $approvable instanceof Leave => __('models.leave'),
+            $approvable instanceof Timesheet => __('models.timesheet'),
+            default => __('models.document'),
         };
     }
 

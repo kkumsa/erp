@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
+use App\Enums\TimesheetStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,16 +13,26 @@ class TimesheetsRelationManager extends RelationManager
 {
     protected static string $relationship = 'timesheets';
 
-    protected static ?string $title = '타임시트';
+    protected static ?string $title = null;
 
-    protected static ?string $modelLabel = '타임시트';
+    protected static ?string $modelLabel = null;
+
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('models.timesheet');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.timesheet');
+    }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->label('작업자')
+                    ->label(__('fields.user_id'))
                     ->relationship('user', 'name')
                     ->required()
                     ->searchable()
@@ -29,7 +40,7 @@ class TimesheetsRelationManager extends RelationManager
                     ->default(auth()->id()),
 
                 Forms\Components\Select::make('task_id')
-                    ->label('태스크')
+                    ->label(__('fields.task'))
                     ->relationship('task', 'title', function ($query) {
                         return $query->where('project_id', $this->ownerRecord->id);
                     })
@@ -37,28 +48,28 @@ class TimesheetsRelationManager extends RelationManager
                     ->preload(),
 
                 Forms\Components\DatePicker::make('date')
-                    ->label('날짜')
+                    ->label(__('fields.date'))
                     ->required()
                     ->default(now()),
 
                 Forms\Components\TextInput::make('hours')
-                    ->label('작업 시간')
+                    ->label(__('fields.hours'))
                     ->numeric()
                     ->required()
                     ->step(0.5)
-                    ->suffix('시간'),
+                    ->suffix('h'),
 
                 Forms\Components\Toggle::make('is_billable')
-                    ->label('청구 가능')
+                    ->label(__('fields.is_billable'))
                     ->default(true),
 
                 Forms\Components\TextInput::make('hourly_rate')
-                    ->label('시간당 단가')
+                    ->label(__('fields.hourly_rate'))
                     ->numeric()
                     ->prefix('₩'),
 
                 Forms\Components\Textarea::make('description')
-                    ->label('작업 내용')
+                    ->label(__('fields.description'))
                     ->rows(3)
                     ->columnSpanFull(),
             ]);
@@ -69,37 +80,32 @@ class TimesheetsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('date')
-                    ->label('날짜')
-                    ->date('Y-m-d')
+                    ->label(__('fields.date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('작업자'),
+                    ->label(__('fields.user_id')),
 
                 Tables\Columns\TextColumn::make('task.title')
-                    ->label('태스크')
+                    ->label(__('fields.task'))
                     ->limit(30),
 
                 Tables\Columns\TextColumn::make('hours')
-                    ->label('시간')
+                    ->label(__('fields.hours'))
                     ->suffix('h'),
 
                 Tables\Columns\IconColumn::make('is_billable')
-                    ->label('청구')
+                    ->label(__('fields.is_billable'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '대기' => 'warning',
-                        '승인' => 'success',
-                        '반려' => 'danger',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state instanceof TimesheetStatus ? $state->color() : (TimesheetStatus::tryFrom($state)?->color() ?? 'gray')),
 
                 Tables\Columns\TextColumn::make('description')
-                    ->label('작업 내용')
+                    ->label(__('fields.description'))
                     ->limit(40),
             ])
             ->defaultSort('date', 'desc')
@@ -108,13 +114,13 @@ class TimesheetsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('approve')
-                    ->label('승인')
+                    ->label(__('common.buttons.approve'))
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(fn ($record) => $record->status === '대기')
+                    ->visible(fn ($record) => $record->status === TimesheetStatus::Pending->value)
                     ->action(function ($record) {
                         $record->update([
-                            'status' => '승인',
+                            'status' => TimesheetStatus::Approved->value,
                             'approved_by' => auth()->id(),
                             'approved_at' => now(),
                         ]);

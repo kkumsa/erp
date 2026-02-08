@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\Priority;
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +38,8 @@ class Task extends Model
         'start_date' => 'date',
         'due_date' => 'date',
         'completed_date' => 'date',
+        'status' => TaskStatus::class,
+        'priority' => Priority::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -91,6 +95,6 @@ class Task extends Model
     // 지연 여부
     public function getIsDelayedAttribute(): bool
     {
-        return $this->due_date && $this->due_date->isPast() && $this->status !== '완료';
+        return $this->due_date && $this->due_date->isPast() && $this->status !== TaskStatus::Completed;
     }
 }

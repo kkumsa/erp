@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentMethod;
+use App\Scopes\FinanceDepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,13 @@ class Payment extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
+    public string $financeScopeMode = 'recorder';
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new FinanceDepartmentScope);
+    }
+
     protected $fillable = [
         'payment_number',
         'payable_type',
@@ -21,6 +30,7 @@ class Payment extends Model
         'payment_date',
         'amount',
         'method',
+        'account_id',
         'reference',
         'note',
         'recorded_by',
@@ -29,6 +39,7 @@ class Payment extends Model
     protected $casts = [
         'payment_date' => 'date',
         'amount' => 'decimal:2',
+        'method' => PaymentMethod::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -45,7 +56,20 @@ class Payment extends Model
 
         static::creating(function ($payment) {
             if (empty($payment->payment_number)) {
-                $payment->payment_number = 'PAY-' . date('Ymd') . '-' . str_pad(static::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT);
+                $prefix = 'PAY-' . date('Ymd') . '-';
+                $lastNumber = static::withoutGlobalScopes()
+                    ->withTrashed()
+                    ->where('payment_number', 'like', $prefix . '%')
+                    ->orderByDesc('payment_number')
+                    ->value('payment_number');
+
+                $nextSeq = 1;
+                if ($lastNumber) {
+                    $lastSeq = (int) substr($lastNumber, strlen($prefix));
+                    $nextSeq = $lastSeq + 1;
+                }
+
+                $payment->payment_number = $prefix . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
             }
         });
 
@@ -59,6 +83,11 @@ class Payment extends Model
     public function payable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 
     public function recorder(): BelongsTo

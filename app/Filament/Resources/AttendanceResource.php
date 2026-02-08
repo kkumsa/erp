@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\AttendanceStatus;
 use App\Filament\Resources\AttendanceResource\Pages;
 use App\Models\Attendance;
 use Filament\Forms;
@@ -23,24 +24,36 @@ class AttendanceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationGroup = '인사관리';
-
-    protected static ?string $navigationLabel = '근태 관리';
-
-    protected static ?string $modelLabel = '근태';
-
-    protected static ?string $pluralModelLabel = '근태';
-
     protected static ?int $navigationSort = 4;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.hr');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.attendance');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.attendance');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.attendance_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('근태 정보')
+                Forms\Components\Section::make(__('common.sections.attendance_info'))
                     ->schema([
                         Forms\Components\Select::make('employee_id')
-                            ->label('직원')
+                            ->label(__('fields.employee_id'))
                             ->relationship('employee', 'employee_code')
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->user->name . ' (' . $record->employee_code . ')')
                             ->required()
@@ -48,30 +61,24 @@ class AttendanceResource extends Resource
                             ->preload(),
 
                         Forms\Components\DatePicker::make('date')
-                            ->label('날짜')
+                            ->label(__('fields.date'))
                             ->required()
                             ->default(now()),
 
                         Forms\Components\TimePicker::make('check_in')
-                            ->label('출근'),
+                            ->label(__('fields.check_in')),
 
                         Forms\Components\TimePicker::make('check_out')
-                            ->label('퇴근'),
+                            ->label(__('fields.check_out')),
 
                         Forms\Components\Select::make('status')
-                            ->label('상태')
-                            ->options([
-                                '정상' => '정상',
-                                '지각' => '지각',
-                                '조퇴' => '조퇴',
-                                '결근' => '결근',
-                                '휴가' => '휴가',
-                            ])
-                            ->default('정상')
+                            ->label(__('fields.status'))
+                            ->options(AttendanceStatus::class)
+                            ->default(AttendanceStatus::Normal)
                             ->required(),
 
                         Forms\Components\Textarea::make('note')
-                            ->label('비고')
+                            ->label(__('fields.note'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -83,49 +90,36 @@ class AttendanceResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('employee.user.name')
-                    ->label('직원')
+                    ->label(__('fields.employee'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('date')
-                    ->label('날짜')
-                    ->date('Y-m-d')
+                    ->label(__('fields.date'))
+                    ->date('Y.m.d')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('check_in')
-                    ->label('출근')
+                    ->label(__('fields.check_in'))
                     ->time('H:i'),
 
                 Tables\Columns\TextColumn::make('check_out')
-                    ->label('퇴근')
+                    ->label(__('fields.check_out'))
                     ->time('H:i'),
 
                 Tables\Columns\TextColumn::make('work_time')
-                    ->label('근무시간'),
+                    ->label(__('fields.work_time')),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        '정상' => 'success',
-                        '지각' => 'warning',
-                        '조퇴' => 'warning',
-                        '결근' => 'danger',
-                        '휴가' => 'info',
-                        default => 'gray',
-                    }),
+                    ->color(fn ($state) => $state?->color() ?? 'gray'),
             ])
             ->defaultSort('date', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
-                    ->options([
-                        '정상' => '정상',
-                        '지각' => '지각',
-                        '조퇴' => '조퇴',
-                        '결근' => '결근',
-                        '휴가' => '휴가',
-                    ]),
+                    ->label(__('fields.status'))
+                    ->options(AttendanceStatus::class),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')
@@ -144,15 +138,15 @@ class AttendanceResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('근태 정보')
+                Infolists\Components\Section::make(__('common.sections.attendance_info'))
                     ->schema([
-                        Infolists\Components\TextEntry::make('employee.user.name')->label('직원'),
-                        Infolists\Components\TextEntry::make('date')->label('날짜')->date('Y-m-d'),
-                        Infolists\Components\TextEntry::make('check_in')->label('출근')->time('H:i'),
-                        Infolists\Components\TextEntry::make('check_out')->label('퇴근')->time('H:i'),
-                        Infolists\Components\TextEntry::make('work_time')->label('근무시간'),
-                        Infolists\Components\TextEntry::make('status')->label('상태')->badge(),
-                        Infolists\Components\TextEntry::make('note')->label('비고')->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('employee.user.name')->label(__('fields.employee')),
+                        Infolists\Components\TextEntry::make('date')->label(__('fields.date'))->date('Y.m.d'),
+                        Infolists\Components\TextEntry::make('check_in')->label(__('fields.check_in'))->time('H:i'),
+                        Infolists\Components\TextEntry::make('check_out')->label(__('fields.check_out'))->time('H:i'),
+                        Infolists\Components\TextEntry::make('work_time')->label(__('fields.work_time')),
+                        Infolists\Components\TextEntry::make('status')->label(__('fields.status'))->badge(),
+                        Infolists\Components\TextEntry::make('note')->label(__('fields.note'))->columnSpanFull(),
                     ])->columns(2),
             ]);
     }

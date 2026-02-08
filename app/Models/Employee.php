@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\EmployeeStatus;
+use App\Enums\EmploymentType;
+use App\Enums\LeaveStatus;
 use App\Scopes\DepartmentScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +48,8 @@ class Employee extends Model
         'resignation_date' => 'date',
         'base_salary' => 'decimal:2',
         'meta' => 'array',
+        'employment_type' => EmploymentType::class,
+        'status' => EmployeeStatus::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -84,7 +89,7 @@ class Employee extends Model
     public function getRemainingLeaveDaysAttribute(): float
     {
         $usedDays = $this->leaves()
-            ->where('status', '승인')
+            ->where('status', LeaveStatus::Approved)
             ->whereYear('start_date', now()->year)
             ->sum('days');
 

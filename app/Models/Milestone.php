@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MilestoneStatus;
+use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +28,7 @@ class Milestone extends Model
     protected $casts = [
         'due_date' => 'date',
         'completed_date' => 'date',
+        'status' => MilestoneStatus::class,
     ];
 
     public function project(): BelongsTo
@@ -46,14 +49,14 @@ class Milestone extends Model
             return 0;
         }
 
-        $completedTasks = $this->tasks()->where('status', '완료')->count();
+        $completedTasks = $this->tasks()->where('status', TaskStatus::Completed)->count();
         return (int) round(($completedTasks / $totalTasks) * 100);
     }
 
     // 지연 여부
     public function getIsDelayedAttribute(): bool
     {
-        return $this->due_date->isPast() && $this->status !== '완료';
+        return $this->due_date->isPast() && $this->status !== MilestoneStatus::Completed;
     }
 
     public function getActivitylogOptions(): LogOptions

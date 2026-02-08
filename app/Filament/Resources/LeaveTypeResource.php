@@ -23,51 +23,63 @@ class LeaveTypeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationGroup = '시스템설정';
-
-    protected static ?string $navigationLabel = '휴가 유형';
-
-    protected static ?string $modelLabel = '휴가 유형';
-
-    protected static ?string $pluralModelLabel = '휴가 유형';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.leave_type');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.leave_type');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.leave_type_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('휴가 유형 정보')
+                Forms\Components\Section::make(__('common.sections.leave_type_info'))
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('유형명')
+                            ->label(__('fields.type_name'))
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('code')
-                            ->label('코드')
+                            ->label(__('fields.code'))
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
 
                         Forms\Components\TextInput::make('default_days')
-                            ->label('기본 일수')
+                            ->label(__('fields.default_days'))
                             ->numeric(),
 
                         Forms\Components\Toggle::make('is_paid')
-                            ->label('유급')
+                            ->label(__('fields.is_paid'))
                             ->default(true),
 
                         Forms\Components\Toggle::make('is_active')
-                            ->label('활성화')
+                            ->label(__('fields.is_active'))
                             ->default(true),
 
                         Forms\Components\TextInput::make('color')
-                            ->label('색상')
+                            ->label(__('fields.color'))
                             ->maxLength(50),
 
                         Forms\Components\Textarea::make('description')
-                            ->label('설명')
+                            ->label(__('fields.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -79,37 +91,37 @@ class LeaveTypeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('유형명')
+                    ->label(__('fields.type_name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('code')
-                    ->label('코드')
+                    ->label(__('fields.code'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('default_days')
-                    ->label('기본 일수')
-                    ->suffix('일'),
+                    ->label(__('fields.default_days'))
+                    ->suffix(__('common.general.days_suffix')),
 
                 Tables\Columns\IconColumn::make('is_paid')
-                    ->label('유급')
+                    ->label(__('fields.is_paid'))
                     ->boolean(),
 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('활성화')
+                    ->label(__('fields.is_active'))
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('color')
-                    ->label('색상')
+                    ->label(__('fields.color'))
                     ->badge(),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('활성화'),
+                    ->label(__('fields.is_active')),
 
                 Tables\Filters\TernaryFilter::make('is_paid')
-                    ->label('유급'),
+                    ->label(__('fields.is_paid')),
             ])
             ->recordUrl(null)
             ->recordAction('selectRecord')
@@ -128,15 +140,15 @@ class LeaveTypeResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('휴가 유형 정보')
+                Infolists\Components\Section::make(__('common.sections.leave_type_info'))
                     ->schema([
-                        Infolists\Components\TextEntry::make('name')->label('유형명'),
-                        Infolists\Components\TextEntry::make('code')->label('코드'),
-                        Infolists\Components\TextEntry::make('default_days')->label('기본 일수')->suffix('일'),
-                        Infolists\Components\IconEntry::make('is_paid')->label('유급')->boolean(),
-                        Infolists\Components\IconEntry::make('is_active')->label('활성화')->boolean(),
-                        Infolists\Components\TextEntry::make('color')->label('색상')->badge(),
-                        Infolists\Components\TextEntry::make('description')->label('설명')->columnSpanFull(),
+                        Infolists\Components\TextEntry::make('name')->label(__('fields.type_name')),
+                        Infolists\Components\TextEntry::make('code')->label(__('fields.code')),
+                        Infolists\Components\TextEntry::make('default_days')->label(__('fields.default_days'))->suffix(__('common.general.days_suffix')),
+                        Infolists\Components\IconEntry::make('is_paid')->label(__('fields.is_paid'))->boolean(),
+                        Infolists\Components\IconEntry::make('is_active')->label(__('fields.is_active'))->boolean(),
+                        Infolists\Components\TextEntry::make('color')->label(__('fields.color'))->badge(),
+                        Infolists\Components\TextEntry::make('description')->label(__('fields.description'))->columnSpanFull(),
                     ])->columns(2),
             ]);
     }

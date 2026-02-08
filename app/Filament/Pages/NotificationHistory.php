@@ -15,11 +15,23 @@ class NotificationHistory extends Page implements HasTable
     use InteractsWithTable;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
-    protected static ?string $navigationGroup = '내 설정';
-    protected static ?string $navigationLabel = '알림 내역';
-    protected static ?string $title = '알림 내역';
     protected static ?int $navigationSort = 2;
     protected static string $view = 'filament.pages.notification-history';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.my_settings');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.notification_history');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('common.pages.notification_history');
+    }
 
     public function table(Table $table): Table
     {
@@ -33,7 +45,7 @@ class NotificationHistory extends Page implements HasTable
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('data.title')
-                    ->label('제목')
+                    ->label(__('fields.title'))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('data->title', 'like', "%{$search}%");
                     })
@@ -42,7 +54,7 @@ class NotificationHistory extends Page implements HasTable
                     ->weight(fn ($record) => $record->read_at ? 'normal' : 'bold'),
 
                 Tables\Columns\TextColumn::make('data.body')
-                    ->label('내용')
+                    ->label(__('fields.content'))
                     ->limit(80)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('data->body', 'like', "%{$search}%");
@@ -50,32 +62,33 @@ class NotificationHistory extends Page implements HasTable
                     ->color(fn ($record) => $record->deleted_at ? 'gray' : null),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->badge()
                     ->getStateUsing(function ($record) {
-                        if ($record->deleted_at) return '삭제됨';
-                        if ($record->read_at) return '읽음';
-                        return '안읽음';
+                        if ($record->deleted_at) return 'deleted';
+                        if ($record->read_at) return 'read';
+                        return 'unread';
                     })
+                    ->formatStateUsing(fn (string $state) => __('common.statuses.' . $state))
                     ->color(fn (string $state): string => match ($state) {
-                        '안읽음' => 'info',
-                        '읽음' => 'gray',
-                        '삭제됨' => 'danger',
+                        'unread' => 'info',
+                        'read' => 'gray',
+                        'deleted' => 'danger',
                         default => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('수신일시')
-                    ->dateTime('Y-m-d H:i')
+                    ->label(__('fields.received_at'))
+                    ->dateTime('Y.m.d H:i')
                     ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('상태')
+                    ->label(__('fields.status'))
                     ->options([
-                        'unread' => '안읽음',
-                        'read' => '읽음',
-                        'deleted' => '삭제됨',
+                        'unread' => __('common.statuses.unread'),
+                        'read' => __('common.statuses.read'),
+                        'deleted' => __('common.statuses.deleted'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return match ($data['value'] ?? null) {
@@ -88,34 +101,34 @@ class NotificationHistory extends Page implements HasTable
             ])
             ->actions([
                 Tables\Actions\Action::make('markAsRead')
-                    ->label('읽음 처리')
+                    ->label(__('common.buttons.mark_as_read'))
                     ->icon('heroicon-m-check')
                     ->action(fn ($record) => $record->update(['read_at' => now()]))
                     ->visible(fn ($record) => !$record->read_at && !$record->deleted_at)
                     ->size('sm'),
 
                 Tables\Actions\Action::make('restore')
-                    ->label('복원')
+                    ->label(__('common.buttons.restore'))
                     ->icon('heroicon-m-arrow-uturn-left')
                     ->color('success')
                     ->action(fn ($record) => $record->restore())
                     ->visible(fn ($record) => $record->deleted_at !== null)
                     ->requiresConfirmation()
-                    ->modalHeading('알림 복원')
-                    ->modalDescription('이 알림을 복원하시겠습니까?')
+                    ->modalHeading(__('common.confirmations.notification_restore_heading'))
+                    ->modalDescription(__('common.confirmations.notification_restore'))
                     ->size('sm'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkAction::make('markAllRead')
-                    ->label('읽음 처리')
+                    ->label(__('common.buttons.mark_as_read'))
                     ->icon('heroicon-m-check')
                     ->action(fn ($records) => $records->each(fn ($r) => $r->update(['read_at' => now()])))
                     ->deselectRecordsAfterCompletion(),
             ])
             ->striped()
             ->paginated([10, 25, 50])
-            ->emptyStateHeading('알림이 없습니다')
-            ->emptyStateDescription('수신된 알림이 여기에 표시됩니다.')
+            ->emptyStateHeading(__('common.empty_states.no_notifications'))
+            ->emptyStateDescription(__('common.empty_states.notifications_description'))
             ->emptyStateIcon('heroicon-o-bell-slash');
     }
 

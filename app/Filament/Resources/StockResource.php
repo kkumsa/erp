@@ -23,43 +23,55 @@ class StockResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationGroup = '재고관리';
-
-    protected static ?string $navigationLabel = '재고 현황';
-
-    protected static ?string $modelLabel = '재고';
-
-    protected static ?string $pluralModelLabel = '재고';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.inventory');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('navigation.labels.stock');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('models.stock');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('models.stock_plural');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('재고 정보')
+                Forms\Components\Section::make(__('common.sections.stock_info'))
                     ->schema([
                         Forms\Components\Select::make('warehouse_id')
-                            ->label('창고')
+                            ->label(__('fields.warehouse_id'))
                             ->relationship('warehouse', 'name')
                             ->required()
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\Select::make('product_id')
-                            ->label('상품')
+                            ->label(__('fields.product_id'))
                             ->relationship('product', 'name')
                             ->required()
                             ->searchable()
                             ->preload(),
 
                         Forms\Components\TextInput::make('quantity')
-                            ->label('수량')
+                            ->label(__('fields.quantity'))
                             ->numeric()
                             ->required(),
 
                         Forms\Components\TextInput::make('reserved_quantity')
-                            ->label('예약 수량')
+                            ->label(__('fields.reserved_quantity'))
                             ->numeric()
                             ->default(0),
                     ])->columns(2),
@@ -71,35 +83,35 @@ class StockResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('warehouse.name')
-                    ->label('창고')
+                    ->label(__('fields.warehouse'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('product.name')
-                    ->label('상품')
+                    ->label(__('fields.product'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('product.code')
-                    ->label('상품코드'),
+                    ->label(__('fields.code')),
 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('수량'),
+                    ->label(__('fields.quantity')),
 
                 Tables\Columns\TextColumn::make('reserved_quantity')
-                    ->label('예약'),
+                    ->label(__('fields.reserved_quantity')),
 
                 Tables\Columns\TextColumn::make('available_quantity')
-                    ->label('가용 수량')
+                    ->label(__('fields.available_quantity'))
                     ->getStateUsing(fn ($record) => $record->quantity - $record->reserved_quantity),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('warehouse_id')
-                    ->label('창고')
+                    ->label(__('fields.warehouse_id'))
                     ->relationship('warehouse', 'name'),
 
                 Tables\Filters\SelectFilter::make('product_id')
-                    ->label('상품')
+                    ->label(__('fields.product_id'))
                     ->relationship('product', 'name'),
             ])
             ->recordUrl(null)
@@ -118,15 +130,20 @@ class StockResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('재고 정보')
+                Infolists\Components\Section::make(__('common.sections.stock_info'))
                     ->schema([
-                        Infolists\Components\TextEntry::make('warehouse.name')->label('창고'),
-                        Infolists\Components\TextEntry::make('product.name')->label('상품'),
-                        Infolists\Components\TextEntry::make('product.code')->label('상품코드'),
-                        Infolists\Components\TextEntry::make('quantity')->label('수량'),
-                        Infolists\Components\TextEntry::make('reserved_quantity')->label('예약 수량'),
+                        Infolists\Components\TextEntry::make('warehouse.name')
+                            ->label(__('fields.warehouse')),
+                        Infolists\Components\TextEntry::make('product.name')
+                            ->label(__('fields.product')),
+                        Infolists\Components\TextEntry::make('product.code')
+                            ->label(__('fields.code')),
+                        Infolists\Components\TextEntry::make('quantity')
+                            ->label(__('fields.quantity')),
+                        Infolists\Components\TextEntry::make('reserved_quantity')
+                            ->label(__('fields.reserved_quantity')),
                         Infolists\Components\TextEntry::make('available_quantity')
-                            ->label('가용 수량')
+                            ->label(__('fields.available_quantity'))
                             ->getStateUsing(fn ($record) => $record->quantity - $record->reserved_quantity),
                     ])->columns(2),
             ]);
