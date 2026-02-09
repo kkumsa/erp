@@ -32,9 +32,13 @@ class Task extends Model
         'estimated_hours',
         'actual_hours',
         'sort_order',
+        'external_id',
+        'external_source',
+        'external_data',
     ];
 
     protected $casts = [
+        'external_data' => 'array',
         'start_date' => 'date',
         'due_date' => 'date',
         'completed_date' => 'date',

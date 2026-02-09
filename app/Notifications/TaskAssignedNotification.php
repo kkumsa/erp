@@ -25,9 +25,18 @@ class TaskAssignedNotification extends Notification
 
     public function toDatabase($notifiable): array
     {
+        $body = "{$this->assignerName}님이 '{$this->task->title}' 태스크를 배정했습니다.";
+        $this->task->loadMissing('project');
+        if ($this->task->project?->timesheet_automation_enabled && ($this->task->start_date || $this->task->due_date)) {
+            $range = $this->task->start_date && $this->task->due_date
+                ? $this->task->start_date->format('Y-m-d') . ' ~ ' . $this->task->due_date->format('Y-m-d')
+                : ($this->task->start_date ?? $this->task->due_date)->format('Y-m-d');
+            $body .= " 기간: {$range}. 타임시트를 입력해 주세요.";
+        }
+
         return FilamentNotification::make()
             ->title('태스크 배정')
-            ->body("{$this->assignerName}님이 '{$this->task->title}' 태스크를 배정했습니다.")
+            ->body($body)
             ->icon('heroicon-o-clipboard-document-check')
             ->iconColor('info')
             ->actions([

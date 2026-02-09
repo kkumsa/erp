@@ -36,9 +36,13 @@ class Project extends Model
         'progress',
         'priority',
         'meta',
+        'timesheet_automation_enabled',
+        'timesheet_integration_enabled',
     ];
 
     protected $casts = [
+        'timesheet_automation_enabled' => 'boolean',
+        'timesheet_integration_enabled' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
         'actual_end_date' => 'date',
@@ -118,6 +122,16 @@ class Project extends Model
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function integrations(): HasMany
+    {
+        return $this->hasMany(ProjectIntegration::class);
+    }
+
+    public function jiraIntegration(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ProjectIntegration::class)->where('provider', 'jira')->where('is_active', true);
     }
 
     // 진행률 계산

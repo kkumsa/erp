@@ -131,6 +131,20 @@ class ProjectResource extends Resource
                             ->minValue(0)
                             ->maxValue(100),
                     ])->columns(4),
+
+                Forms\Components\Section::make('타임시트 자동화·연동')
+                    ->description('태스크 할당 시 담당자 알림 및 타임시트 초안 생성, 외부 도구 연동 여부를 선택합니다.')
+                    ->schema([
+                        Forms\Components\Toggle::make('timesheet_automation_enabled')
+                            ->label('타임시트 자동화')
+                            ->helperText('켜면: 태스크 담당자 지정·기간 설정 시 알림 발송 + 기간 내 빈 타임시트(0h) 초안 자동 생성')
+                            ->default(false),
+
+                        Forms\Components\Toggle::make('timesheet_integration_enabled')
+                            ->label('타임시트 외부 연동')
+                            ->helperText('켜면: 추후 Toggl·Harvest 등 연동 시 해당 프로젝트 타임시트를 외부에서 가져옵니다.')
+                            ->default(false),
+                    ])->columns(1)->collapsible(),
             ]);
     }
 
@@ -293,6 +307,7 @@ class ProjectResource extends Resource
         return [
             RelationManagers\TasksRelationManager::class,
             RelationManagers\TimesheetsRelationManager::class,
+            RelationManagers\IntegrationsRelationManager::class,
         ];
     }
 
