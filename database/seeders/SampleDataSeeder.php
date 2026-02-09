@@ -21,6 +21,7 @@ use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Stock;
+use App\Models\BankDeposit;
 use App\Models\Supplier;
 use App\Models\Task;
 use App\Models\Timesheet;
@@ -94,6 +95,10 @@ class SampleDataSeeder extends Seeder
         // 15. 비용 생성
         $this->createExpenses($users, $projects, $suppliers);
         $this->command->info('✓ 비용 생성 완료');
+
+        // 16. 은행 입금 내역 생성 (미처리 20건 - 결제 매칭 테스트용)
+        $this->createBankDeposits($users);
+        $this->command->info('✓ 은행 입금 내역 생성 완료 (20건)');
 
         $this->command->info('');
         $this->command->info('🎉 테크웨이브 샘플 데이터 생성 완료!');
@@ -2452,6 +2457,30 @@ class SampleDataSeeder extends Seeder
             'amount' => 17500000,
         ]);
 
+        // 청구서 2 입금내역 (2건: 1차 계좌이체 + 2차 잔금)
+        Payment::create([
+            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(4)->format('Ymd') . '-0004',
+            'payable_type' => Invoice::class,
+            'payable_id' => $inv2->id,
+            'payment_date' => $baseDate->copy()->subDays(4),
+            'amount' => 10000000,
+            'method' => 'bank_transfer',
+            'reference' => '핀테크솔루션즈 1차 입금',
+            'note' => '결제 API 착수금 1차 입금 (계좌이체)',
+            'recorded_by' => $users['account_member']->id,
+        ]);
+        Payment::create([
+            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(2)->format('Ymd') . '-0005',
+            'payable_type' => Invoice::class,
+            'payable_id' => $inv2->id,
+            'payment_date' => $baseDate->copy()->subDays(2),
+            'amount' => 9250000,
+            'method' => 'bank_transfer',
+            'reference' => '핀테크솔루션즈 2차 잔금',
+            'note' => '결제 API 착수금 잔금 입금',
+            'recorded_by' => $users['account_member']->id,
+        ]);
+
         // 청구서 3 - GPU 서버 납품 (결제 완료)
         $inv3 = Invoice::create([
             'invoice_number' => 'INV-' . $baseDate->copy()->subDays(10)->format('Ymd') . '-0003',
@@ -2491,6 +2520,18 @@ class SampleDataSeeder extends Seeder
             'method' => 'bank_transfer',
             'reference' => 'KAIST → 테크웨이브 (1차 분할)',
             'note' => 'GPU 서버 1차 납품분 50% 입금',
+            'recorded_by' => $users['finance_head']->id,
+        ]);
+        // 청구서 3 잔금 입금 (2차)
+        Payment::create([
+            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(1)->format('Ymd') . '-0006',
+            'payable_type' => Invoice::class,
+            'payable_id' => $inv3->id,
+            'payment_date' => $baseDate->copy()->subDays(1),
+            'amount' => 137500000,
+            'method' => 'bank_transfer',
+            'reference' => 'KAIST → 테크웨이브 (2차 잔금)',
+            'note' => 'GPU 서버 2차 납품분 50% 입금',
             'recorded_by' => $users['finance_head']->id,
         ]);
 
@@ -2681,5 +2722,52 @@ class SampleDataSeeder extends Seeder
             'total_amount' => 1200000,
             'status' => 'pending',
         ]);
+    }
+
+    // ─────────────────────────────────────────────
+    // 16. 은행 입금 내역 생성 (미처리 20건 - 결제 매칭 테스트용)
+    // ─────────────────────────────────────────────
+    private function createBankDeposits(array $users): void
+    {
+        $baseDate = now();
+        $createdBy = $users['account_member']->id;
+        $bankAccount = '테크웨이브 110-123-456789';
+
+        $deposits = [
+            ['deposited_at' => $baseDate->copy()->subDays(1)->setTime(9, 15), 'depositor_name' => '핀테크솔루션(주)', 'amount' => 19250000, 'transaction_number' => 'T202602040915001', 'memo' => '결제 API 착수금'],
+            ['deposited_at' => $baseDate->copy()->subDays(1)->setTime(10, 32), 'depositor_name' => '(주)한국과학기술원', 'amount' => 137500000, 'transaction_number' => 'T202602041032002', 'memo' => 'GPU 서버 2차 잔금'],
+            ['deposited_at' => $baseDate->copy()->subDays(2)->setTime(14, 5), 'depositor_name' => '쇼핑몰플러스', 'amount' => 3300000, 'transaction_number' => 'T202602031405003', 'memo' => '2월 유지보수비'],
+            ['deposited_at' => $baseDate->copy()->subDays(2)->setTime(16, 22), 'depositor_name' => '넥스트게임즈', 'amount' => 8000000, 'transaction_number' => 'T202602031622004', 'memo' => '2차 착수금 일부'],
+            ['deposited_at' => $baseDate->copy()->subDays(3)->setTime(11, 0), 'depositor_name' => '코리아매뉴팩처링', 'amount' => 15000000, 'transaction_number' => 'T202602021100005', 'memo' => '스마트공장 1차'],
+            ['deposited_at' => $baseDate->copy()->subDays(3)->setTime(15, 45), 'depositor_name' => '김철수', 'amount' => 5500000, 'transaction_number' => 'T202602021545006', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(4)->setTime(9, 30), 'depositor_name' => '이영희', 'amount' => 1200000, 'transaction_number' => 'T202602010930007', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(4)->setTime(11, 18), 'depositor_name' => '박민수', 'amount' => 7700000, 'transaction_number' => 'T202602011118008', 'memo' => '프로젝트 A 잔금'],
+            ['deposited_at' => $baseDate->copy()->subDays(5)->setTime(10, 5), 'depositor_name' => '정다혜', 'amount' => 3000000, 'transaction_number' => 'T202601311005009', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(5)->setTime(14, 30), 'depositor_name' => '삼성전자(주)', 'amount' => 25000000, 'transaction_number' => 'T202601311430010', 'memo' => '컨설팅 1차'],
+            ['deposited_at' => $baseDate->copy()->subDays(6)->setTime(9, 0), 'depositor_name' => 'LG이노텍', 'amount' => 18500000, 'transaction_number' => 'T202601300900011', 'memo' => '납품 대금'],
+            ['deposited_at' => $baseDate->copy()->subDays(6)->setTime(16, 55), 'depositor_name' => '스타트업알파', 'amount' => 4500000, 'transaction_number' => 'T202601301655012', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(7)->setTime(10, 20), 'depositor_name' => '디지털에이전시', 'amount' => 6600000, 'transaction_number' => 'T202601291020013', 'memo' => '월정산'],
+            ['deposited_at' => $baseDate->copy()->subDays(7)->setTime(13, 10), 'depositor_name' => '홍길동', 'amount' => 2100000, 'transaction_number' => 'T202601291310014', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(8)->setTime(11, 42), 'depositor_name' => '(주)테크밸리', 'amount' => 9900000, 'transaction_number' => 'T202601281142015', 'memo' => '개발비 2차'],
+            ['deposited_at' => $baseDate->copy()->subDays(8)->setTime(15, 0), 'depositor_name' => '이노베이션랩', 'amount' => 5000000, 'transaction_number' => 'T202601281500016', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(9)->setTime(9, 25), 'depositor_name' => '김입금', 'amount' => 15000000, 'transaction_number' => 'T202601270925017', 'memo' => '계약금'],
+            ['deposited_at' => $baseDate->copy()->subDays(9)->setTime(14, 18), 'depositor_name' => '파트너스컴퍼니', 'amount' => 4200000, 'transaction_number' => 'T202601271418018', 'memo' => null],
+            ['deposited_at' => $baseDate->copy()->subDays(10)->setTime(10, 0), 'depositor_name' => '글로벌솔루션즈', 'amount' => 27500000, 'transaction_number' => 'T202601261000019', 'memo' => '연간 유지보수'],
+            ['deposited_at' => $baseDate->copy()->subDays(10)->setTime(16, 30), 'depositor_name' => '오늘입금', 'amount' => 8800000, 'transaction_number' => 'T202601261630020', 'memo' => null],
+        ];
+
+        foreach ($deposits as $d) {
+            BankDeposit::create([
+                'deposited_at' => $d['deposited_at'],
+                'depositor_name' => $d['depositor_name'],
+                'amount' => $d['amount'],
+                'transaction_number' => $d['transaction_number'],
+                'bank_account' => $bankAccount,
+                'memo' => $d['memo'],
+                'processed_at' => null,
+                'payment_id' => null,
+                'created_by' => $createdBy,
+            ]);
+        }
     }
 }
