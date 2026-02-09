@@ -1,29 +1,19 @@
-<div class="flex items-center">
-    <x-filament::dropdown placement="bottom-end">
-        <x-slot name="trigger">
-            <button
-                type="button"
-                class="fi-icon-btn relative flex items-center justify-center rounded-lg outline-none transition duration-75 focus-visible:ring-2 h-9 w-9 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
-                title="{{ $locale === 'ko' ? '한국어' : 'English' }}"
-            >
-                <span class="text-sm font-bold">{{ $locale === 'ko' ? 'KO' : 'EN' }}</span>
-            </button>
-        </x-slot>
-
-        <x-filament::dropdown.list>
-            <x-filament::dropdown.list.item
-                wire:click="switchLocale('ko')"
-                :icon="$locale === 'ko' ? 'heroicon-s-check' : null"
-            >
-                한국어
-            </x-filament::dropdown.list.item>
-
-            <x-filament::dropdown.list.item
-                wire:click="switchLocale('en')"
-                :icon="$locale === 'en' ? 'heroicon-s-check' : null"
-            >
-                English
-            </x-filament::dropdown.list.item>
-        </x-filament::dropdown.list>
-    </x-filament::dropdown>
+{{-- 인라인 버튼 방식: 모바일 터치에서 드롭다운이 즉시 닫히는 문제 방지 --}}
+<div class="fi-locale-switcher flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 dark:border-white/10 dark:bg-white/5">
+    <button
+        type="button"
+        wire:click="switchLocale('ko')"
+        class="min-w-[2.25rem] rounded-md px-2 py-1.5 text-center text-sm font-bold transition focus-visible:ring-2 focus-visible:ring-primary-500 {{ $locale === 'ko' ? 'bg-primary-500 text-white dark:bg-primary-500 dark:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200' }}"
+        title="한국어"
+    >
+        KO
+    </button>
+    <button
+        type="button"
+        wire:click="switchLocale('en')"
+        class="min-w-[2.25rem] rounded-md px-2 py-1.5 text-center text-sm font-bold transition focus-visible:ring-2 focus-visible:ring-primary-500 {{ $locale === 'en' ? 'bg-primary-500 text-white dark:bg-primary-500 dark:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-200' }}"
+        title="English"
+    >
+        EN
+    </button>
 </div>
