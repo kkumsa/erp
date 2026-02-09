@@ -2481,7 +2481,7 @@ class SampleDataSeeder extends Seeder
             'recorded_by' => $users['account_member']->id,
         ]);
 
-        // 청구서 3 - GPU 서버 납품 (결제 완료)
+        // 청구서 3 - GPU 서버 납품 (발행, 결제 내역 없음 - 매칭 테스트용)
         $inv3 = Invoice::create([
             'invoice_number' => 'INV-' . $baseDate->copy()->subDays(10)->format('Ymd') . '-0003',
             'customer_id' => $customers['university']->id,
@@ -2492,8 +2492,8 @@ class SampleDataSeeder extends Seeder
             'subtotal' => 250000000,
             'tax_amount' => 25000000,
             'total_amount' => 275000000,
-            'paid_amount' => 137500000,
-            'status' => 'partially_paid',
+            'paid_amount' => 0,
+            'status' => 'issued',
             'note' => 'AI 연구 GPU 서버 클러스터 4대',
             'terms' => '납품 후 30일 이내',
             'created_by' => $users['finance_head']->id,
@@ -2511,31 +2511,7 @@ class SampleDataSeeder extends Seeder
             'amount' => 250000000,
         ]);
 
-        Payment::create([
-            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(3)->format('Ymd') . '-0002',
-            'payable_type' => Invoice::class,
-            'payable_id' => $inv3->id,
-            'payment_date' => $baseDate->copy()->subDays(3),
-            'amount' => 137500000,
-            'method' => 'bank_transfer',
-            'reference' => 'KAIST → 테크웨이브 (1차 분할)',
-            'note' => 'GPU 서버 1차 납품분 50% 입금',
-            'recorded_by' => $users['finance_head']->id,
-        ]);
-        // 청구서 3 잔금 입금 (2차)
-        Payment::create([
-            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(1)->format('Ymd') . '-0006',
-            'payable_type' => Invoice::class,
-            'payable_id' => $inv3->id,
-            'payment_date' => $baseDate->copy()->subDays(1),
-            'amount' => 137500000,
-            'method' => 'bank_transfer',
-            'reference' => 'KAIST → 테크웨이브 (2차 잔금)',
-            'note' => 'GPU 서버 2차 납품분 50% 입금',
-            'recorded_by' => $users['finance_head']->id,
-        ]);
-
-        // 청구서 4 - 쇼핑몰 유지보수 (결제 완료)
+        // 청구서 4 - 쇼핑몰 유지보수 (발행, 결제 내역 없음 - 매칭 테스트용)
         $inv4 = Invoice::create([
             'invoice_number' => 'INV-' . $baseDate->copy()->subDays(25)->format('Ymd') . '-0004',
             'customer_id' => $customers['ecommerce']->id,
@@ -2546,8 +2522,8 @@ class SampleDataSeeder extends Seeder
             'subtotal' => 3000000,
             'tax_amount' => 300000,
             'total_amount' => 3300000,
-            'paid_amount' => 3300000,
-            'status' => 'paid',
+            'paid_amount' => 0,
+            'status' => 'issued',
             'note' => '1월 유지보수 비용',
             'terms' => '발행일로부터 15일 이내',
             'created_by' => $users['account_member']->id,
@@ -2563,18 +2539,6 @@ class SampleDataSeeder extends Seeder
             'discount' => 0,
             'tax_rate' => 10,
             'amount' => 3000000,
-        ]);
-
-        Payment::create([
-            'payment_number' => 'PAY-' . $baseDate->copy()->subDays(12)->format('Ymd') . '-0003',
-            'payable_type' => Invoice::class,
-            'payable_id' => $inv4->id,
-            'payment_date' => $baseDate->copy()->subDays(12),
-            'amount' => 3300000,
-            'method' => 'bank_transfer',
-            'reference' => '쇼핑몰플러스 → 테크웨이브',
-            'note' => '1월 유지보수 비용 입금',
-            'recorded_by' => $users['account_member']->id,
         ]);
 
         // 청구서 5 - 2월 유지보수 (초안)
