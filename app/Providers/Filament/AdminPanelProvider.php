@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Pretendard')
-            ->brandName('스타트업 GRP')
+            ->brandName('스타트업 ERP')
             ->brandLogo(null)
             ->favicon(asset('favicon.ico'))
             ->navigationGroups([
