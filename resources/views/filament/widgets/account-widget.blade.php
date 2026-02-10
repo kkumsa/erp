@@ -16,8 +16,8 @@
     }
 @endphp
 
-<x-filament-widgets::widget class="fi-account-widget">
-    <x-filament::section>
+<x-filament-widgets::widget class="fi-account-widget h-full">
+    <x-filament::section class="h-full">
         <div class="flex items-center gap-x-3">
             <x-filament-panels::avatar.user size="lg" :user="$user" />
 

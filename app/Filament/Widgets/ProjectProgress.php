@@ -14,7 +14,9 @@ class ProjectProgress extends BaseWidget
 {
     protected static ?int $sort = -2;
 
-    protected int | string | array $columnSpan = 3;
+    protected static string $view = 'filament.widgets.project-progress-widget';
+
+    protected int | string | array $columnSpan = 2;
 
     public function getTableHeading(): string|\Illuminate\Contracts\Support\Htmlable|null
     {
@@ -47,38 +49,27 @@ class ProjectProgress extends BaseWidget
 
         return $table
             ->query($query)
+            ->recordUrl(fn (Project $record): string => ProjectResource::getUrl('view', ['record' => $record]))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('fields.project'))
                     ->limit(25),
-
-                Tables\Columns\TextColumn::make('customer.company_name')
-                    ->label(__('fields.customer'))
-                    ->limit(15),
-
-                Tables\Columns\TextColumn::make('manager.name')
-                    ->label('PM'),
-
-                Tables\Columns\TextColumn::make('end_date')
-                    ->label(__('fields.deadline'))
-                    ->date('Y.m.d')
-                    ->color(fn ($record) => $record->is_delayed ? 'danger' : null),
-
-                Tables\Columns\TextColumn::make('progress')
-                    ->label(__('fields.progress'))
-                    ->suffix('%')
-                    ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'info')),
 
                 Tables\Columns\TextColumn::make('priority')
                     ->label(__('fields.priority'))
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state instanceof Priority ? $state->getLabel() : (Priority::tryFrom($state)?->getLabel() ?? $state))
                     ->color(fn ($state) => $state instanceof Priority ? $state->color() : (Priority::tryFrom($state)?->color() ?? 'gray')),
-            ])
-            ->actions([
-                Tables\Actions\Action::make('view')
-                    ->label(__('common.buttons.view'))
-                    ->url(fn (Project $record): string => ProjectResource::getUrl('view', ['record' => $record])),
+
+                Tables\Columns\TextColumn::make('progress')
+                    ->label(__('fields.progress'))
+                    ->suffix('%')
+                    ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'info')),
+
+                Tables\Columns\TextColumn::make('end_date')
+                    ->label(__('fields.deadline'))
+                    ->date('Y.m.d')
+                    ->color(fn ($record) => $record->is_delayed ? 'danger' : null),
             ])
             ->paginated(false);
     }

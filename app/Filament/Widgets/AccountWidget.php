@@ -10,7 +10,7 @@ class AccountWidget extends Widget
 
     protected static bool $isLazy = false;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = 2;
 
     protected static string $view = 'filament.widgets.account-widget';
 }

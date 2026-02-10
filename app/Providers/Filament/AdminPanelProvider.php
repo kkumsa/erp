@@ -210,6 +210,21 @@ class AdminPanelProvider extends PanelProvider
                             -webkit-overflow-scrolling: touch;
                         }
 
+                        /* 로그인 정보 위젯: 같은 행의 진행 중인 프로젝트 높이에 맞춤 (나중에 배경 꾸미기용) */
+                        .fi-account-widget.h-full {
+                            display: flex;
+                            min-height: 0;
+                        }
+                        .fi-account-widget.h-full > * {
+                            flex: 1;
+                            min-height: 0;
+                        }
+
+                        /* 진행 중인 프로젝트 위젯: 테이블 열 제목(thead)만 숨김 */
+                        .fi-wi-table-hide-column-headers thead {
+                            display: none;
+                        }
+
                         /* 페이지네이션 영역을 container query 대상으로 설정
                            (.fi-ta에 적용하면 containment context가 테이블 전체를 감싸서
                            bulk actions 등 fixed/absolute 요소의 위치가 깨짐) */
