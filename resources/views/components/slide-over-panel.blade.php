@@ -31,6 +31,14 @@
                     setTimeout(() => { this.isLoading = false; }, 150);
                 });
             }
+            // 목록 항목이 아닌 어디를 클릭해도 패널 닫기 (document 레벨)
+            const self = this;
+            document.addEventListener('click', function(e) {
+                if (!self.isShown) return;
+                if (e.target.closest('.fi-slide-over-panel')) return;
+                if (e.target.closest('tbody tr')) return;
+                self.close();
+            });
         },
 
         close() {
@@ -86,7 +94,7 @@
         x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
-        class="pointer-events-auto absolute top-0 bottom-0 flex bg-white dark:bg-gray-900 shadow-xl border-l border-gray-200 dark:border-gray-700"
+        class="fi-slide-over-panel pointer-events-auto absolute top-0 bottom-0 flex bg-white dark:bg-gray-900 shadow-xl border-l border-gray-200 dark:border-gray-700"
         :style="'width: ' + pw + 'vw; right: 0;'"
     >
         {{-- 리사이저 --}}

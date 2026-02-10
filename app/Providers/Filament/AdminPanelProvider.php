@@ -192,6 +192,24 @@ class AdminPanelProvider extends PanelProvider
                             border-top-color: transparent;
                         }
 
+                        /* 목록 테이블 가로 스크롤 (데스크탑/모바일)
+                           - 메인 영역이 flex에서 스크롤 컨테이너가 되도록 min-width: 0 */
+                        .fi-main {
+                            min-width: 0;
+                        }
+                        .fi-list-table-wrapper {
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
+                        }
+                        .fi-list-table-wrapper .fi-ta-ctn {
+                            overflow: visible;
+                            min-width: min-content;
+                        }
+                        .fi-list-table-wrapper .fi-ta-content {
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
+                        }
+
                         /* 페이지네이션 영역을 container query 대상으로 설정
                            (.fi-ta에 적용하면 containment context가 테이블 전체를 감싸서
                            bulk actions 등 fixed/absolute 요소의 위치가 깨짐) */

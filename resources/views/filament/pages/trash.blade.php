@@ -43,8 +43,9 @@
                     <p class="fi-ta-empty-state-description text-sm text-gray-500 dark:text-gray-400 mt-1">{{ __('common.empty_states.trash_empty') }}</p>
                 </div>
             @else
-                <div class="fi-ta rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <table class="fi-ta-table w-full table-auto divide-y divide-gray-200 text-start dark:divide-white/5">
+                <div class="fi-list-table-wrapper overflow-x-auto min-w-0">
+                    <div class="fi-ta rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                    <table class="fi-ta-table w-full table-auto divide-y divide-gray-200 text-start dark:divide-white/5" style="min-width: min-content;">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-white/5">
                                 <th class="fi-ta-header-cell px-4 py-3 text-start text-sm font-semibold text-gray-950 dark:text-white">{{ __('common.trash_page.type_col') }}</th>
@@ -93,11 +94,14 @@
                             @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
             @endif
         @else
             {{-- 개별 모델 모드: Filament 테이블 --}}
-            {{ $this->table }}
+            <div class="fi-list-table-wrapper overflow-x-auto min-w-0">
+                {{ $this->table }}
+            </div>
         @endif
     </div>
 </x-filament-panels::page>

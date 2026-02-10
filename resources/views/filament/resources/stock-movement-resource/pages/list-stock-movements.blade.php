@@ -1,6 +1,7 @@
 <x-filament-panels::page>
     {{-- 테이블 --}}
     <div
+        class="fi-list-table-wrapper overflow-x-auto min-w-0"
         x-data
         @click="
             if (!$wire.slideOverMode || !$wire.selectedRecordId) return;
