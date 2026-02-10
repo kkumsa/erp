@@ -18,7 +18,7 @@ class ListProductCategories extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.product-category-resource.pages.list-product-categories';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

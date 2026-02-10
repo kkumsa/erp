@@ -18,7 +18,7 @@ class ListWarehouses extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.warehouse-resource.pages.list-warehouses';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

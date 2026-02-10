@@ -18,7 +18,7 @@ class ListInvoiceItems extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.invoice-item-resource.pages.list-invoice-items';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

@@ -18,7 +18,7 @@ class ListContracts extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.contract-resource.pages.list-contracts';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

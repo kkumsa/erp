@@ -18,7 +18,7 @@ class ListTimesheets extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.timesheet-resource.pages.list-timesheets';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

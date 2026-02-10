@@ -18,7 +18,7 @@ class ListLeaves extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.leave-resource.pages.list-leaves';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

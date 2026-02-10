@@ -18,7 +18,7 @@ class ListTasks extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.task-resource.pages.list-tasks';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

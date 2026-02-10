@@ -18,7 +18,7 @@ class ListContacts extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.contact-resource.pages.list-contacts';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

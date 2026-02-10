@@ -591,6 +591,7 @@ return [
         'register_payment' => 'Register Payment',
         'unmatch_confirm' => 'Remove the payment match for this deposit?',
         'drag_hint' => 'Drag to an invoice on the left',
+        'select_invoice_below' => 'Select an invoice below',
         'deposit_matching_note' => 'Deposit match: :name',
         'matching_success_body' => ':name ₩:amount → :invoice',
         'unmatching_success_body' => 'Payment match for :name has been removed.',

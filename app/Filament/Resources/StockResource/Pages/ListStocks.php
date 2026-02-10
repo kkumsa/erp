@@ -18,7 +18,7 @@ class ListStocks extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.stock-resource.pages.list-stocks';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

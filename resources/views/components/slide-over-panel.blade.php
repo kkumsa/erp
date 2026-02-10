@@ -21,6 +21,8 @@
 
         init() {
             this.pw = parseInt(localStorage.getItem(@js($storageKey))) || @js($defaultWidth);
+            // 모바일(768px 미만)에서는 슬라이드 패널을 열지 않음
+            if (window.innerWidth < 768) return;
             if (@js($show)) {
                 this.$nextTick(() => { this.isShown = true; });
             }
@@ -70,7 +72,7 @@
             document.body.style.pointerEvents = 'none';
         }
     }"
-    x-on:{{ $openEvent }}.window="pw = parseInt(localStorage.getItem(@js($storageKey))) || @js($defaultWidth); isShown = true; isLoading = true;"
+    x-on:{{ $openEvent }}.window="if (window.innerWidth < 768) return; pw = parseInt(localStorage.getItem(@js($storageKey))) || @js($defaultWidth); isShown = true; isLoading = true;"
     x-on:{{ $closeEvent }}.window="if (isShown) { close(); }"
     class="fixed inset-0 z-40 pointer-events-none overflow-hidden"
     x-show="isShown"

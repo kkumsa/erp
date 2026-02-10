@@ -18,7 +18,7 @@ class ListPurchaseOrders extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.purchase-order-resource.pages.list-purchase-orders';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

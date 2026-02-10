@@ -18,7 +18,7 @@ class ListBankDeposits extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.bank-deposit-resource.pages.list-bank-deposits';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

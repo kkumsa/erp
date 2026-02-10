@@ -598,6 +598,7 @@ return [
         'register_payment' => '결제 등록',
         'unmatch_confirm' => '이 입금 내역의 결제 매칭을 해제하시겠습니까?',
         'drag_hint' => '좌측 청구서로 드래그하세요',
+        'select_invoice_below' => '아래 청구서를 선택하세요',
         'deposit_matching_note' => '입금 내역 매칭: :name',
         'matching_success_body' => ':name ₩:amount → :invoice',
         'unmatching_success_body' => ':name의 결제 매칭이 해제되었습니다.',

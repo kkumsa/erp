@@ -18,7 +18,7 @@ class ListDepartments extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.department-resource.pages.list-departments';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

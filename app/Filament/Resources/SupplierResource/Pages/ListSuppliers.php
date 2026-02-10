@@ -18,7 +18,7 @@ class ListSuppliers extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.supplier-resource.pages.list-suppliers';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

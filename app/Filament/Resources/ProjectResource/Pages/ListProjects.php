@@ -17,7 +17,7 @@ class ListProjects extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.project-resource.pages.list-projects';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

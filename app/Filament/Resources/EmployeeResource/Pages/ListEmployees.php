@@ -18,7 +18,7 @@ class ListEmployees extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.employee-resource.pages.list-employees';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

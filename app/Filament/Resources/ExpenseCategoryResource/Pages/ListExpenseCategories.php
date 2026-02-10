@@ -18,7 +18,7 @@ class ListExpenseCategories extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.expense-category-resource.pages.list-expense-categories';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

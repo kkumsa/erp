@@ -18,7 +18,7 @@ class ListAttendances extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.attendance-resource.pages.list-attendances';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

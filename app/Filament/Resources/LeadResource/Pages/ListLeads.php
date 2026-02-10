@@ -18,7 +18,7 @@ class ListLeads extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.lead-resource.pages.list-leads';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

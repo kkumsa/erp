@@ -18,7 +18,7 @@ class ListOpportunities extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.opportunity-resource.pages.list-opportunities';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 

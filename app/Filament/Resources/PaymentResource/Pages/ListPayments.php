@@ -18,7 +18,7 @@ class ListPayments extends ListRecords implements HasInfolists
 
     protected static string $view = 'filament.resources.payment-resource.pages.list-payments';
 
-    public bool $slideOverMode = true;
+    public bool $slideOverMode = false;
 
     public ?int $selectedRecordId = null;
 
