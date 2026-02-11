@@ -1,18 +1,7 @@
 <x-filament-panels::page>
-    <div
-        class="fi-list-table-wrapper overflow-x-auto min-w-0"
-        x-data
-        @click="
-            if (!$wire.slideOverMode || !$wire.selectedRecordId) return;
-            const target = $event.target;
-            if (target.closest('tbody tr')) return;
-            if (target.closest('button, a, input, select, textarea, label, [role=button]')) return;
-            if (target.closest('.fi-slide-over-panel, [x-ref=panel]')) return;
-            window.dispatchEvent(new CustomEvent('panel-close'));
-        "
-    >
+    <x-list-table-wrapper>
         {{ $this->table }}
-    </div>
+    </x-list-table-wrapper>
 
     <x-slide-over-panel
         storage-key="expensePanelWidth"

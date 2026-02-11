@@ -31,12 +31,18 @@
                     setTimeout(() => { this.isLoading = false; }, 150);
                 });
             }
-            // 목록 항목이 아닌 어디를 클릭해도 패널 닫기 (document 레벨)
+            // 패널 밖 클릭 시 닫기 (데이터 행 클릭은 제외)
             const self = this;
             document.addEventListener('click', function(e) {
                 if (!self.isShown) return;
+                // 패널 내부 클릭은 무시
                 if (e.target.closest('.fi-slide-over-panel')) return;
-                if (e.target.closest('tbody tr')) return;
+                // 테이블 래퍼 밖이면 바로 닫기
+                if (!e.target.closest('.fi-list-table-wrapper')) { self.close(); return; }
+                // 테이블 래퍼 안: 데이터 행(그룹 헤더 아닌)은 무시
+                const tr = e.target.closest('tbody tr');
+                if (tr && !tr.querySelector('.fi-ta-group-header')) return;
+                // 그 외(헤더, 그룹 헤더, 빈 공간 등)는 닫기
                 self.close();
             });
         },

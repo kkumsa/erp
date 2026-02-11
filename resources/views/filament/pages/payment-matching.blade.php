@@ -11,6 +11,11 @@
         .pm-table { width: 100%; font-size: 0.875rem; }
         .pm-table th { padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
         .pm-table td { padding: 0.5rem 0.75rem; white-space: nowrap; }
+        .pm-cell-ellipsis { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+        .pm-card-ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pm-banner { padding: 0.5rem 1rem; background: rgb(59 130 246 / 0.1); border-bottom: 1px solid rgb(59 130 246 / 0.2); display: flex; align-items: center; justify-content: space-between; }
+        .pm-banner-btn { padding: 0.25rem; }
+        .pm-card-row { display: flex; justify-content: space-between; align-items: center; }
         .pm-cards { display: none; }
 
         @media (max-width: 767px) {
@@ -107,8 +112,8 @@
             <div class="pm-section fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="pm-header">
                     <div class="pm-header-row">
-                        <h3 class="text-sm font-semibold text-gray-950 dark:text-white" style="display:flex;align-items:center;gap:0.5rem;white-space:nowrap;">
-                            <x-heroicon-o-document-text class="h-4 w-4 text-gray-400" style="flex-shrink:0" />
+                        <h3 class="text-sm font-semibold text-gray-950 dark:text-white flex items-center gap-2 whitespace-nowrap">
+                            <x-heroicon-o-document-text class="h-4 w-4 text-gray-400 shrink-0" />
                             {{ __('common.payment_matching.invoice_list') }}
                         </h3>
                         <div class="pm-filters">
@@ -124,7 +129,7 @@
                 <div class="pm-scroll">
                     {{-- 테이블 (데스크톱) --}}
                     <table class="pm-table">
-                        <thead class="bg-gray-50 dark:bg-gray-800" style="position:sticky;top:0;z-index:10;">
+                        <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
                             <tr>
                                 <th class="text-start text-gray-500 dark:text-gray-400">{{ __('common.payment_matching.invoice_number_col') }}</th>
                                 <th class="text-start text-gray-500 dark:text-gray-400">{{ __('fields.customer') }}</th>
@@ -151,7 +156,7 @@
                                     class="transition-colors cursor-default"
                                 >
                                     <td class="font-medium text-gray-950 dark:text-white">{{ $invoice->invoice_number }}</td>
-                                    <td class="text-gray-600 dark:text-gray-400" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;">{{ $invoice->customer?->company_name ?? '-' }}</td>
+                                    <td class="text-gray-600 dark:text-gray-400 pm-cell-ellipsis">{{ $invoice->customer?->company_name ?? '-' }}</td>
                                     <td class="text-end text-gray-600 dark:text-gray-400">₩{{ number_format($invoice->total_amount) }}</td>
                                     <td class="text-end font-semibold {{ $balance > 0 ? 'text-danger-600 dark:text-danger-400' : 'text-success-600 dark:text-success-400' }}">₩{{ number_format($balance) }}</td>
                                     <td class="text-center">
@@ -165,12 +170,12 @@
                     </table>
 
                     {{-- 모바일 매칭 안내 배너 --}}
-                    <div class="pm-cards" x-show="mobileSelectingDeposit" style="display:none;">
-                        <div style="padding:0.5rem 1rem;background:rgb(59 130 246 / 0.1);border-bottom:1px solid rgb(59 130 246 / 0.2);display:flex;align-items:center;justify-content:space-between;">
+                    <div class="pm-cards" x-show="mobileSelectingDeposit" x-cloak>
+                        <div class="pm-banner">
                             <span class="text-xs font-medium text-primary-700 dark:text-primary-300">
                                 ↓ {{ __('common.payment_matching.select_invoice_below') }}
                             </span>
-                            <button @click="cancelMobileMatch()" class="text-xs text-gray-500 dark:text-gray-400" style="padding:0.25rem;">
+                            <button type="button" @click="cancelMobileMatch()" class="text-xs text-gray-500 dark:text-gray-400 pm-banner-btn">
                                 <x-heroicon-o-x-mark class="h-4 w-4 inline" />
                             </button>
                         </div>
@@ -194,12 +199,12 @@
                                 x-on:dragleave="dragLeave()"
                                 x-on:drop="drop($event, {{ $invoice->id }}, '{{ $invoice->invoice_number }}')"
                             >
-                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div class="pm-card-row">
                                     <span class="text-xs font-medium text-gray-950 dark:text-white">{{ $invoice->invoice_number }}</span>
                                     <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-{{ $statusColor }}-100 text-{{ $statusColor }}-700 dark:bg-{{ $statusColor }}-500/10 dark:text-{{ $statusColor }}-400">{{ $statusEnum?->getLabel() ?? $invoice->status }}</span>
                                 </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $invoice->customer?->company_name ?? '-' }}</div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;" class="text-xs">
+                                <div class="text-xs text-gray-500 dark:text-gray-400 pm-card-ellipsis">{{ $invoice->customer?->company_name ?? '-' }}</div>
+                                <div class="pm-card-row text-xs">
                                     <span class="text-gray-500">₩{{ number_format($invoice->total_amount) }}</span>
                                     <span class="font-semibold {{ $balance > 0 ? 'text-danger-600 dark:text-danger-400' : 'text-success-600 dark:text-success-400' }}">{{ __('fields.balance') }}: ₩{{ number_format($balance) }}</span>
                                 </div>
@@ -219,8 +224,8 @@
             <div class="pm-section fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="pm-header">
                     <div class="pm-header-row">
-                        <h3 class="text-sm font-semibold text-gray-950 dark:text-white" style="display:flex;align-items:center;gap:0.5rem;white-space:nowrap;">
-                            <x-heroicon-o-building-library class="h-4 w-4 text-gray-400" style="flex-shrink:0" />
+                        <h3 class="text-sm font-semibold text-gray-950 dark:text-white flex items-center gap-2 whitespace-nowrap">
+                            <x-heroicon-o-building-library class="h-4 w-4 text-gray-400 shrink-0" />
                             {{ __('common.payment_matching.deposit_list') }}
                         </h3>
                         <div class="pm-filters">
@@ -237,13 +242,13 @@
                 <div class="pm-scroll">
                     {{-- 테이블 (데스크톱) --}}
                     <table class="pm-table">
-                        <thead class="bg-gray-50 dark:bg-gray-800" style="position:sticky;top:0;z-index:10;">
+                        <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
                             <tr>
-                                <th class="text-center text-gray-500 dark:text-gray-400" style="width:2.5rem;">{{ __('common.payment_matching.processing_col') }}</th>
+                                <th class="text-center text-gray-500 dark:text-gray-400 w-10">{{ __('common.payment_matching.processing_col') }}</th>
                                 <th class="text-start text-gray-500 dark:text-gray-400">{{ __('common.payment_matching.deposit_date') }}</th>
                                 <th class="text-start text-gray-500 dark:text-gray-400">{{ __('common.payment_matching.depositor') }}</th>
                                 <th class="text-end text-gray-500 dark:text-gray-400">{{ __('fields.amount') }}</th>
-                                <th class="text-center text-gray-500 dark:text-gray-400" style="width:2.5rem;">{{ __('common.table.actions') }}</th>
+                                <th class="text-center text-gray-500 dark:text-gray-400 w-10">{{ __('common.table.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-white/5">
@@ -288,23 +293,22 @@
                     {{-- 카드 (모바일) --}}
                     <div class="pm-cards divide-y divide-gray-100 dark:divide-white/5">
                         @foreach($this->getDeposits() as $deposit)
-                            <div class="px-4 py-3 {{ $deposit->processed_at ? 'opacity-60' : '' }}"
-                                style="display:flex;align-items:flex-start;gap:0.75rem;"
+                            <div class="px-4 py-3 flex items-start gap-3 {{ $deposit->processed_at ? 'opacity-60' : '' }}"
                                 :class="{ 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-500/10': mobileSelectingDeposit === {{ $deposit->id }} }"
                             >
-                                <div style="flex-shrink:0;padding-top:0.125rem;">
+                                <div class="shrink-0 pt-0.5">
                                     @if($deposit->processed_at)
                                         <x-heroicon-s-check-circle class="h-5 w-5 text-success-500" />
                                     @else
                                         <div class="h-5 w-5 rounded border-2 border-gray-300 dark:border-gray-600"></div>
                                     @endif
                                 </div>
-                                <div style="flex:1;min-width:0;">
-                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <div class="flex-1 min-w-0">
+                                    <div class="pm-card-row">
                                         <span class="text-xs font-medium text-gray-950 dark:text-white">{{ $deposit->depositor_name }}</span>
                                         <span class="text-xs font-semibold {{ $deposit->processed_at ? 'text-gray-400' : 'text-gray-950 dark:text-white' }}">₩{{ number_format($deposit->amount) }}</span>
                                     </div>
-                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem;" class="text-xs text-gray-500 dark:text-gray-400">
+                                    <div class="pm-card-row mt-1 text-xs text-gray-500 dark:text-gray-400">
                                         <span>{{ $deposit->deposited_at->format('Y.m.d H:i') }}</span>
                                         @if($deposit->processed_at)
                                             <button wire:click="unmatchDeposit({{ $deposit->id }})" wire:confirm="{{ __('common.payment_matching.unmatch_confirm') }}" class="text-danger-600 dark:text-danger-400">
@@ -313,8 +317,7 @@
                                         @else
                                             <button
                                                 @click="startMobileMatch({{ $deposit->id }}, '{{ addslashes($deposit->depositor_name) }}', '₩{{ number_format($deposit->amount) }}')"
-                                                class="text-primary-600 dark:text-primary-400"
-                                                style="padding:0.125rem 0.375rem;border:1px solid currentColor;border-radius:0.375rem;font-size:0.65rem;"
+                                                class="text-primary-600 dark:text-primary-400 py-0.5 px-1.5 border border-current rounded text-[0.65rem]"
                                             >
                                                 {{ __('common.buttons.match') }}
                                             </button>

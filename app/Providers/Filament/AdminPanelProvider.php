@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Pretendard')
-            ->brandName('스타트업 ERP')
+            ->brandName('스타트업 GRP')
             ->brandLogo(null)
             ->favicon(asset('favicon.ico'))
             ->navigationGroups([
@@ -170,16 +170,13 @@ class AdminPanelProvider extends PanelProvider
                             margin-bottom: 0 !important;
                         }
 
-                        /* 사이드바 네비게이션 그룹 간격 통일 */
+                        /* 사이드바 네비게이션 그룹 간격·구분선 통일 */
                         .fi-sidebar-nav-groups {
                             gap: 0 !important;
                         }
                         .fi-sidebar-group {
                             padding-top: 0.5rem;
                             padding-bottom: 0.5rem;
-                        }
-                        /* 모든 그룹에 상단 구분선 (CSS order 사용 시 :first-child가 시각적 순서와 다를 수 있음) */
-                        .fi-sidebar-group {
                             border-top: 1px solid rgb(229 231 235);
                         }
                         .fi-sidebar-group:first-child {
